@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "DMS",
+    "slug": "dms-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "dms",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F1E8"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.syandrix.dms"
+    },
+    "android": {
+      "package": "com.syandrix.dms",
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}

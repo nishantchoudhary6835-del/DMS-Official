@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Expo build + cache artefacts
+.expo/
+dist/
+web-build/
+webdist/
+*.orig.*
+
+# Native build outputs (this project uses Expo managed workflow)
+/ios
+/android
+
+# Real environment values — only .env.example is committed
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS noise
+.DS_Store
+Thumbs.db
