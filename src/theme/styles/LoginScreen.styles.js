@@ -12,44 +12,47 @@ export const styles = StyleSheet.create({
   },
 
   brand: {
-    marginBottom: theme.spacing.xxxl,
+    marginBottom: theme.spacing.xl,
   },
 
   card: {
     width: '100%',
     maxWidth: 440,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.xl,
+    borderRadius: theme.radius.hero,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
-    paddingHorizontal: theme.spacing.xxl,
-    paddingTop: theme.spacing.xxxl,
-    paddingBottom: theme.spacing.xxl,
-    ...theme.elevation.card,
+    // Clips the gradient to the card's top corners.
+    overflow: 'hidden',
+    ...theme.elevation.raised,
   },
 
-  accentBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: theme.colors.accent,
-    borderTopLeftRadius: theme.radius.xl,
-    borderTopRightRadius: theme.radius.xl,
+  // --- Signal header -----------------------------------------------------
+  cardHeader: {
+    paddingHorizontal: theme.spacing.xl,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.lg,
   },
-
+  eyebrow: {
+    ...theme.typography.overline,
+    color: theme.colors.gradient.onGradientMuted,
+    marginBottom: 5,
+  },
   title: {
-    ...theme.typography.h1,
-    color: theme.colors.textPrimary,
-    textAlign: 'center',
+    ...theme.typography.displaySm,
+    color: theme.colors.gradient.onGradient,
+  },
+
+  // --- Bureau body -------------------------------------------------------
+  cardBody: {
+    paddingHorizontal: theme.spacing.xl,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl,
   },
   subtitle: {
     ...theme.typography.caption,
     color: theme.colors.textSecondary,
-    textAlign: 'center',
-    marginTop: theme.spacing.xs,
-    marginBottom: theme.spacing.xxl,
+    marginBottom: theme.spacing.lg,
   },
 
   action: {
@@ -60,7 +63,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: theme.spacing.lg,
+    marginTop: theme.spacing.md,
   },
   footerText: {
     ...theme.typography.caption,

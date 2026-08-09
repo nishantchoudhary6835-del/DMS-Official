@@ -82,7 +82,8 @@ export function UserListScreen({ navigation }) {
     <Screen background="canvas" scrollable={false} padded={false}>
       <View style={styles.header}>
         <Button
-          title="← Back"
+          title="Back"
+          icon="chevron-back"
           onPress={() => navigation.goBack()}
           variant="text"
           fullWidth={false}

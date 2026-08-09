@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
@@ -8,6 +9,8 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { theme } from '@theme';
 
 import { Button } from '@components/common/Button';
 import { Chip } from '@components/common/Chip';
@@ -191,7 +194,12 @@ export function EmployeeListScreen({ navigation }) {
         <Text style={styles.filterToggleLabel}>
           Filters{totalFilterCount ? ` (${totalFilterCount})` : ''}
         </Text>
-        <Text style={styles.filterChevron}>{isFiltersOpen ? '▴' : '▾'}</Text>
+        <Ionicons
+          name={isFiltersOpen ? 'chevron-up' : 'chevron-down'}
+          size={14}
+          color={theme.colors.textSecondary}
+          style={styles.filterChevron}
+        />
       </Pressable>
 
       {totalFilterCount ? (
@@ -279,13 +287,15 @@ export function EmployeeListScreen({ navigation }) {
     <Screen background="canvas" scrollable={false} padded={false}>
       <View style={styles.header}>
         <Button
-          title="← Back"
+          title="Back"
+          icon="chevron-back"
           onPress={() => navigation.goBack()}
           variant="text"
           fullWidth={false}
         />
         <Button
-          title="+ New"
+          title="New"
+          icon="add"
           onPress={() => navigation.navigate(ROUTES.MAIN.CREATE_EMPLOYEE)}
           variant="text"
           fullWidth={false}

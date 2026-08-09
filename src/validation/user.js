@@ -22,6 +22,13 @@ export const ACCOUNT_STATUS_TONES = {
   SUSPENDED: 'danger',
 };
 
+/** Left-edge spine colour on account cards. Keys into colors.spine. */
+export const ACCOUNT_STATUS_SPINES = {
+  ACTIVE: 'success',
+  INACTIVE: 'neutral',
+  SUSPENDED: 'primary',
+};
+
 export function mapUserError(normalized) {
   const message = String(normalized.message ?? '');
 

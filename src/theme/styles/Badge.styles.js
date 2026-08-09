@@ -2,23 +2,24 @@ import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
+/**
+ * Bureau badges carry meaning by tint alone — no border, squared corners.
+ * The uppercase tracking is what makes them read as status rather than
+ * as a word someone typed.
+ */
 export const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: theme.spacing.sm,
+    paddingHorizontal: 7,
     paddingVertical: 3,
-    borderRadius: theme.radius.full,
-    borderWidth: 1,
+    borderRadius: theme.radius.sm,
   },
   label: {
-    ...theme.typography.small,
-    fontWeight: '600',
-    letterSpacing: 0.3,
+    ...theme.typography.overline,
   },
 
   neutral: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceSunk,
   },
   neutralLabel: {
     color: theme.colors.textSecondary,
@@ -26,7 +27,6 @@ export const styles = StyleSheet.create({
 
   success: {
     backgroundColor: theme.colors.successLight,
-    borderColor: theme.colors.success,
   },
   successLabel: {
     color: theme.colors.success,
@@ -34,17 +34,22 @@ export const styles = StyleSheet.create({
 
   accent: {
     backgroundColor: theme.colors.accentLight,
-    borderColor: theme.colors.accent,
   },
   accentLabel: {
-    color: '#8A5A08',
+    color: theme.colors.accent,
   },
 
   danger: {
     backgroundColor: theme.colors.dangerLight,
-    borderColor: theme.colors.danger,
   },
   dangerLabel: {
     color: theme.colors.danger,
+  },
+
+  info: {
+    backgroundColor: theme.colors.infoLight,
+  },
+  infoLabel: {
+    color: theme.colors.info,
   },
 });

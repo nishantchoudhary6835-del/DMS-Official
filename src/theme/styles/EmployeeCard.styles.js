@@ -3,16 +3,52 @@ import { StyleSheet } from 'react-native';
 import { theme } from '@theme';
 
 export const styles = StyleSheet.create({
+  wrap: {
+    marginBottom: theme.spacing.sm,
+  },
   card: {
     backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
+    borderLeftWidth: theme.spine.width,
+    paddingTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    ...theme.elevation.card,
+  },
+  spineActive: {
+    borderLeftColor: theme.colors.spine.success,
+  },
+  spineInactive: {
+    borderLeftColor: theme.colors.spine.neutral,
   },
   pressed: {
-    opacity: 0.75,
+    backgroundColor: theme.colors.surface,
+  },
+
+  body: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+
+  avatar: {
+    width: 38,
+    height: 38,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: theme.spacing.md,
+  },
+  avatarLabel: {
+    ...theme.typography.label,
+    fontSize: 12.5,
+    color: theme.colors.primary,
+  },
+
+  details: {
+    flex: 1,
+    minWidth: 0,
   },
 
   topRow: {
@@ -30,55 +66,55 @@ export const styles = StyleSheet.create({
   email: {
     ...theme.typography.caption,
     color: theme.colors.textSecondary,
-    marginTop: 2,
+    marginTop: 1,
   },
 
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
   },
   employeeId: {
+    ...theme.typography.monoSmall,
+    color: theme.colors.textMuted,
+  },
+  metaDot: {
     ...theme.typography.small,
     color: theme.colors.textMuted,
-    marginLeft: theme.spacing.sm,
-    letterSpacing: 0.5,
+    marginHorizontal: 5,
+  },
+  role: {
+    ...theme.typography.small,
+    color: theme.colors.textSecondary,
+    flexShrink: 1,
   },
 
   placement: {
     ...theme.typography.small,
     color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
+    marginTop: 3,
   },
   placementEmpty: {
     ...theme.typography.small,
     color: theme.colors.textMuted,
-    fontStyle: 'italic',
-    marginTop: theme.spacing.sm,
+    marginTop: 3,
   },
 
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
+    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.cardBorder,
-  },
-  dot: {
-    width: 7,
-    height: 7,
-    borderRadius: theme.radius.full,
-    marginRight: theme.spacing.sm,
-  },
-  dotOn: {
-    backgroundColor: theme.colors.success,
-  },
-  dotOff: {
-    backgroundColor: theme.colors.textMuted,
+    borderTopColor: theme.colors.surfaceSunk,
   },
   registration: {
     ...theme.typography.small,
     color: theme.colors.textSecondary,
+    marginLeft: 6,
+    flex: 1,
+  },
+  chevron: {
+    marginLeft: theme.spacing.sm,
   },
 });

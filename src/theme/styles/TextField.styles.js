@@ -7,12 +7,12 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing.xs,
   },
   label: {
-    ...theme.typography.label,
-    color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.xs,
+    ...theme.typography.overline,
+    color: theme.colors.textSecondary,
+    marginBottom: 5,
   },
   input: {
-    height: 42,
+    height: 44,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
@@ -21,9 +21,11 @@ export const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     backgroundColor: theme.colors.background,
   },
+  // Crimson focus ring — the one place the brand colour appears on a form.
   inputFocused: {
     borderColor: theme.colors.borderFocus,
     borderWidth: 1.5,
+    backgroundColor: theme.colors.card,
   },
   inputError: {
     borderColor: theme.colors.danger,

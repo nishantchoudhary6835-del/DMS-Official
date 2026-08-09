@@ -7,54 +7,79 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
 
-  identity: {
+  // --- Signal hero -------------------------------------------------------
+  hero: {
     marginBottom: theme.spacing.xl,
   },
-  identityLabel: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
+  heroLabel: {
+    ...theme.typography.overline,
+    color: theme.colors.gradient.onGradientMuted,
   },
-  identityValue: {
-    ...theme.typography.bodyBold,
-    color: theme.colors.textPrimary,
-    marginTop: 2,
+  heroValue: {
+    ...theme.typography.display,
+    color: theme.colors.gradient.onGradient,
+    marginTop: theme.spacing.xs,
+  },
+  heroRule: {
+    height: 1,
+    backgroundColor: theme.colors.gradient.hairline,
+    marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+  },
+  heroFooter: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+  },
+  heroMeta: {
+    ...theme.typography.small,
+    color: theme.colors.gradient.onGradientMuted,
+    marginRight: 6,
+  },
+  heroEmail: {
+    ...theme.typography.label,
+    color: theme.colors.gradient.onGradient,
+    flexShrink: 1,
   },
 
+  // --- Bureau tiles ------------------------------------------------------
   sectionLabel: {
-    ...theme.typography.small,
+    ...theme.typography.overline,
     color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
     marginBottom: theme.spacing.sm,
   },
 
   tileGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    // Cancels the trailing marginRight on the last tile in each row.
+    marginRight: -theme.spacing.sm,
     marginBottom: theme.spacing.lg,
   },
   tile: {
-    width: '48%',
+    flexGrow: 1,
+    flexBasis: '30%',
+    minWidth: 96,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
+    borderLeftWidth: theme.spine.width,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+    marginRight: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+    ...theme.elevation.card,
   },
+  spine_primary: { borderLeftColor: theme.colors.spine.primary },
+  spine_accent: { borderLeftColor: theme.colors.spine.accent },
+  spine_success: { borderLeftColor: theme.colors.spine.success },
+  spine_info: { borderLeftColor: theme.colors.spine.info },
+  spine_neutral: { borderLeftColor: theme.colors.spine.neutral },
+
   tileValue: {
-    ...theme.typography.h1,
+    ...theme.typography.displaySm,
     color: theme.colors.textPrimary,
-  },
-  tileValueAccent: {
-    color: theme.colors.warning,
-  },
-  tileValueMuted: {
-    color: theme.colors.textMuted,
   },
   tileLabel: {
     ...theme.typography.small,
@@ -65,12 +90,11 @@ export const styles = StyleSheet.create({
   unavailable: {
     ...theme.typography.small,
     color: theme.colors.textMuted,
-    fontStyle: 'italic',
     marginBottom: theme.spacing.lg,
   },
 
   action: {
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
   },
 
   errorBlock: {

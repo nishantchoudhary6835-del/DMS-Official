@@ -1,48 +1,95 @@
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRef } from 'react';
+import { ActivityIndicator, Animated, Platform, Pressable, Text, View } from 'react-native';
 
 import { theme } from '@theme';
 
 import { styles } from '@theme/styles/Button.styles';
 
+// Transforms can run on the native thread, but react-native-web has no
+// native driver — passing true there logs a warning on every press.
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
+
+const LABEL_COLOR = {
+  primary: theme.colors.textOnPrimary,
+  danger: theme.colors.textOnPrimary,
+  secondary: theme.colors.textPrimary,
+  text: theme.colors.primary,
+};
+
 export function Button({
   title,
   onPress,
   variant = 'primary',
+  icon,
   loading = false,
   disabled = false,
   fullWidth = true,
   style,
 }) {
   const isInteractionBlocked = loading || disabled;
-  const isSolid = variant !== 'secondary' && variant !== 'text';
+  const scale = useRef(new Animated.Value(1)).current;
 
+  const press = (toValue) => {
+    Animated.spring(scale, {
+      toValue,
+      speed: 40,
+      bounciness: 0,
+      useNativeDriver: USE_NATIVE_DRIVER,
+    }).start();
+  };
+
+  const contentColor = disabled
+    ? theme.colors.textMuted
+    : (LABEL_COLOR[variant] ?? theme.colors.textPrimary);
+
+  // The transform lives on an Animated.View wrapper rather than on the
+  // Pressable itself: Animated cannot walk a function-style prop, so an
+  // AnimatedValue placed inside one is passed through unresolved.
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={isInteractionBlocked}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: isInteractionBlocked, busy: loading }}
-      style={({ pressed }) => [
-        styles.base,
-        styles[variant],
+    <Animated.View
+      style={[
+        styles.wrap,
         fullWidth && styles.fullWidth,
-        pressed && !isInteractionBlocked && styles[`${variant}Pressed`],
-        disabled && styles.disabled,
+        { transform: [{ scale }] },
         style,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={
-            isSolid ? theme.colors.textOnPrimary : theme.colors.primary
-          }
-        />
-      ) : (
-        <View style={styles.labelWrap}>
-          <Text style={[styles.label, styles[`${variant}Label`]]}>{title}</Text>
-        </View>
-      )}
-    </Pressable>
+      <Pressable
+        onPress={onPress}
+        onPressIn={() => !isInteractionBlocked && press(0.975)}
+        onPressOut={() => press(1)}
+        disabled={isInteractionBlocked}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: isInteractionBlocked, busy: loading }}
+        style={({ pressed }) => [
+          styles.base,
+          styles[variant],
+          pressed && !isInteractionBlocked && styles[`${variant}Pressed`],
+          disabled && styles.disabled,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color={contentColor} />
+        ) : (
+          <View style={styles.labelWrap}>
+            {icon ? (
+              <Ionicons
+                name={icon}
+                size={17}
+                color={contentColor}
+                style={styles.icon}
+              />
+            ) : null}
+            <Text
+              style={[styles.label, { color: contentColor }]}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }

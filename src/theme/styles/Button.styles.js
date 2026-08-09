@@ -3,19 +3,28 @@ import { StyleSheet } from 'react-native';
 import { theme } from '@theme';
 
 export const styles = StyleSheet.create({
-  base: {
-    minHeight: 44,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.lg,
+  // Layout lives on the animated wrapper; `base` fills whatever it is given.
+  wrap: {
+    alignSelf: 'flex-start',
   },
   fullWidth: {
     alignSelf: 'stretch',
   },
+  base: {
+    minHeight: 46,
+    borderRadius: theme.radius.md,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.lg,
+  },
   labelWrap: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: 7,
   },
   label: {
     ...theme.typography.button,
@@ -32,15 +41,16 @@ export const styles = StyleSheet.create({
   },
 
   secondary: {
-    backgroundColor: theme.colors.transparent,
+    backgroundColor: theme.colors.card,
     borderWidth: 1,
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.border,
   },
   secondaryPressed: {
-    backgroundColor: theme.colors.primaryLight,
+    backgroundColor: theme.colors.surfaceSunk,
+    borderColor: theme.colors.textMuted,
   },
   secondaryLabel: {
-    color: theme.colors.primary,
+    color: theme.colors.textPrimary,
   },
 
   danger: {
@@ -55,11 +65,11 @@ export const styles = StyleSheet.create({
 
   text: {
     backgroundColor: theme.colors.transparent,
-    minHeight: 36,
+    minHeight: 38,
     paddingHorizontal: theme.spacing.sm,
   },
   textPressed: {
-    opacity: 0.6,
+    opacity: 0.55,
   },
   textLabel: {
     color: theme.colors.primary,
@@ -68,5 +78,8 @@ export const styles = StyleSheet.create({
   disabled: {
     backgroundColor: theme.colors.disabled,
     borderColor: theme.colors.disabled,
+  },
+  disabledLabel: {
+    color: theme.colors.textMuted,
   },
 });

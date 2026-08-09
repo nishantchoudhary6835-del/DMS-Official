@@ -1,5 +1,8 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { FlatList, Modal, Pressable, Text, View } from 'react-native';
+
+import { theme } from '@theme';
 
 import { styles } from '@theme/styles/Select.styles';
 
@@ -46,7 +49,11 @@ export function Select({
         >
           {selected ? selected.label : placeholder}
         </Text>
-        <Text style={styles.chevron}>{isOpen ? '▴' : '▾'}</Text>
+        <Ionicons
+          name={isOpen ? 'chevron-up' : 'chevron-down'}
+          size={16}
+          color={disabled ? theme.colors.disabled : theme.colors.textMuted}
+        />
       </Pressable>
 
       <Text
@@ -94,7 +101,13 @@ export function Select({
                         <Text style={styles.optionHint}>{item.hint}</Text>
                       ) : null}
                     </View>
-                    {isSelected ? <Text style={styles.tick}>✓</Text> : null}
+                    {isSelected ? (
+                      <Ionicons
+                        name="checkmark"
+                        size={18}
+                        color={theme.colors.primary}
+                      />
+                    ) : null}
                   </Pressable>
                 );
               }}

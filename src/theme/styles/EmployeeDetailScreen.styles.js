@@ -37,16 +37,14 @@ export const styles = StyleSheet.create({
   },
 
   sectionLabel: {
-    ...theme.typography.small,
+    ...theme.typography.overline,
     color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
     marginTop: theme.spacing.md,
     marginBottom: theme.spacing.xs,
   },
   section: {
     backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
     paddingHorizontal: theme.spacing.lg,
@@ -60,7 +58,7 @@ export const styles = StyleSheet.create({
   },
   rowDivider: {
     borderTopWidth: 1,
-    borderTopColor: theme.colors.cardBorder,
+    borderTopColor: theme.colors.surfaceSunk,
   },
   rowLabel: {
     ...theme.typography.caption,
@@ -76,7 +74,6 @@ export const styles = StyleSheet.create({
   rowValueMuted: {
     ...theme.typography.caption,
     color: theme.colors.textMuted,
-    fontStyle: 'italic',
     flexShrink: 1,
     textAlign: 'right',
   },
@@ -128,10 +125,8 @@ export const styles = StyleSheet.create({
     borderTopColor: theme.colors.cardBorder,
   },
   dangerLabel: {
-    ...theme.typography.small,
+    ...theme.typography.overline,
     color: theme.colors.danger,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
     marginBottom: theme.spacing.sm,
   },
 

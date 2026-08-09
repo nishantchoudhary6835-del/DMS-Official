@@ -1,14 +1,20 @@
-import { Pressable, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRef } from 'react';
+import { Animated, Platform, Pressable, Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
-import { formatDate } from '@utils/format';
+import { theme } from '@theme';
+import { formatDate, initialsOf } from '@utils/format';
 import { HIERARCHY_LABELS } from '@validation/employee';
 import {
   ACCOUNT_STATUS_LABELS,
+  ACCOUNT_STATUS_SPINES,
   ACCOUNT_STATUS_TONES,
 } from '@validation/user';
 
 import { styles } from '@theme/styles/UserCard.styles';
+
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
 export function employeeOf(user) {
   const reference = user?.employeeId;
@@ -29,65 +35,116 @@ export function UserCard({ user, onPress }) {
   const isLocked = Boolean(user.lockUntil);
   const failedAttempts = Number(user.failedLoginAttempts ?? 0);
 
+  const spineColor =
+    theme.colors.spine[ACCOUNT_STATUS_SPINES[status] ?? 'neutral'];
+
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const press = (toValue) => {
+    Animated.spring(scale, {
+      toValue,
+      speed: 44,
+      bounciness: 0,
+      useNativeDriver: USE_NATIVE_DRIVER,
+    }).start();
+  };
+
+  // Animated cannot walk a function-style prop, so the transform sits on a
+  // wrapper and the Pressable keeps its pressed-state styling.
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole={onPress ? 'button' : undefined}
-      style={({ pressed }) => [styles.card, pressed && onPress && styles.pressed]}
-    >
-      <View style={styles.topRow}>
-        <Text style={styles.name} numberOfLines={1}>
-          {fullName || user.email}
-        </Text>
-        <Badge
-          label={ACCOUNT_STATUS_LABELS[status] ?? status}
-          tone={ACCOUNT_STATUS_TONES[status] ?? 'neutral'}
-        />
-      </View>
+    <Animated.View style={[styles.wrap, { transform: [{ scale }] }]}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={() => onPress && press(0.985)}
+        onPressOut={() => press(1)}
+        disabled={!onPress}
+        accessibilityRole={onPress ? 'button' : undefined}
+        style={({ pressed }) => [
+          styles.card,
+          { borderLeftColor: spineColor },
+          pressed && onPress && styles.pressed,
+        ]}
+      >
+        <View style={styles.body}>
+          <View style={[styles.avatar, isLocked && styles.avatarLocked]}>
+            {isLocked ? (
+              <Ionicons
+                name="lock-closed"
+                size={16}
+                color={theme.colors.danger}
+              />
+            ) : (
+              <Text style={styles.avatarLabel}>
+                {initialsOf(employee?.firstName, employee?.lastName, user.email)}
+              </Text>
+            )}
+          </View>
 
-      <Text style={styles.email} numberOfLines={1}>
-        {user.email}
-      </Text>
+          <View style={styles.details}>
+            <View style={styles.topRow}>
+              <Text style={styles.name} numberOfLines={1}>
+                {fullName || user.email}
+              </Text>
+              <Badge
+                label={ACCOUNT_STATUS_LABELS[status] ?? status}
+                tone={ACCOUNT_STATUS_TONES[status] ?? 'neutral'}
+              />
+            </View>
 
-      <View style={styles.metaRow}>
-        {employee ? (
-          <Badge
-            label={
-              HIERARCHY_LABELS[employee.hierarchyLevel] ??
-              employee.hierarchyLevel
-            }
-            tone="accent"
-            style={styles.badgeGap}
-          />
-        ) : null}
+            <Text style={styles.email} numberOfLines={1}>
+              {user.email}
+            </Text>
 
-        <Badge
-          label={user.isEmailVerified ? 'Email verified' : 'Email unverified'}
-          tone={user.isEmailVerified ? 'success' : 'neutral'}
-          style={styles.badgeGap}
-        />
+            <View style={styles.metaRow}>
+              {employee ? (
+                <Badge
+                  label={
+                    HIERARCHY_LABELS[employee.hierarchyLevel] ??
+                    employee.hierarchyLevel
+                  }
+                  tone="accent"
+                  style={styles.badgeGap}
+                />
+              ) : null}
 
-        {isLocked ? (
-          <Badge label="Locked" tone="danger" style={styles.badgeGap} />
-        ) : null}
-      </View>
+              <Badge
+                label={
+                  user.isEmailVerified ? 'Email verified' : 'Email unverified'
+                }
+                tone={user.isEmailVerified ? 'success' : 'neutral'}
+                style={styles.badgeGap}
+              />
 
-      <View style={styles.footer}>
-        <Text style={styles.footerLine}>
-          {employee?.employeeId ? `${employee.employeeId} · ` : ''}
-          {user.lastLogin
-            ? `Last signed in ${formatDate(user.lastLogin)}`
-            : 'Never signed in'}
-        </Text>
+              {isLocked ? (
+                <Badge label="Locked" tone="danger" style={styles.badgeGap} />
+              ) : null}
+            </View>
+          </View>
+        </View>
 
-        {failedAttempts > 0 ? (
-          <Text style={styles.footerWarn}>
-            {failedAttempts} failed sign-in{failedAttempts === 1 ? '' : 's'}
-            {isLocked ? ` · locked until ${formatDate(user.lockUntil)}` : ''}
-          </Text>
-        ) : null}
-      </View>
-    </Pressable>
+        <View style={styles.footer}>
+          <View style={styles.footerRow}>
+            {employee?.employeeId ? (
+              <>
+                <Text style={styles.code}>{employee.employeeId}</Text>
+                <Text style={styles.footerDot}>·</Text>
+              </>
+            ) : null}
+            <Text style={styles.footerLine} numberOfLines={1}>
+              {user.lastLogin
+                ? `Last signed in ${formatDate(user.lastLogin)}`
+                : 'Never signed in'}
+            </Text>
+          </View>
+
+          {failedAttempts > 0 ? (
+            <Text style={styles.footerWarn}>
+              {failedAttempts} failed sign-in{failedAttempts === 1 ? '' : 's'}
+              {isLocked ? ` · locked until ${formatDate(user.lockUntil)}` : ''}
+            </Text>
+          ) : null}
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }

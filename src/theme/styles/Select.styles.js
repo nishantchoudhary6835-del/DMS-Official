@@ -36,11 +36,6 @@ export const styles = StyleSheet.create({
   placeholder: {
     color: theme.colors.textMuted,
   },
-  chevron: {
-    ...theme.typography.caption,
-    color: theme.colors.textMuted,
-    marginLeft: theme.spacing.sm,
-  },
   message: {
     ...theme.typography.small,
     minHeight: 15,
@@ -65,9 +60,9 @@ export const styles = StyleSheet.create({
     maxWidth: 380,
     maxHeight: '75%',
     backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.xl,
+    borderRadius: theme.radius.lg,
     paddingVertical: theme.spacing.lg,
-    ...theme.elevation.card,
+    ...theme.elevation.raised,
   },
   sheetTitle: {
     ...theme.typography.h3,
@@ -100,20 +95,14 @@ export const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
   },
   optionLabelSelected: {
+    ...theme.typography.bodyBold,
     color: theme.colors.primary,
-    fontWeight: '600',
   },
   optionHint: {
     ...theme.typography.small,
     color: theme.colors.textMuted,
     marginTop: 1,
   },
-  tick: {
-    ...theme.typography.body,
-    color: theme.colors.primary,
-    marginLeft: theme.spacing.sm,
-  },
-
   clear: {
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.md,
@@ -122,8 +111,7 @@ export const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
   },
   clearLabel: {
-    ...theme.typography.caption,
+    ...theme.typography.label,
     color: theme.colors.danger,
-    fontWeight: '600',
   },
 });

@@ -5,20 +5,20 @@ import { theme } from '@theme';
 export const styles = StyleSheet.create({
   notice: {
     backgroundColor: theme.colors.accentLight,
-    borderWidth: 1,
-    borderColor: theme.colors.accent,
     borderRadius: theme.radius.md,
+    borderLeftWidth: theme.spine.width,
+    borderLeftColor: theme.colors.spine.accent,
     padding: theme.spacing.md,
     marginTop: theme.spacing.sm,
     marginBottom: theme.spacing.md,
   },
   noticeTitle: {
     ...theme.typography.label,
-    color: '#8A5A08',
+    color: theme.colors.accent,
     marginBottom: 2,
   },
   noticeBody: {
     ...theme.typography.small,
-    color: '#8A5A08',
+    color: theme.colors.accent,
   },
 });

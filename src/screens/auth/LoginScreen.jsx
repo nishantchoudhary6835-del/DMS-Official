@@ -1,7 +1,9 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { BrandMark } from '@components/common/BrandMark';
+import { theme } from '@theme';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { TextField } from '@components/common/TextField';
@@ -60,55 +62,64 @@ export function LoginScreen({ navigation }) {
         <BrandMark size="large" showTagline style={styles.brand} />
 
         <View style={styles.card}>
-          <View style={styles.accentBar} />
+          <LinearGradient
+            colors={theme.colors.gradient.brand}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardHeader}
+          >
+            <Text style={styles.eyebrow}>Document Management System</Text>
+            <Text style={styles.title}>Welcome back</Text>
+          </LinearGradient>
 
-          <Text style={styles.title}>Welcome back</Text>
-          <Text style={styles.subtitle}>
-            Sign in to your DMS account to continue.
-          </Text>
+          <View style={styles.cardBody}>
+            <Text style={styles.subtitle}>
+              Sign in with the work email your account was set up against.
+            </Text>
 
-          <ErrorBanner message={error} />
+            <ErrorBanner message={error} />
 
-          <TextField
-            label="Email"
-            value={email}
-            onChangeText={handleEmailChange}
-            error={emailError}
-            placeholder="you@company.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="email"
-            textContentType="emailAddress"
-            editable={!isSubmitting}
-            returnKeyType="next"
-            onSubmitEditing={() => passwordRef.current?.focus()}
-            blurOnSubmit={false}
-          />
+            <TextField
+              label="Email"
+              value={email}
+              onChangeText={handleEmailChange}
+              error={emailError}
+              placeholder="you@company.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              editable={!isSubmitting}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              blurOnSubmit={false}
+            />
 
-          <TextField
-            ref={passwordRef}
-            label="Password"
-            value={password}
-            onChangeText={handlePasswordChange}
-            error={passwordError}
-            placeholder="Enter your password"
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            textContentType="password"
-            autoComplete="current-password"
-            editable={!isSubmitting}
-            returnKeyType="go"
-            onSubmitEditing={handleSubmit}
-          />
+            <TextField
+              ref={passwordRef}
+              label="Password"
+              value={password}
+              onChangeText={handlePasswordChange}
+              error={passwordError}
+              placeholder="Enter your password"
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType="password"
+              autoComplete="current-password"
+              editable={!isSubmitting}
+              returnKeyType="go"
+              onSubmitEditing={handleSubmit}
+            />
 
-          <Button
-            title="Sign in"
-            onPress={handleSubmit}
-            loading={isSubmitting}
-            style={styles.action}
-          />
+            <Button
+              title="Sign in"
+              onPress={handleSubmit}
+              loading={isSubmitting}
+              style={styles.action}
+            />
+          </View>
         </View>
 
         <View style={styles.footer}>

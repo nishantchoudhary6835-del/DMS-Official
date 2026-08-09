@@ -1,5 +1,7 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text, View } from 'react-native';
 
+import { theme } from '@theme';
 import { PASSWORD_RULES } from '@validation/auth';
 
 import { styles } from '@theme/styles/PasswordRules.styles';
@@ -18,11 +20,12 @@ export function PasswordRules({ password = '', visible = true }) {
 
         return (
           <View key={rule.id} style={styles.row}>
-            <Text
-              style={[styles.marker, satisfied ? styles.markerOn : styles.markerOff]}
-            >
-              {satisfied ? '✓' : '○'}
-            </Text>
+            <Ionicons
+              name={satisfied ? 'checkmark-circle' : 'ellipse-outline'}
+              size={15}
+              color={satisfied ? theme.colors.success : theme.colors.textMuted}
+              style={styles.marker}
+            />
 
             <Text
               style={[styles.label, satisfied ? styles.labelOn : styles.labelOff]}

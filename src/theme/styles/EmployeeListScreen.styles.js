@@ -40,9 +40,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginRight: theme.spacing.sm,
   },
+  // Matches the compact TextField's input height so the two sit level.
   searchButton: {
-    minHeight: 42,
-    height: 42,
+    minHeight: 44,
+    height: 44,
+    paddingHorizontal: theme.spacing.md,
   },
 
   suggestions: {
@@ -88,12 +90,10 @@ export const styles = StyleSheet.create({
     paddingRight: theme.spacing.sm,
   },
   filterToggleLabel: {
-    ...theme.typography.label,
-    color: theme.colors.primary,
+    ...theme.typography.overline,
+    color: theme.colors.textSecondary,
   },
   filterChevron: {
-    ...theme.typography.small,
-    color: theme.colors.primary,
     marginLeft: theme.spacing.xs,
   },
   filterSummary: {
@@ -103,9 +103,8 @@ export const styles = StyleSheet.create({
     marginRight: theme.spacing.sm,
   },
   filterClear: {
-    ...theme.typography.small,
+    ...theme.typography.overline,
     color: theme.colors.danger,
-    fontWeight: '600',
   },
 
   filterGroups: {

@@ -1,33 +1,69 @@
+/**
+ * Bureau palette.
+ *
+ * Crimson is structural, not decorative — it appears as spines, underlines
+ * and focus rings, and as a fill only on the primary button. Semantic
+ * colour (success / warning / danger) is kept separate from the brand
+ * accent so status never competes with navigation.
+ *
+ * Amber is deepened from the logo's #E8A020 to #B87A0C for anything
+ * bearing text; #E8A020 itself only survives on dark or gradient grounds,
+ * where it lives as accentBright.
+ */
 export const colors = {
   primary: '#A81E24',
-  primaryDark: '#82161B',
-  primaryLight: '#FBEAEB',
+  primaryDark: '#8A181D',
+  primaryLight: '#F6EAEA',
 
-  accent: '#E8A020',
-  accentLight: '#FDF3E0',
+  accent: '#B87A0C',
+  accentLight: '#FBF3E3',
+  accentBright: '#E8A020',
 
-  danger: '#DC2626',
-  dangerDark: '#B91C1C',
-  dangerLight: '#FEE2E2',
-  success: '#16A34A',
-  successLight: '#DCFCE7',
-  warning: '#D97706',
+  danger: '#C1121F',
+  dangerDark: '#9A0E19',
+  dangerLight: '#FBEAEB',
+  success: '#2E6B3F',
+  successLight: '#E7F2E9',
+  warning: '#B87A0C',
+  info: '#43708F',
+  infoLight: '#E9F0F5',
 
   background: '#FFFFFF',
-  canvas: '#F7F1E8',
+  canvas: '#F7F7F5',
   card: '#FFFFFF',
-  cardBorder: '#EDE3D4',
-  surface: '#F9FAFB',
-  border: '#E2D9CC',
+  cardBorder: '#E3E2DE',
+  surface: '#FAFAF9',
+  surfaceSunk: '#F1F0EC',
+  border: '#DDDCD7',
   borderFocus: '#A81E24',
 
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-  textMuted: '#9CA3AF',
+  textPrimary: '#1A1A18',
+  textSecondary: '#5C5A54',
+  textMuted: '#8A8880',
   textOnPrimary: '#FFFFFF',
 
-  disabled: '#D1D5DB',
-  overlay: 'rgba(17, 24, 39, 0.5)',
-  shadow: '#4A2C1A',
+  disabled: '#D6D5D0',
+  overlay: 'rgba(26, 26, 24, 0.45)',
+  shadow: '#1A1A18',
   transparent: 'transparent',
+
+  /** Left-edge severity bars on tiles and rows. */
+  spine: {
+    primary: '#A81E24',
+    accent: '#B87A0C',
+    neutral: '#C9C7C2',
+    info: '#6E8FA8',
+    success: '#2E6B3F',
+  },
+
+  /**
+   * Signal treatment — Login and Dashboard headers only. Used with
+   * expo-linear-gradient; every other screen stays flat.
+   */
+  gradient: {
+    brand: ['#A81E24', '#C4571F', '#E8A020'],
+    onGradient: '#FFFFFF',
+    onGradientMuted: 'rgba(255, 255, 255, 0.78)',
+    hairline: 'rgba(255, 255, 255, 0.22)',
+  },
 };

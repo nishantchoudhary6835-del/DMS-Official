@@ -63,7 +63,8 @@ export function RegisterScreen({ navigation }) {
     <Screen>
       <View style={styles.header}>
         <Button
-          title="← Back"
+          title="Back"
+          icon="chevron-back"
           onPress={handleBack}
           variant="text"
           fullWidth={false}

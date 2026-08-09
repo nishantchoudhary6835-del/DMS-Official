@@ -58,7 +58,8 @@ export function CreateEmployeeScreen({ navigation }) {
     <Screen background="canvas">
       <View style={styles.header}>
         <Button
-          title="← Back"
+          title="Back"
+          icon="chevron-back"
           onPress={() => navigation.goBack()}
           variant="text"
           fullWidth={false}

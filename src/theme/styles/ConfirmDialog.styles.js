@@ -10,13 +10,16 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: theme.spacing.xl,
   },
-  sheet: {
+  sheetWrap: {
     width: '100%',
     maxWidth: 380,
+  },
+  sheet: {
+    width: '100%',
     backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.xl,
+    borderRadius: theme.radius.lg,
     padding: theme.spacing.lg,
-    ...theme.elevation.card,
+    ...theme.elevation.raised,
   },
   title: {
     ...theme.typography.h3,

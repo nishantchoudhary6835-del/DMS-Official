@@ -6,9 +6,9 @@ export const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 7,
-    borderRadius: theme.radius.full,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
-    borderColor: theme.colors.cardBorder,
+    borderColor: theme.colors.border,
     backgroundColor: theme.colors.card,
     marginRight: theme.spacing.sm,
   },
@@ -16,15 +16,17 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     borderColor: theme.colors.primary,
   },
+  // Opacity rather than a background, so it composes correctly over
+  // chipSelected — which is applied earlier in the same style array.
   chipPressed: {
-    opacity: 0.7,
+    opacity: 0.72,
   },
   chipDisabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   label: {
-    ...theme.typography.small,
-    fontWeight: '600',
+    ...theme.typography.label,
+    fontSize: 12.5,
     color: theme.colors.textSecondary,
   },
   labelSelected: {

@@ -113,7 +113,8 @@ export function EditEmployeeScreen({ navigation, route }) {
       <Screen background="canvas">
         <View style={styles.header}>
           <Button
-            title="← Back"
+            title="Back"
+          icon="chevron-back"
             onPress={() => navigation.goBack()}
             variant="text"
             fullWidth={false}
@@ -139,7 +140,8 @@ export function EditEmployeeScreen({ navigation, route }) {
     <Screen background="canvas">
       <View style={styles.header}>
         <Button
-          title="← Back"
+          title="Back"
+          icon="chevron-back"
           onPress={() => navigation.goBack()}
           variant="text"
           fullWidth={false}

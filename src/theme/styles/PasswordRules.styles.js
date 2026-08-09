@@ -14,13 +14,6 @@ export const styles = StyleSheet.create({
   },
   marker: {
     width: 18,
-    ...theme.typography.caption,
-  },
-  markerOn: {
-    color: theme.colors.success,
-  },
-  markerOff: {
-    color: theme.colors.textMuted,
   },
   label: {
     ...theme.typography.caption,
