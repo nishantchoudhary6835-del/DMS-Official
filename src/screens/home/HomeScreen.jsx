@@ -41,7 +41,7 @@ export function HomeScreen({ navigation }) {
   );
 
   return (
-    <Screen background="canvas">
+    <Screen>
       <BrandMark size="small" align="left" style={styles.brand} />
 
       {error ? (

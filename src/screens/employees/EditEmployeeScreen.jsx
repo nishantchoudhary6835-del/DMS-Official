@@ -102,7 +102,7 @@ export function EditEmployeeScreen({ navigation, route }) {
 
   if (isLoading) {
     return (
-      <Screen background="canvas">
+      <Screen>
         <Loader message="Loading employee…" fullScreen={false} />
       </Screen>
     );
@@ -110,7 +110,7 @@ export function EditEmployeeScreen({ navigation, route }) {
 
   if (loadError || !values) {
     return (
-      <Screen background="canvas">
+      <Screen>
         <View style={styles.header}>
           <Button
             title="Back"
@@ -137,7 +137,7 @@ export function EditEmployeeScreen({ navigation, route }) {
   }
 
   return (
-    <Screen background="canvas">
+    <Screen>
       <View style={styles.header}>
         <Button
           title="Back"

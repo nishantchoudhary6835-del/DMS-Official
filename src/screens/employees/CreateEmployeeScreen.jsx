@@ -55,7 +55,7 @@ export function CreateEmployeeScreen({ navigation }) {
   };
 
   return (
-    <Screen background="canvas">
+    <Screen>
       <View style={styles.header}>
         <Button
           title="Back"

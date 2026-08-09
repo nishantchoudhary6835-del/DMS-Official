@@ -1,11 +1,24 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 
+import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { RootNavigator } from '@navigation/RootNavigator';
 import { AppProviders } from '@providers/AppProviders';
 import { colors, fontAssets } from '@theme';
+
+import { styles } from '@theme/styles/App.styles';
+
+/**
+ * React Navigation paints its own background behind every screen, which
+ * would sit on top of the painted canvas. Making it transparent lets the
+ * canvas show through and stay put while screens slide over it.
+ */
+const navigationTheme = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: 'transparent' },
+};
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts(fontAssets);
@@ -16,14 +29,7 @@ export default function App() {
   // falls back to the system face for that family.
   if (!fontsLoaded && !fontError) {
     return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: colors.canvas,
-        }}
-      >
+      <View style={styles.booting}>
         <ActivityIndicator color={colors.primary} />
       </View>
     );
@@ -31,10 +37,15 @@ export default function App() {
 
   return (
     <AppProviders>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <RootNavigator />
-      </NavigationContainer>
+      <View style={styles.root}>
+        {/* Rendered once for the whole app rather than per screen. */}
+        <ScreenBackground />
+
+        <NavigationContainer theme={navigationTheme}>
+          <StatusBar style="dark" />
+          <RootNavigator />
+        </NavigationContainer>
+      </View>
     </AppProviders>
   );
 }

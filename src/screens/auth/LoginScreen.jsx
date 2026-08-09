@@ -57,7 +57,7 @@ export function LoginScreen({ navigation }) {
   };
 
   return (
-    <Screen background="canvas" padded={false}>
+    <Screen padded={false}>
       <View style={styles.page}>
         <BrandMark size="large" showTagline style={styles.brand} />
 

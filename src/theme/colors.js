@@ -29,12 +29,16 @@ export const colors = {
   infoLight: '#E9F0F5',
 
   background: '#FFFFFF',
-  canvas: '#F7F7F5',
+  // Base under the painted backdrop — matched to the wash's midpoint so
+  // there is no cool-to-warm shift on the first frame.
+  canvas: '#FAF1E8',
   card: '#FFFFFF',
-  cardBorder: '#E3E2DE',
-  surface: '#FAFAF9',
-  surfaceSunk: '#F1F0EC',
-  border: '#DDDCD7',
+  // Neutrals carry a warm bias so cards and rules sit on the painted
+  // ground rather than reading grey against it.
+  cardBorder: '#E8E1D8',
+  surface: '#FBF8F4',
+  surfaceSunk: '#F3EFE8',
+  border: '#DFD8CD',
   borderFocus: '#A81E24',
 
   textPrimary: '#1A1A18',
@@ -56,14 +60,21 @@ export const colors = {
     success: '#2E6B3F',
   },
 
-  /**
-   * Signal treatment — Login and Dashboard headers only. Used with
-   * expo-linear-gradient; every other screen stays flat.
-   */
   gradient: {
+    /**
+     * Signal treatment — Login and Dashboard headers only. Full strength;
+     * every other surface stays flat.
+     */
     brand: ['#A81E24', '#C4571F', '#E8A020'],
     onGradient: '#FFFFFF',
     onGradientMuted: 'rgba(255, 255, 255, 0.78)',
     hairline: 'rgba(255, 255, 255, 0.22)',
+
+    /**
+     * The same gradient at roughly a tenth of its saturation, painted once
+     * at the app root behind every screen. Body text (#1A1A18) clears 15:1
+     * against every stop, so nothing on top of it loses legibility.
+     */
+    wash: ['#F9EAE7', '#FBF1E6', '#FDF8EA'],
   },
 };

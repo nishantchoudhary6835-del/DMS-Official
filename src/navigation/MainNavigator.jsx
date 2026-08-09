@@ -19,6 +19,8 @@ export function MainNavigator() {
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
+        // Let the app-root painted canvas show through.
+        contentStyle: { backgroundColor: 'transparent' },
       }}
     >
       <Stack.Screen name={ROUTES.MAIN.HOME} component={HomeScreen} />

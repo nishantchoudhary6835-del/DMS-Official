@@ -375,7 +375,7 @@ export function UserDetailScreen({ navigation, route }) {
   };
 
   return (
-    <Screen background="canvas" padded={false} style={styles.page}>
+    <Screen padded={false} style={styles.page}>
       <View style={styles.header}>
         <Button
           title="Back"

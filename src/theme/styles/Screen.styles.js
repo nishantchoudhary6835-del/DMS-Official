@@ -3,11 +3,12 @@ import { StyleSheet } from 'react-native';
 import { theme } from '@theme';
 
 export const styles = StyleSheet.create({
+  // Transparent by default so the app-root painted canvas shows through.
   safe: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.transparent,
   },
-  safeCanvas: {
+  safePlain: {
     backgroundColor: theme.colors.canvas,
   },
   flex: {

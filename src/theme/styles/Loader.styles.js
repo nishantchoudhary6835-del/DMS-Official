@@ -8,9 +8,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: theme.spacing.lg,
   },
+  // Transparent so the painted backdrop shows through rather than being
+  // covered by a flat white panel.
   fullScreen: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.transparent,
   },
   message: {
     ...theme.typography.caption,

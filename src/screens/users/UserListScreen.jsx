@@ -79,7 +79,7 @@ export function UserListScreen({ navigation }) {
   };
 
   return (
-    <Screen background="canvas" scrollable={false} padded={false}>
+    <Screen scrollable={false} padded={false}>
       <View style={styles.header}>
         <Button
           title="Back"

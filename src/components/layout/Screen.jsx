@@ -17,7 +17,12 @@ export function Screen({
   dismissKeyboardOnTap = true,
   style,
   padded = true,
-  background = 'default',
+  /**
+   * 'painted' (default) — transparent, so the app-root canvas shows through.
+   * 'plain'             — an opaque surface, for anything that must sit on
+   *                       a flat ground.
+   */
+  background = 'painted',
 }) {
   const contentStyle = useMemo(
     () => [
@@ -50,7 +55,7 @@ export function Screen({
 
   return (
     <SafeAreaView
-      style={[styles.safe, background === 'canvas' && styles.safeCanvas]}
+      style={[styles.safe, background === 'plain' && styles.safePlain]}
       edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView style={styles.flex} behavior={keyboardBehavior}>

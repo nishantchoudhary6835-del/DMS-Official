@@ -14,6 +14,8 @@ export function AuthNavigator() {
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
+        // Let the app-root painted canvas show through.
+        contentStyle: { backgroundColor: 'transparent' },
       }}
     >
       <Stack.Screen name={ROUTES.AUTH.LOGIN} component={LoginScreen} />
