@@ -21,12 +21,9 @@ import { TextField } from '@components/common/TextField';
 import { EmployeeCard } from '@components/employee/EmployeeCard';
 import { useEmployeeLookup } from '@hooks/useEmployeeLookup';
 import { useEmployees } from '@hooks/useEmployees';
+import { useHierarchy } from '@hooks/useHierarchy';
 import { ROUTES } from '@navigation/routes';
-import {
-  EMPLOYEE_STATUS,
-  HIERARCHY_LABELS,
-  HIERARCHY_LEVELS,
-} from '@validation/employee';
+import { EMPLOYEE_STATUS, labelFor } from '@validation/employee';
 
 import { styles } from '@theme/styles/EmployeeListScreen.styles';
 
@@ -43,6 +40,8 @@ export function EmployeeListScreen({ navigation }) {
     clearFilters,
     refresh,
   } = useEmployees();
+
+  const { options: hierarchyOptions } = useHierarchy();
 
   const {
     lookup,
@@ -95,7 +94,7 @@ export function EmployeeListScreen({ navigation }) {
     }
     if (awaitingOnly) labels.push('Awaiting registration');
     if (filters.hierarchyLevel) {
-      labels.push(HIERARCHY_LABELS[filters.hierarchyLevel]);
+      labels.push(labelFor(filters.hierarchyLevel));
     }
 
     return labels;
@@ -246,12 +245,12 @@ export function EmployeeListScreen({ navigation }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filterRow}
       >
-        {HIERARCHY_LEVELS.map((level) => (
+        {hierarchyOptions.map((option) => (
           <Chip
-            key={level}
-            label={HIERARCHY_LABELS[level]}
-            selected={filters.hierarchyLevel === level}
-            onPress={() => toggleFilter('hierarchyLevel', level)}
+            key={option.value}
+            label={option.label}
+            selected={filters.hierarchyLevel === option.value}
+            onPress={() => toggleFilter('hierarchyLevel', option.value)}
           />
         ))}
       </ScrollView>

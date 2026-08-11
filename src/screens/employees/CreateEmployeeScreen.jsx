@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
 import { Screen } from '@components/layout/Screen';
 import { useCreateEmployee } from '@hooks/useCreateEmployee';
+import { useHierarchy } from '@hooks/useHierarchy';
 import { useManagerOptions } from '@hooks/useManagerOptions';
 import { validateEmployeeForm } from '@validation/employee';
 
@@ -15,7 +16,7 @@ export function CreateEmployeeScreen({ navigation }) {
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateEmployee();
 
-  const managerOptions = useManagerOptions();
+  const hierarchy = useHierarchy();
 
   const [values, setValues] = useState({
     employeeId: '',
@@ -27,8 +28,23 @@ export function CreateEmployeeScreen({ navigation }) {
   });
   const [localErrors, setLocalErrors] = useState({});
 
+  // Declared after `values` so the candidate list narrows as soon as a
+  // hierarchy level is picked.
+  const managers = useManagerOptions(null, {
+    hierarchyLevel: values.hierarchyLevel,
+    ranks: hierarchy.ranks,
+  });
+
   const setField = (key, value) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev) => {
+      // Changing the level can invalidate the manager already chosen, so clear
+      // it rather than submitting a pairing the form no longer offers.
+      if (key === 'hierarchyLevel' && prev.hierarchyLevel !== value) {
+        return { ...prev, hierarchyLevel: value, reportingManager: null };
+      }
+
+      return { ...prev, [key]: value };
+    });
     setLocalErrors((prev) => ({ ...prev, [key]: undefined }));
     clearMessages();
   };
@@ -36,7 +52,7 @@ export function CreateEmployeeScreen({ navigation }) {
   const errorFor = (key) => fieldErrors[key] || localErrors[key];
 
   const handleSubmit = async () => {
-    const { errors, hasError } = validateEmployeeForm(values);
+    const { errors, hasError } = validateEmployeeForm(values, hierarchy.levels);
 
     if (hasError) {
       setLocalErrors(errors);
@@ -80,7 +96,14 @@ export function CreateEmployeeScreen({ navigation }) {
           values={values}
           setField={setField}
           errorFor={errorFor}
-          managerOptions={managerOptions}
+          hierarchyOptions={hierarchy.options}
+          hierarchyHelper={
+            hierarchy.isFallback && !hierarchy.isLoading
+              ? "Showing the standard list — the server's list is unavailable."
+              : undefined
+          }
+          managerOptions={managers.options}
+          managerHiddenCount={managers.hiddenCount}
           disabled={isSubmitting}
         />
 

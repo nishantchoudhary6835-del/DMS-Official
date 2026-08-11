@@ -5,7 +5,7 @@ import { Animated, Platform, Pressable, Text, View } from 'react-native';
 import { Badge } from '@components/common/Badge';
 import { theme } from '@theme';
 import { formatDate, initialsOf } from '@utils/format';
-import { HIERARCHY_LABELS } from '@validation/employee';
+import { labelFor } from '@validation/employee';
 import {
   ACCOUNT_STATUS_LABELS,
   ACCOUNT_STATUS_SPINES,
@@ -98,10 +98,7 @@ export function UserCard({ user, onPress }) {
             <View style={styles.metaRow}>
               {employee ? (
                 <Badge
-                  label={
-                    HIERARCHY_LABELS[employee.hierarchyLevel] ??
-                    employee.hierarchyLevel
-                  }
+                  label={labelFor(employee.hierarchyLevel)}
                   tone="accent"
                   style={styles.badgeGap}
                 />

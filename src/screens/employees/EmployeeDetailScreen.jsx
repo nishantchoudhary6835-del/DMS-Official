@@ -14,7 +14,7 @@ import { useEmployeeAccount } from '@hooks/useEmployeeAccount';
 import { useEmployeeStatus } from '@hooks/useEmployeeStatus';
 import { ROUTES } from '@navigation/routes';
 import { formatDate } from '@utils/format';
-import { EMPLOYEE_STATUS, HIERARCHY_LABELS } from '@validation/employee';
+import { EMPLOYEE_STATUS, labelFor } from '@validation/employee';
 
 import { styles } from '@theme/styles/EmployeeDetailScreen.styles';
 
@@ -176,10 +176,7 @@ export function EmployeeDetailScreen({ navigation, route }) {
           <Row label="Employee ID" value={employee.employeeId} />
           <Row
             label="Hierarchy"
-            value={
-              HIERARCHY_LABELS[employee.hierarchyLevel] ??
-              employee.hierarchyLevel
-            }
+            value={labelFor(employee.hierarchyLevel)}
             divider
           />
           <Row label="Status" value={isActive ? 'Active' : 'Inactive'} divider />

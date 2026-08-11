@@ -5,7 +5,7 @@ import { Animated, Platform, Pressable, Text, View } from 'react-native';
 import { Badge } from '@components/common/Badge';
 import { theme } from '@theme';
 import { initialsOf } from '@utils/format';
-import { HIERARCHY_LABELS } from '@validation/employee';
+import { labelFor } from '@validation/employee';
 
 import { styles } from '@theme/styles/EmployeeCard.styles';
 
@@ -85,8 +85,7 @@ export function EmployeeCard({ employee, onPress }) {
               <Text style={styles.employeeId}>{employee.employeeId}</Text>
               <Text style={styles.metaDot}>·</Text>
               <Text style={styles.role} numberOfLines={1}>
-                {HIERARCHY_LABELS[employee.hierarchyLevel] ??
-                  employee.hierarchyLevel}
+                {labelFor(employee.hierarchyLevel)}
               </Text>
             </View>
 

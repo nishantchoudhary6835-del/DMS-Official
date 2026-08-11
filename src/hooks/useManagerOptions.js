@@ -1,10 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { HIERARCHY_LABELS } from '@validation/employee';
+import { managerCandidates } from '@validation/employee';
 import * as employeeApi from '@services/employee';
 
-export function useManagerOptions(excludeId = null) {
+/**
+ * Candidate reporting managers, most senior first.
+ *
+ * `seniority` is optional — see managerCandidates for the filtering rule. The
+ * ranks it takes come from GET /hierarchy's `level`, which is the one thing
+ * that endpoint provides that a hardcoded list could not.
+ */
+export function useManagerOptions(excludeId = null, seniority = null) {
   const [managers, setManagers] = useState([]);
+
+  const { hierarchyLevel = null, ranks = null } = seniority ?? {};
 
   useEffect(() => {
     let cancelled = false;
@@ -27,18 +36,7 @@ export function useManagerOptions(excludeId = null) {
   }, []);
 
   return useMemo(
-    () =>
-      managers
-        .filter((employee) => employee._id !== excludeId)
-        .map((employee) => ({
-          value: employee._id,
-          label:
-            [employee.firstName, employee.lastName].filter(Boolean).join(' ') ||
-            employee.employeeId,
-          hint: `${employee.employeeId} · ${
-            HIERARCHY_LABELS[employee.hierarchyLevel] ?? employee.hierarchyLevel
-          }`,
-        })),
-    [managers, excludeId]
+    () => managerCandidates(managers, { excludeId, hierarchyLevel, ranks }),
+    [managers, excludeId, hierarchyLevel, ranks]
   );
 }

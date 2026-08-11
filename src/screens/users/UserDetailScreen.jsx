@@ -18,7 +18,7 @@ import { useUserStatus } from '@hooks/useUserStatus';
 import { ROUTES } from '@navigation/routes';
 import { formatDate } from '@utils/format';
 import { validateConfirmPassword, validatePassword } from '@validation/auth';
-import { HIERARCHY_LABELS } from '@validation/employee';
+import { labelFor } from '@validation/employee';
 import {
   ACCOUNT_STATUS_LABELS,
   ACCOUNT_STATUS_LEVELS,
@@ -224,12 +224,7 @@ export function UserDetailScreen({ navigation, route }) {
           <Row label="Employee ID" value={employee?.employeeId} />
           <Row
             label="Hierarchy"
-            value={
-              employee
-                ? HIERARCHY_LABELS[employee.hierarchyLevel] ??
-                  employee.hierarchyLevel
-                : null
-            }
+            value={employee ? labelFor(employee.hierarchyLevel) : null}
             divider
           />
           <Row

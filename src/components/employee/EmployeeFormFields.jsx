@@ -1,24 +1,49 @@
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import { Select } from '@components/common/Select';
 import { TextField } from '@components/common/TextField';
-import { HIERARCHY_LABELS, HIERARCHY_LEVELS } from '@validation/employee';
+import { labelFor, optionsWithCurrentLevel } from '@validation/employee';
 
 import { styles } from '@theme/styles/EmployeeFormFields.styles';
-
-const HIERARCHY_OPTIONS = HIERARCHY_LEVELS.map((level) => ({
-  value: level,
-  label: HIERARCHY_LABELS[level],
-}));
 
 export function EmployeeFormFields({
   values,
   setField,
   errorFor,
+  hierarchyOptions,
+  hierarchyHelper,
   managerOptions,
+  managerHiddenCount = 0,
   managerHelper = 'Optional. Can be assigned later.',
   disabled = false,
 }) {
+  // Applied here rather than in the edit screen because it is a property of
+  // the field — a Select must always be able to display its own value — not a
+  // rule about editing.
+  const levelOptions = useMemo(
+    () => optionsWithCurrentLevel(hierarchyOptions, values.hierarchyLevel),
+    [hierarchyOptions, values.hierarchyLevel]
+  );
+
+  // An empty manager list means two different things, and saying "none
+  // available" when the real reason is that everyone was filtered out would
+  // send someone hunting for a data problem that isn't there.
+  const managerPlaceholder = managerOptions.length
+    ? 'Optional'
+    : managerHiddenCount
+      ? 'No one senior enough'
+      : 'No employees available yet';
+
+  const managerNote = [
+    managerHelper,
+    managerHiddenCount
+      ? `${labelFor(values.hierarchyLevel)} and above only — ${managerHiddenCount} hidden.`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <>
       <TextField
@@ -67,9 +92,10 @@ export function EmployeeFormFields({
       <Select
         label="Hierarchy level"
         value={values.hierarchyLevel}
-        options={HIERARCHY_OPTIONS}
+        options={levelOptions}
         onChange={(value) => setField('hierarchyLevel', value)}
         error={errorFor('hierarchyLevel')}
+        helper={hierarchyHelper}
         placeholder="Select a level"
         disabled={disabled}
       />
@@ -80,10 +106,8 @@ export function EmployeeFormFields({
         options={managerOptions}
         onChange={(value) => setField('reportingManager', value)}
         error={errorFor('reportingManager')}
-        placeholder={
-          managerOptions.length ? 'Optional' : 'No employees available yet'
-        }
-        helper={managerHelper}
+        placeholder={managerPlaceholder}
+        helper={managerNote}
         disabled={disabled || !managerOptions.length}
         allowClear
       />

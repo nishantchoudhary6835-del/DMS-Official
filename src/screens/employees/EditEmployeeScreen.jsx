@@ -7,9 +7,10 @@ import { Loader } from '@components/common/Loader';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
 import { Screen } from '@components/layout/Screen';
 import { useEmployee } from '@hooks/useEmployee';
+import { useHierarchy } from '@hooks/useHierarchy';
 import { useManagerOptions } from '@hooks/useManagerOptions';
 import { useUpdateEmployee } from '@hooks/useUpdateEmployee';
-import { validateEmployeeForm } from '@validation/employee';
+import { allowedLevelsFor, validateEmployeeForm } from '@validation/employee';
 
 import { styles } from '@theme/styles/EditEmployeeScreen.styles';
 
@@ -55,11 +56,18 @@ export function EditEmployeeScreen({ navigation, route }) {
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useUpdateEmployee();
 
-  const managerOptions = useManagerOptions(employeeId);
+  const hierarchy = useHierarchy();
 
   const [initial, setInitial] = useState(null);
   const [values, setValues] = useState(null);
   const [localErrors, setLocalErrors] = useState({});
+
+  // Declared after `values` so the candidate list narrows as soon as the
+  // hierarchy level changes.
+  const managers = useManagerOptions(employeeId, {
+    hierarchyLevel: values?.hierarchyLevel,
+    ranks: hierarchy.ranks,
+  });
 
   useEffect(() => {
     if (!employee) return;
@@ -77,8 +85,24 @@ export function EditEmployeeScreen({ navigation, route }) {
 
   const hasChanges = Object.keys(changes).length > 0;
 
+  // Grandfathers the level this employee already has — see allowedLevelsFor.
+  const allowedLevels = useMemo(
+    () => allowedLevelsFor(hierarchy.levels, initial?.hierarchyLevel),
+    [hierarchy.levels, initial]
+  );
+
   const setField = (key, value) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev) => {
+      // Promoting someone can leave their existing manager too junior to still
+      // be a candidate. Clearing it makes that visible and forces a choice,
+      // rather than leaving a pairing on the record that the form would no
+      // longer let you create.
+      if (key === 'hierarchyLevel' && prev.hierarchyLevel !== value) {
+        return { ...prev, hierarchyLevel: value, reportingManager: null };
+      }
+
+      return { ...prev, [key]: value };
+    });
     setLocalErrors((prev) => ({ ...prev, [key]: undefined }));
     clearMessages();
   };
@@ -86,7 +110,7 @@ export function EditEmployeeScreen({ navigation, route }) {
   const errorFor = (key) => fieldErrors[key] || localErrors[key];
 
   const handleSubmit = async () => {
-    const { errors, hasError } = validateEmployeeForm(values);
+    const { errors, hasError } = validateEmployeeForm(values, allowedLevels);
 
     if (hasError) {
       setLocalErrors(errors);
@@ -162,7 +186,14 @@ export function EditEmployeeScreen({ navigation, route }) {
           values={values}
           setField={setField}
           errorFor={errorFor}
-          managerOptions={managerOptions}
+          hierarchyOptions={hierarchy.options}
+          hierarchyHelper={
+            hierarchy.isFallback && !hierarchy.isLoading
+              ? "Showing the standard list — the server's list is unavailable."
+              : undefined
+          }
+          managerOptions={managers.options}
+          managerHiddenCount={managers.hiddenCount}
           managerHelper="This employee cannot be their own manager."
           disabled={isSubmitting}
         />
