@@ -48,7 +48,9 @@ function Row({ label, value, fallback = 'Not assigned', divider = false }) {
     <View style={[styles.row, divider && styles.rowDivider]}>
       <Text style={styles.rowLabel}>{label}</Text>
       <Text style={value ? styles.rowValue : styles.rowValueMuted}>
-        {value ?? fallback}
+        {/* `||`, not `??` — an empty string is as absent as null here, and
+            labelFor returns '' rather than undefined for a missing value. */}
+        {value || fallback}
       </Text>
     </View>
   );

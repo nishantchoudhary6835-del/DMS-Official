@@ -28,7 +28,15 @@ export const styles = StyleSheet.create({
     marginLeft: theme.spacing.sm,
   },
 
+  // react-native-web gives ScrollView a base `flexGrow: 1`. Filter to an empty
+  // result and the list below collapses, freeing height this row grows into —
+  // stretching every chip into a full-height bar. Pinning flexGrow stops it.
+  filterScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   filterRow: {
+    alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
   },

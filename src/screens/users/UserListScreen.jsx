@@ -102,6 +102,7 @@ export function UserListScreen({ navigation }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterScroll}
         contentContainerStyle={styles.filterRow}
       >
         {ACCOUNT_STATUS_LEVELS.map((status) => (
