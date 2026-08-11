@@ -1,0 +1,20 @@
+# Normalise line endings for text, and keep binaries byte-exact.
+#
+# This repository is developed on Windows with core.autocrlf=true. Without the
+# rules below, git classifies a file it cannot prove is binary as text and
+# rewrites LF to CRLF on checkout. For a PDF that silently corrupts the file —
+# the committed blob stays correct, but every fresh clone writes a broken copy
+# to disk. Marking them binary suppresses both conversion and diffing.
+
+* text=auto
+
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
