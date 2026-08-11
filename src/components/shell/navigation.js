@@ -65,7 +65,12 @@ export const NAV_SECTIONS = [
         icon: 'business-outline',
         route: ROUTES.MAIN.DEPARTMENTS,
       },
-      { key: 'teams', label: 'Teams', icon: 'git-network-outline' },
+      {
+        key: 'teams',
+        label: 'Teams',
+        icon: 'git-network-outline',
+        route: ROUTES.MAIN.TEAMS,
+      },
       { key: 'roles', label: 'Roles & Permissions', icon: 'lock-closed-outline' },
     ],
   },

@@ -5,6 +5,10 @@ import { DepartmentDetailScreen } from '@screens/departments/DepartmentDetailScr
 import { DepartmentListScreen } from '@screens/departments/DepartmentListScreen';
 import { EditDepartmentScreen } from '@screens/departments/EditDepartmentScreen';
 import { CreateEmployeeScreen } from '@screens/employees/CreateEmployeeScreen';
+import { CreateTeamScreen } from '@screens/teams/CreateTeamScreen';
+import { EditTeamScreen } from '@screens/teams/EditTeamScreen';
+import { TeamDetailScreen } from '@screens/teams/TeamDetailScreen';
+import { TeamListScreen } from '@screens/teams/TeamListScreen';
 import { EditEmployeeScreen } from '@screens/employees/EditEmployeeScreen';
 import { EmployeeDetailScreen } from '@screens/employees/EmployeeDetailScreen';
 import { EmployeeListScreen } from '@screens/employees/EmployeeListScreen';
@@ -65,6 +69,16 @@ export function MainNavigator() {
         name={ROUTES.MAIN.EDIT_DEPARTMENT}
         component={EditDepartmentScreen}
       />
+      <Stack.Screen name={ROUTES.MAIN.TEAMS} component={TeamListScreen} />
+      <Stack.Screen
+        name={ROUTES.MAIN.CREATE_TEAM}
+        component={CreateTeamScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.TEAM_DETAIL}
+        component={TeamDetailScreen}
+      />
+      <Stack.Screen name={ROUTES.MAIN.EDIT_TEAM} component={EditTeamScreen} />
     </Stack.Navigator>
   );
 }

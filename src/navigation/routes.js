@@ -16,5 +16,9 @@ export const ROUTES = {
     CREATE_DEPARTMENT: 'CreateDepartment',
     DEPARTMENT_DETAIL: 'DepartmentDetail',
     EDIT_DEPARTMENT: 'EditDepartment',
+    TEAMS: 'Teams',
+    CREATE_TEAM: 'CreateTeam',
+    TEAM_DETAIL: 'TeamDetail',
+    EDIT_TEAM: 'EditTeam',
   },
 };
