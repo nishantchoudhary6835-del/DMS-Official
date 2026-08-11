@@ -15,6 +15,22 @@ export function digitsOnly(value) {
 }
 
 /**
+ * Pulls the ObjectId out of a Mongo reference that may or may not be
+ * populated. The same field comes back three ways depending on the endpoint —
+ * `null`, a bare id string, or a populated object — so anything sending a
+ * reference back to the server has to normalise it first.
+ *
+ * Department.head is the clearest case: create and list return it unpopulated,
+ * update returns it populated.
+ */
+export function referenceId(reference) {
+  if (!reference) return null;
+  if (typeof reference === 'string') return reference;
+
+  return reference._id ?? null;
+}
+
+/**
  * Two-letter monogram for avatars. Falls back to the email's first letter
  * when an employee record has no name yet, and to '—' when it has neither.
  */
