@@ -1,12 +1,10 @@
 import { useMemo } from 'react';
-import { Text, View } from 'react-native';
 
 import { Select } from '@components/common/Select';
 import { TextField } from '@components/common/TextField';
 import { departmentOptionsWith } from '@validation/department';
 import { labelFor, optionsWithCurrentLevel } from '@validation/employee';
-
-import { styles } from '@theme/styles/EmployeeFormFields.styles';
+import { teamOptionsWith } from '@validation/team';
 
 export function EmployeeFormFields({
   values,
@@ -16,6 +14,8 @@ export function EmployeeFormFields({
   hierarchyHelper,
   departmentOptions,
   allDepartments,
+  teamOptions,
+  allTeams,
   managerOptions,
   managerHiddenCount = 0,
   managerHelper = 'Optional. Can be assigned later.',
@@ -33,6 +33,21 @@ export function EmployeeFormFields({
     () => departmentOptionsWith(departmentOptions, allDepartments, values.department),
     [departmentOptions, allDepartments, values.department]
   );
+
+  const teamChoices = useMemo(
+    () => teamOptionsWith(teamOptions, allTeams, values.team),
+    [teamOptions, allTeams, values.team]
+  );
+
+  // A team is defined by its department, so there is nothing to offer until
+  // one is chosen — and saying which of the two reasons the field is empty is
+  // the difference between a dead control and an obvious next step.
+  const hasDepartment = Boolean(values.department);
+  const teamPlaceholder = !hasDepartment
+    ? 'Select a department first'
+    : teamChoices.length
+      ? 'Optional'
+      : 'No teams in this department';
 
   // An empty manager list means two different things, and saying "none
   // available" when the real reason is that everyone was filtered out would
@@ -123,6 +138,18 @@ export function EmployeeFormFields({
       />
 
       <Select
+        label="Team"
+        value={values.team}
+        options={teamChoices}
+        onChange={(value) => setField('team', value)}
+        error={errorFor('team')}
+        placeholder={teamPlaceholder}
+        helper="Optional. Teams belong to the department selected above."
+        disabled={disabled || !hasDepartment || !teamChoices.length}
+        allowClear
+      />
+
+      <Select
         label="Reporting manager"
         value={values.reportingManager}
         options={managerOptions}
@@ -133,15 +160,6 @@ export function EmployeeFormFields({
         disabled={disabled || !managerOptions.length}
         allowClear
       />
-
-      <View style={styles.notice}>
-        <Text style={styles.noticeTitle}>Team</Text>
-        <Text style={styles.noticeBody}>
-          Not assignable yet — the backend has no endpoint to list teams, so it
-          is left unset. Teams belong to a department, so this arrives with the
-          Team module.
-        </Text>
-      </View>
     </>
   );
 }

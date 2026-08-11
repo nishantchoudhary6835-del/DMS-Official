@@ -10,6 +10,7 @@ import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployee } from '@hooks/useEmployee';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { useHierarchy } from '@hooks/useHierarchy';
+import { useTeamOptions } from '@hooks/useTeamOptions';
 import { useUpdateEmployee } from '@hooks/useUpdateEmployee';
 import { referenceId } from '@utils/format';
 import { allowedLevelsFor, validateEmployeeForm } from '@validation/employee';
@@ -24,6 +25,7 @@ function toFormValues(employee) {
     email: employee.email ?? '',
     hierarchyLevel: employee.hierarchyLevel ?? null,
     department: referenceId(employee.department),
+    team: referenceId(employee.team),
     reportingManager: referenceId(employee.reportingManager),
   };
 }
@@ -75,6 +77,21 @@ export function EditEmployeeScreen({ navigation, route }) {
     setValues(next);
   }, [employee]);
 
+  const teams = useTeamOptions(values?.department);
+
+  /**
+   * The employee's own team may be inactive, or belong to a department other
+   * than the one now selected — either way it is absent from the fetched list.
+   * Including the populated reference lets the option recover its real name
+   * rather than falling back to a generic label.
+   */
+  const allTeams = useMemo(() => {
+    const own = employee?.team;
+    const extra = own && typeof own === 'object' ? [own] : [];
+
+    return [...teams.teams, ...extra];
+  }, [teams.teams, employee]);
+
   const changes = useMemo(
     () => changedFields(initial, values),
     [initial, values]
@@ -96,6 +113,12 @@ export function EditEmployeeScreen({ navigation, route }) {
       // longer let you create.
       if (key === 'hierarchyLevel' && prev.hierarchyLevel !== value) {
         return { ...prev, hierarchyLevel: value, reportingManager: null };
+      }
+
+      // A team belongs to exactly one department, so moving someone between
+      // departments cannot carry their old team across.
+      if (key === 'department' && prev.department !== value) {
+        return { ...prev, department: value, team: null };
       }
 
       return { ...prev, [key]: value };
@@ -191,6 +214,8 @@ export function EditEmployeeScreen({ navigation, route }) {
           }
           departmentOptions={departments.options}
           allDepartments={departments.departments}
+          teamOptions={teams.options}
+          allTeams={allTeams}
           managerOptions={managers.options}
           managerHiddenCount={managers.hiddenCount}
           managerHelper="This employee cannot be their own manager."

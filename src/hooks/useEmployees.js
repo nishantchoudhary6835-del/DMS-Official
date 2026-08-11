@@ -58,10 +58,21 @@ export function useEmployees() {
   }, [filters, load]);
 
   const toggleFilter = useCallback((key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: prev[key] === value ? undefined : value,
-    }));
+    setFilters((prev) => {
+      const next = {
+        ...prev,
+        [key]: prev[key] === value ? undefined : value,
+      };
+
+      // Teams are listed per department, so changing or clearing the
+      // department leaves a team filter with no chip to switch it off — it
+      // would keep filtering invisibly. Drop it with its parent.
+      if (key === 'department' && next.department !== prev.department) {
+        next.team = undefined;
+      }
+
+      return next;
+    });
   }, []);
 
   const clearFilters = useCallback(() => setFilters({}), []);

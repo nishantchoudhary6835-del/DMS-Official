@@ -23,6 +23,7 @@ import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeLookup } from '@hooks/useEmployeeLookup';
 import { useEmployees } from '@hooks/useEmployees';
 import { useHierarchy } from '@hooks/useHierarchy';
+import { useTeamOptions } from '@hooks/useTeamOptions';
 import { ROUTES } from '@navigation/routes';
 import { EMPLOYEE_STATUS, labelFor } from '@validation/employee';
 
@@ -44,6 +45,10 @@ export function EmployeeListScreen({ navigation }) {
 
   const { options: hierarchyOptions } = useHierarchy();
   const { options: departmentOptions } = useDepartmentOptions();
+
+  // Teams only make sense inside a department, so this row appears once one is
+  // filtered on — the same dependency the employee form has.
+  const { options: teamOptions } = useTeamOptions(filters.department);
 
   const {
     lookup,
@@ -105,9 +110,13 @@ export function EmployeeListScreen({ navigation }) {
       );
       labels.push(match?.label ?? 'Department');
     }
+    if (filters.team) {
+      const match = teamOptions.find((option) => option.value === filters.team);
+      labels.push(match?.label ?? 'Team');
+    }
 
     return labels;
-  }, [filters, awaitingOnly, departmentOptions]);
+  }, [filters, awaitingOnly, departmentOptions, teamOptions]);
 
   const totalFilterCount = activeFilterCount + (awaitingOnly ? 1 : 0);
 
@@ -279,6 +288,24 @@ export function EmployeeListScreen({ navigation }) {
               label={option.label}
               selected={filters.department === option.value}
               onPress={() => toggleFilter('department', option.value)}
+            />
+          ))}
+        </ScrollView>
+      ) : null}
+
+      {teamOptions.length ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterScroll}
+          contentContainerStyle={styles.filterRow}
+        >
+          {teamOptions.map((option) => (
+            <Chip
+              key={option.value}
+              label={option.label}
+              selected={filters.team === option.value}
+              onPress={() => toggleFilter('team', option.value)}
             />
           ))}
         </ScrollView>

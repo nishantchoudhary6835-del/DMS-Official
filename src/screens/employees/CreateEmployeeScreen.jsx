@@ -9,6 +9,7 @@ import { useCreateEmployee } from '@hooks/useCreateEmployee';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { useHierarchy } from '@hooks/useHierarchy';
+import { useTeamOptions } from '@hooks/useTeamOptions';
 import { validateEmployeeForm } from '@validation/employee';
 
 import { styles } from '@theme/styles/CreateEmployeeScreen.styles';
@@ -30,9 +31,13 @@ export function CreateEmployeeScreen({ navigation }) {
     email: '',
     hierarchyLevel: null,
     department: null,
+    team: null,
     reportingManager: null,
   });
   const [localErrors, setLocalErrors] = useState({});
+
+  // Scoped to the chosen department — no department, no teams to offer.
+  const teams = useTeamOptions(values.department);
 
   // Declared after `values` so the candidate list narrows as soon as a
   // hierarchy level is picked.
@@ -47,6 +52,12 @@ export function CreateEmployeeScreen({ navigation }) {
       // it rather than submitting a pairing the form no longer offers.
       if (key === 'hierarchyLevel' && prev.hierarchyLevel !== value) {
         return { ...prev, hierarchyLevel: value, reportingManager: null };
+      }
+
+      // A team belongs to exactly one department, so a team chosen under the
+      // old one cannot survive the change.
+      if (key === 'department' && prev.department !== value) {
+        return { ...prev, department: value, team: null };
       }
 
       return { ...prev, [key]: value };
@@ -65,11 +76,7 @@ export function CreateEmployeeScreen({ navigation }) {
       return;
     }
 
-    const created = await submit({
-      ...values,
-      // Teams still have no listing endpoint, so this stays unset.
-      team: null,
-    });
+    const created = await submit(values);
 
     if (created) {
       navigation.goBack();
@@ -110,6 +117,8 @@ export function CreateEmployeeScreen({ navigation }) {
           }
           departmentOptions={departments.options}
           allDepartments={departments.departments}
+          teamOptions={teams.options}
+          allTeams={teams.teams}
           managerOptions={managers.options}
           managerHiddenCount={managers.hiddenCount}
           disabled={isSubmitting}
