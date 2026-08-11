@@ -19,6 +19,7 @@ import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { TextField } from '@components/common/TextField';
 import { EmployeeCard } from '@components/employee/EmployeeCard';
+import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeLookup } from '@hooks/useEmployeeLookup';
 import { useEmployees } from '@hooks/useEmployees';
 import { useHierarchy } from '@hooks/useHierarchy';
@@ -42,6 +43,7 @@ export function EmployeeListScreen({ navigation }) {
   } = useEmployees();
 
   const { options: hierarchyOptions } = useHierarchy();
+  const { options: departmentOptions } = useDepartmentOptions();
 
   const {
     lookup,
@@ -96,9 +98,16 @@ export function EmployeeListScreen({ navigation }) {
     if (filters.hierarchyLevel) {
       labels.push(labelFor(filters.hierarchyLevel));
     }
+    if (filters.department) {
+      // Falls back to the raw id only if the chip list has not loaded yet.
+      const match = departmentOptions.find(
+        (option) => option.value === filters.department
+      );
+      labels.push(match?.label ?? 'Department');
+    }
 
     return labels;
-  }, [filters, awaitingOnly]);
+  }, [filters, awaitingOnly, departmentOptions]);
 
   const totalFilterCount = activeFilterCount + (awaitingOnly ? 1 : 0);
 
@@ -223,6 +232,7 @@ export function EmployeeListScreen({ navigation }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterScroll}
         contentContainerStyle={styles.filterRow}
       >
         {Object.values(EMPLOYEE_STATUS).map((status) => (
@@ -243,6 +253,7 @@ export function EmployeeListScreen({ navigation }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterScroll}
         contentContainerStyle={styles.filterRow}
       >
         {hierarchyOptions.map((option) => (
@@ -254,6 +265,24 @@ export function EmployeeListScreen({ navigation }) {
           />
         ))}
       </ScrollView>
+
+      {departmentOptions.length ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterScroll}
+          contentContainerStyle={styles.filterRow}
+        >
+          {departmentOptions.map((option) => (
+            <Chip
+              key={option.value}
+              label={option.label}
+              selected={filters.department === option.value}
+              onPress={() => toggleFilter('department', option.value)}
+            />
+          ))}
+        </ScrollView>
+      ) : null}
     </View>
   );
 

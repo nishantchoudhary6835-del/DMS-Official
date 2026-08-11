@@ -6,8 +6,9 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
 import { Screen } from '@components/layout/Screen';
 import { useCreateEmployee } from '@hooks/useCreateEmployee';
+import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
+import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { useHierarchy } from '@hooks/useHierarchy';
-import { useManagerOptions } from '@hooks/useManagerOptions';
 import { validateEmployeeForm } from '@validation/employee';
 
 import { styles } from '@theme/styles/CreateEmployeeScreen.styles';
@@ -18,19 +19,24 @@ export function CreateEmployeeScreen({ navigation }) {
 
   const hierarchy = useHierarchy();
 
+  // Active only. A new employee has no reason to be placed in a department
+  // that has been retired.
+  const departments = useDepartmentOptions();
+
   const [values, setValues] = useState({
     employeeId: '',
     firstName: '',
     lastName: '',
     email: '',
     hierarchyLevel: null,
+    department: null,
     reportingManager: null,
   });
   const [localErrors, setLocalErrors] = useState({});
 
   // Declared after `values` so the candidate list narrows as soon as a
   // hierarchy level is picked.
-  const managers = useManagerOptions(null, {
+  const managers = useEmployeeOptions(null, {
     hierarchyLevel: values.hierarchyLevel,
     ranks: hierarchy.ranks,
   });
@@ -61,7 +67,7 @@ export function CreateEmployeeScreen({ navigation }) {
 
     const created = await submit({
       ...values,
-      department: null,
+      // Teams still have no listing endpoint, so this stays unset.
       team: null,
     });
 
@@ -102,6 +108,8 @@ export function CreateEmployeeScreen({ navigation }) {
               ? "Showing the standard list — the server's list is unavailable."
               : undefined
           }
+          departmentOptions={departments.options}
+          allDepartments={departments.departments}
           managerOptions={managers.options}
           managerHiddenCount={managers.hiddenCount}
           disabled={isSubmitting}

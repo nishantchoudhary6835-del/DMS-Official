@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { Select } from '@components/common/Select';
 import { TextField } from '@components/common/TextField';
+import { departmentOptionsWith } from '@validation/department';
 import { labelFor, optionsWithCurrentLevel } from '@validation/employee';
 
 import { styles } from '@theme/styles/EmployeeFormFields.styles';
@@ -13,6 +14,8 @@ export function EmployeeFormFields({
   errorFor,
   hierarchyOptions,
   hierarchyHelper,
+  departmentOptions,
+  allDepartments,
   managerOptions,
   managerHiddenCount = 0,
   managerHelper = 'Optional. Can be assigned later.',
@@ -24,6 +27,11 @@ export function EmployeeFormFields({
   const levelOptions = useMemo(
     () => optionsWithCurrentLevel(hierarchyOptions, values.hierarchyLevel),
     [hierarchyOptions, values.hierarchyLevel]
+  );
+
+  const departmentChoices = useMemo(
+    () => departmentOptionsWith(departmentOptions, allDepartments, values.department),
+    [departmentOptions, allDepartments, values.department]
   );
 
   // An empty manager list means two different things, and saying "none
@@ -101,6 +109,20 @@ export function EmployeeFormFields({
       />
 
       <Select
+        label="Department"
+        value={values.department}
+        options={departmentChoices}
+        onChange={(value) => setField('department', value)}
+        error={errorFor('department')}
+        placeholder={
+          departmentChoices.length ? 'Optional' : 'No departments available yet'
+        }
+        helper="Optional. Can be assigned later."
+        disabled={disabled || !departmentChoices.length}
+        allowClear
+      />
+
+      <Select
         label="Reporting manager"
         value={values.reportingManager}
         options={managerOptions}
@@ -113,11 +135,11 @@ export function EmployeeFormFields({
       />
 
       <View style={styles.notice}>
-        <Text style={styles.noticeTitle}>Department and team</Text>
+        <Text style={styles.noticeTitle}>Team</Text>
         <Text style={styles.noticeBody}>
-          Not assignable yet — the backend has no endpoint to list departments or
-          teams, so both are left unset. They can be assigned once those
-          endpoints exist.
+          Not assignable yet — the backend has no endpoint to list teams, so it
+          is left unset. Teams belong to a department, so this arrives with the
+          Team module.
         </Text>
       </View>
     </>

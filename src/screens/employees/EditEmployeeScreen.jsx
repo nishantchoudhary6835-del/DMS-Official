@@ -6,20 +6,15 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
 import { Screen } from '@components/layout/Screen';
+import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployee } from '@hooks/useEmployee';
+import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { useHierarchy } from '@hooks/useHierarchy';
-import { useManagerOptions } from '@hooks/useManagerOptions';
 import { useUpdateEmployee } from '@hooks/useUpdateEmployee';
+import { referenceId } from '@utils/format';
 import { allowedLevelsFor, validateEmployeeForm } from '@validation/employee';
 
 import { styles } from '@theme/styles/EditEmployeeScreen.styles';
-
-function referenceId(reference) {
-  if (!reference) return null;
-  if (typeof reference === 'string') return reference;
-
-  return reference._id ?? null;
-}
 
 function toFormValues(employee) {
   return {
@@ -28,6 +23,7 @@ function toFormValues(employee) {
     lastName: employee.lastName ?? '',
     email: employee.email ?? '',
     hierarchyLevel: employee.hierarchyLevel ?? null,
+    department: referenceId(employee.department),
     reportingManager: referenceId(employee.reportingManager),
   };
 }
@@ -57,6 +53,7 @@ export function EditEmployeeScreen({ navigation, route }) {
     useUpdateEmployee();
 
   const hierarchy = useHierarchy();
+  const departments = useDepartmentOptions();
 
   const [initial, setInitial] = useState(null);
   const [values, setValues] = useState(null);
@@ -64,7 +61,7 @@ export function EditEmployeeScreen({ navigation, route }) {
 
   // Declared after `values` so the candidate list narrows as soon as the
   // hierarchy level changes.
-  const managers = useManagerOptions(employeeId, {
+  const managers = useEmployeeOptions(employeeId, {
     hierarchyLevel: values?.hierarchyLevel,
     ranks: hierarchy.ranks,
   });
@@ -192,6 +189,8 @@ export function EditEmployeeScreen({ navigation, route }) {
               ? "Showing the standard list — the server's list is unavailable."
               : undefined
           }
+          departmentOptions={departments.options}
+          allDepartments={departments.departments}
           managerOptions={managers.options}
           managerHiddenCount={managers.hiddenCount}
           managerHelper="This employee cannot be their own manager."
