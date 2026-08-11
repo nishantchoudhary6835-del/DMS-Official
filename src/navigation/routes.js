@@ -12,5 +12,9 @@ export const ROUTES = {
     EDIT_EMPLOYEE: 'EditEmployee',
     ACCOUNTS: 'Accounts',
     ACCOUNT_DETAIL: 'AccountDetail',
+    DEPARTMENTS: 'Departments',
+    CREATE_DEPARTMENT: 'CreateDepartment',
+    DEPARTMENT_DETAIL: 'DepartmentDetail',
+    EDIT_DEPARTMENT: 'EditDepartment',
   },
 };

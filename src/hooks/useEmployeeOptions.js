@@ -4,13 +4,15 @@ import { managerCandidates } from '@validation/employee';
 import * as employeeApi from '@services/employee';
 
 /**
- * Candidate reporting managers, most senior first.
+ * Active employees, shaped for a Select.
  *
- * `seniority` is optional — see managerCandidates for the filtering rule. The
- * ranks it takes come from GET /hierarchy's `level`, which is the one thing
- * that endpoint provides that a hardcoded list could not.
+ * Two callers with different needs. Pass `seniority` and it becomes a
+ * reporting-manager picker, filtered and ordered by rank — see
+ * managerCandidates for that rule. Omit it and you get every active employee
+ * alphabetically, which is what the Department Head picker wants: the backend
+ * imposes no constraint on who may head a department, so neither do we.
  */
-export function useManagerOptions(excludeId = null, seniority = null) {
+export function useEmployeeOptions(excludeId = null, seniority = null) {
   const [managers, setManagers] = useState([]);
 
   const { hierarchyLevel = null, ranks = null } = seniority ?? {};

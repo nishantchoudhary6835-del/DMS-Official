@@ -59,7 +59,12 @@ export const NAV_SECTIONS = [
         icon: 'id-card-outline',
         route: ROUTES.MAIN.EMPLOYEES,
       },
-      { key: 'departments', label: 'Departments', icon: 'business-outline' },
+      {
+        key: 'departments',
+        label: 'Departments',
+        icon: 'business-outline',
+        route: ROUTES.MAIN.DEPARTMENTS,
+      },
       { key: 'teams', label: 'Teams', icon: 'git-network-outline' },
       { key: 'roles', label: 'Roles & Permissions', icon: 'lock-closed-outline' },
     ],

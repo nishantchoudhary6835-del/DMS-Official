@@ -1,5 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { CreateDepartmentScreen } from '@screens/departments/CreateDepartmentScreen';
+import { DepartmentDetailScreen } from '@screens/departments/DepartmentDetailScreen';
+import { DepartmentListScreen } from '@screens/departments/DepartmentListScreen';
+import { EditDepartmentScreen } from '@screens/departments/EditDepartmentScreen';
 import { CreateEmployeeScreen } from '@screens/employees/CreateEmployeeScreen';
 import { EditEmployeeScreen } from '@screens/employees/EditEmployeeScreen';
 import { EmployeeDetailScreen } from '@screens/employees/EmployeeDetailScreen';
@@ -44,6 +48,22 @@ export function MainNavigator() {
       <Stack.Screen
         name={ROUTES.MAIN.ACCOUNT_DETAIL}
         component={UserDetailScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.DEPARTMENTS}
+        component={DepartmentListScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.CREATE_DEPARTMENT}
+        component={CreateDepartmentScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.DEPARTMENT_DETAIL}
+        component={DepartmentDetailScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.EDIT_DEPARTMENT}
+        component={EditDepartmentScreen}
       />
     </Stack.Navigator>
   );
