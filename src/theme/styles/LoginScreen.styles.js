@@ -11,10 +11,6 @@ export const styles = StyleSheet.create({
     paddingVertical: theme.spacing.xxl,
   },
 
-  brand: {
-    marginBottom: theme.spacing.xl,
-  },
-
   card: {
     width: '100%',
     maxWidth: 440,
@@ -25,6 +21,14 @@ export const styles = StyleSheet.create({
     // Clips the gradient to the card's top corners.
     overflow: 'hidden',
     ...theme.elevation.raised,
+  },
+
+  // --- Brand band --------------------------------------------------------
+  cardBrand: {
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.xl,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.lg,
   },
 
   // --- Signal header -----------------------------------------------------

@@ -59,9 +59,14 @@ export function LoginScreen({ navigation }) {
   return (
     <Screen padded={false}>
       <View style={styles.page}>
-        <BrandMark size="large" showTagline style={styles.brand} />
-
         <View style={styles.card}>
+          {/* The mark sits on white rather than in the gradient below it —
+              its crimson wordmark and gold ornament would both disappear
+              against the brand gradient's own crimson-to-amber range. */}
+          <View style={styles.cardBrand}>
+            <BrandMark size="large" />
+          </View>
+
           <LinearGradient
             colors={theme.colors.gradient.brand}
             start={{ x: 0, y: 0 }}
