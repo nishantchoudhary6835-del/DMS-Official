@@ -12,6 +12,7 @@ import { RecentDocumentsPanel } from '@components/dashboard/RecentDocumentsPanel
 import { StatCard } from '@components/dashboard/StatCard';
 import { AppShell } from '@components/shell/AppShell';
 import { useAuth } from '@context/AuthContext';
+import { useToast } from '@context/ToastContext';
 import { useBreakpoint } from '@hooks/useBreakpoint';
 import { theme } from '@theme';
 
@@ -75,11 +76,21 @@ function displayNameFor(user) {
 
 export function HomeScreen({ navigation }) {
   const { user, signOut } = useAuth();
+  const toast = useToast();
   const { columns, statColumns } = useBreakpoint();
 
   const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const name = displayNameFor(user);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    await signOut();
+    setIsSigningOut(false);
+    setIsConfirmingSignOut(false);
+    toast.success('Signed out.');
+  };
 
   return (
     <AppShell
@@ -138,7 +149,13 @@ export function HomeScreen({ navigation }) {
         items={[
           <DocumentStatusPanel key="status" data={DOCUMENT_STATUS} />,
           <ApprovalFlowPanel key="flow" series={APPROVAL_FLOW} />,
-          <QuickActionsPanel key="actions" actions={QUICK_ACTIONS} />,
+          <QuickActionsPanel
+            key="actions"
+            actions={QUICK_ACTIONS}
+            onActionPress={(action) =>
+              action.route && navigation.navigate(action.route)
+            }
+          />,
         ]}
       />
 
@@ -158,8 +175,9 @@ export function HomeScreen({ navigation }) {
         message="You will need to sign in again to get back in."
         confirmLabel="Sign out"
         confirmVariant="danger"
-        onConfirm={signOut}
+        onConfirm={handleSignOut}
         onCancel={() => setIsConfirmingSignOut(false)}
+        isBusy={isSigningOut}
       />
     </AppShell>
   );

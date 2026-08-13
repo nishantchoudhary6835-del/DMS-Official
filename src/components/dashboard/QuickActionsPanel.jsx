@@ -8,7 +8,7 @@ import { Panel } from './Panel';
 
 import { styles } from '@theme/styles/DashboardPanels.styles';
 
-export function QuickActionsPanel({ actions, style }) {
+export function QuickActionsPanel({ actions, onActionPress, style }) {
   return (
     <Panel title="Quick Actions" style={style}>
       {actions.map((action) => {
@@ -18,6 +18,7 @@ export function QuickActionsPanel({ actions, style }) {
           <Pressable
             key={action.key}
             accessibilityRole="button"
+            onPress={action.route ? () => onActionPress?.(action) : undefined}
             style={({ pressed, hovered }) => [
               styles.action,
               hovered && styles.actionHovered,

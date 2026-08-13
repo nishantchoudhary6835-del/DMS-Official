@@ -1,3 +1,4 @@
+import { ROUTES } from '@navigation/routes';
 import { theme } from '@theme';
 
 /**
@@ -71,7 +72,13 @@ export const APPROVAL_FLOW = [
 ];
 
 export const QUICK_ACTIONS = [
-  { key: 'create-document', label: 'Create Document', icon: 'add-circle-outline', tone: 'info' },
+  {
+    key: 'create-document',
+    label: 'Create Document',
+    icon: 'add-circle-outline',
+    tone: 'info',
+    route: ROUTES.MAIN.CREATE_DOCUMENT,
+  },
   { key: 'submit-idea', label: 'Submit Strategic Idea', icon: 'bulb-outline', tone: 'accent' },
   { key: 'my-approvals', label: 'My Pending Approvals', icon: 'checkmark-done-outline', tone: 'success' },
   { key: 'escalations', label: 'View Escalations', icon: 'trending-up-outline', tone: 'primary' },
