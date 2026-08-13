@@ -26,7 +26,12 @@ export const NAV_SECTIONS = [
     items: [
       { key: 'my-documents', label: 'My Documents', icon: 'document-text-outline' },
       { key: 'all-documents', label: 'All Documents', icon: 'documents-outline' },
-      { key: 'create-document', label: 'Create Document', icon: 'add-circle-outline' },
+      {
+        key: 'create-document',
+        label: 'Create Document',
+        icon: 'add-circle-outline',
+        route: ROUTES.MAIN.CREATE_DOCUMENT,
+      },
       { key: 'submitted-documents', label: 'Submitted Documents', icon: 'send-outline' },
       { key: 'pending-approvals', label: 'Pending Approvals', icon: 'time-outline' },
       { key: 'published-documents', label: 'Published Documents', icon: 'checkmark-done-outline' },

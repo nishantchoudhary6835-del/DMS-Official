@@ -8,6 +8,7 @@ import { CreateDepartmentScreen } from '@screens/departments/CreateDepartmentScr
 import { DepartmentDetailScreen } from '@screens/departments/DepartmentDetailScreen';
 import { DepartmentListScreen } from '@screens/departments/DepartmentListScreen';
 import { EditDepartmentScreen } from '@screens/departments/EditDepartmentScreen';
+import { CreateDocumentScreen } from '@screens/documents/CreateDocumentScreen';
 import { CreateEmployeeScreen } from '@screens/employees/CreateEmployeeScreen';
 import { CreateTeamScreen } from '@screens/teams/CreateTeamScreen';
 import { EditTeamScreen } from '@screens/teams/EditTeamScreen';
@@ -127,6 +128,10 @@ export function MainNavigator() {
       <Stack.Screen name={ROUTES.MAIN.CREATE_ACL} component={CreateAclScreen} />
       <Stack.Screen name={ROUTES.MAIN.ACL_DETAIL} component={AclDetailScreen} />
       <Stack.Screen name={ROUTES.MAIN.EDIT_ACL} component={EditAclScreen} />
+      <Stack.Screen
+        name={ROUTES.MAIN.CREATE_DOCUMENT}
+        component={CreateDocumentScreen}
+      />
     </Stack.Navigator>
   );
 }
