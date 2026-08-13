@@ -1,5 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { AclDetailScreen } from '@screens/acl/AclDetailScreen';
+import { AclListScreen } from '@screens/acl/AclListScreen';
+import { CreateAclScreen } from '@screens/acl/CreateAclScreen';
+import { EditAclScreen } from '@screens/acl/EditAclScreen';
 import { CreateDepartmentScreen } from '@screens/departments/CreateDepartmentScreen';
 import { DepartmentDetailScreen } from '@screens/departments/DepartmentDetailScreen';
 import { DepartmentListScreen } from '@screens/departments/DepartmentListScreen';
@@ -13,6 +17,14 @@ import { EditEmployeeScreen } from '@screens/employees/EditEmployeeScreen';
 import { EmployeeDetailScreen } from '@screens/employees/EmployeeDetailScreen';
 import { EmployeeListScreen } from '@screens/employees/EmployeeListScreen';
 import { HomeScreen } from '@screens/home/HomeScreen';
+import { CreatePermissionScreen } from '@screens/permissions/CreatePermissionScreen';
+import { EditPermissionScreen } from '@screens/permissions/EditPermissionScreen';
+import { PermissionDetailScreen } from '@screens/permissions/PermissionDetailScreen';
+import { PermissionListScreen } from '@screens/permissions/PermissionListScreen';
+import { CreateRolePermissionScreen } from '@screens/rolePermissions/CreateRolePermissionScreen';
+import { EditRolePermissionScreen } from '@screens/rolePermissions/EditRolePermissionScreen';
+import { RolePermissionDetailScreen } from '@screens/rolePermissions/RolePermissionDetailScreen';
+import { RolePermissionListScreen } from '@screens/rolePermissions/RolePermissionListScreen';
 import { UserDetailScreen } from '@screens/users/UserDetailScreen';
 import { UserListScreen } from '@screens/users/UserListScreen';
 
@@ -79,6 +91,42 @@ export function MainNavigator() {
         component={TeamDetailScreen}
       />
       <Stack.Screen name={ROUTES.MAIN.EDIT_TEAM} component={EditTeamScreen} />
+      <Stack.Screen
+        name={ROUTES.MAIN.PERMISSIONS}
+        component={PermissionListScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.CREATE_PERMISSION}
+        component={CreatePermissionScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.PERMISSION_DETAIL}
+        component={PermissionDetailScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.EDIT_PERMISSION}
+        component={EditPermissionScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.ROLE_PERMISSIONS}
+        component={RolePermissionListScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.CREATE_ROLE_PERMISSION}
+        component={CreateRolePermissionScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.ROLE_PERMISSION_DETAIL}
+        component={RolePermissionDetailScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.EDIT_ROLE_PERMISSION}
+        component={EditRolePermissionScreen}
+      />
+      <Stack.Screen name={ROUTES.MAIN.ACLS} component={AclListScreen} />
+      <Stack.Screen name={ROUTES.MAIN.CREATE_ACL} component={CreateAclScreen} />
+      <Stack.Screen name={ROUTES.MAIN.ACL_DETAIL} component={AclDetailScreen} />
+      <Stack.Screen name={ROUTES.MAIN.EDIT_ACL} component={EditAclScreen} />
     </Stack.Navigator>
   );
 }

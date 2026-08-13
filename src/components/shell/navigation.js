@@ -71,7 +71,24 @@ export const NAV_SECTIONS = [
         icon: 'git-network-outline',
         route: ROUTES.MAIN.TEAMS,
       },
-      { key: 'roles', label: 'Roles & Permissions', icon: 'lock-closed-outline' },
+      {
+        key: 'permissions',
+        label: 'Permissions',
+        icon: 'lock-closed-outline',
+        route: ROUTES.MAIN.PERMISSIONS,
+      },
+      {
+        key: 'role-permissions',
+        label: 'Role Assignments',
+        icon: 'ribbon-outline',
+        route: ROUTES.MAIN.ROLE_PERMISSIONS,
+      },
+      {
+        key: 'acl',
+        label: 'Access Rules',
+        icon: 'shield-checkmark-outline',
+        route: ROUTES.MAIN.ACLS,
+      },
     ],
   },
   {
