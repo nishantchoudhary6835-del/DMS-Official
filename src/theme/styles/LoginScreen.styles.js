@@ -18,7 +18,6 @@ export const styles = StyleSheet.create({
     borderRadius: theme.radius.hero,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
-    // Clips the gradient to the card's top corners.
     overflow: 'hidden',
     ...theme.elevation.raised,
   },
@@ -27,35 +26,20 @@ export const styles = StyleSheet.create({
   cardBrand: {
     alignItems: 'center',
     paddingHorizontal: theme.spacing.xl,
-    paddingTop: theme.spacing.xl,
+    paddingTop: theme.spacing.xxl,
     paddingBottom: theme.spacing.lg,
-  },
-
-  // --- Signal header -----------------------------------------------------
-  cardHeader: {
-    paddingHorizontal: theme.spacing.xl,
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.lg,
-  },
-  eyebrow: {
-    ...theme.typography.overline,
-    color: theme.colors.gradient.onGradientMuted,
-    marginBottom: 5,
-  },
-  title: {
-    ...theme.typography.displaySm,
-    color: theme.colors.gradient.onGradient,
   },
 
   // --- Bureau body -------------------------------------------------------
   cardBody: {
     paddingHorizontal: theme.spacing.xl,
-    paddingTop: theme.spacing.lg,
+    paddingTop: theme.spacing.sm,
     paddingBottom: theme.spacing.xl,
   },
   subtitle: {
-    ...theme.typography.caption,
+    ...theme.typography.body,
     color: theme.colors.textSecondary,
+    textAlign: 'center',
     marginBottom: theme.spacing.lg,
   },
 

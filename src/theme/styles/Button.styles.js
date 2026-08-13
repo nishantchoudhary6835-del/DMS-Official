@@ -26,6 +26,15 @@ export const styles = StyleSheet.create({
   icon: {
     marginRight: 7,
   },
+  iconTrailing: {
+    marginLeft: 7,
+  },
+  // Opt-in — reserved for one-off hero actions (Login) rather than the
+  // app's default control shape, the same way `radius.hero` is reserved for
+  // the gradient Signal blocks and not used on ordinary cards.
+  pill: {
+    borderRadius: theme.radius.full,
+  },
   label: {
     ...theme.typography.button,
   },

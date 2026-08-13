@@ -22,6 +22,8 @@ export function Button({
   onPress,
   variant = 'primary',
   icon,
+  iconPosition = 'leading',
+  pill = false,
   loading = false,
   disabled = false,
   fullWidth = true,
@@ -65,6 +67,7 @@ export function Button({
         style={({ pressed }) => [
           styles.base,
           styles[variant],
+          pill && styles.pill,
           pressed && !isInteractionBlocked && styles[`${variant}Pressed`],
           disabled && styles.disabled,
         ]}
@@ -73,7 +76,7 @@ export function Button({
           <ActivityIndicator size="small" color={contentColor} />
         ) : (
           <View style={styles.labelWrap}>
-            {icon ? (
+            {icon && iconPosition === 'leading' ? (
               <Ionicons
                 name={icon}
                 size={17}
@@ -87,6 +90,14 @@ export function Button({
             >
               {title}
             </Text>
+            {icon && iconPosition === 'trailing' ? (
+              <Ionicons
+                name={icon}
+                size={17}
+                color={contentColor}
+                style={styles.iconTrailing}
+              />
+            ) : null}
           </View>
         )}
       </Pressable>

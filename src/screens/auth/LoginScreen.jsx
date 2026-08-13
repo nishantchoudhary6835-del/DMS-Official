@@ -1,9 +1,7 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { BrandMark } from '@components/common/BrandMark';
-import { theme } from '@theme';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { TextField } from '@components/common/TextField';
@@ -60,32 +58,20 @@ export function LoginScreen({ navigation }) {
     <Screen padded={false}>
       <View style={styles.page}>
         <View style={styles.card}>
-          {/* The mark sits on white rather than in the gradient below it —
-              its crimson wordmark and gold ornament would both disappear
-              against the brand gradient's own crimson-to-amber range. */}
           <View style={styles.cardBrand}>
-            <BrandMark size="large" />
+            <BrandMark size="large" showTagline />
           </View>
-
-          <LinearGradient
-            colors={theme.colors.gradient.brand}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.cardHeader}
-          >
-            <Text style={styles.eyebrow}>Document Management System</Text>
-            <Text style={styles.title}>Welcome back</Text>
-          </LinearGradient>
 
           <View style={styles.cardBody}>
             <Text style={styles.subtitle}>
-              Sign in with the work email your account was set up against.
+              Please sign in to continue
             </Text>
 
             <ErrorBanner message={error} />
 
             <TextField
-              label="Email"
+              label="Email Address"
+              icon="mail-outline"
               value={email}
               onChangeText={handleEmailChange}
               error={emailError}
@@ -104,6 +90,7 @@ export function LoginScreen({ navigation }) {
             <TextField
               ref={passwordRef}
               label="Password"
+              icon="lock-closed-outline"
               value={password}
               onChangeText={handlePasswordChange}
               error={passwordError}
@@ -120,6 +107,9 @@ export function LoginScreen({ navigation }) {
 
             <Button
               title="Sign in"
+              icon="arrow-forward"
+              iconPosition="trailing"
+              pill
               onPress={handleSubmit}
               loading={isSubmitting}
               style={styles.action}
