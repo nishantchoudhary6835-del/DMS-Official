@@ -75,7 +75,7 @@ export function LoginScreen({ navigation }) {
               value={email}
               onChangeText={handleEmailChange}
               error={emailError}
-              placeholder="you@company.com"
+              placeholder="you@syandrix.com"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
