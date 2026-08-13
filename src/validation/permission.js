@@ -1,7 +1,9 @@
 /**
  * The nine actions PERMISSION_MODULE.md documents as currently supported.
- * Unlike hierarchy levels there is no GET endpoint that returns this list —
- * the doc presents it as fixed, so it is hardcoded rather than fetched.
+ * GET /permission/options now returns the live list (see usePermissionVocabulary)
+ * and wins whenever it's reachable — this stays as the fallback for the same
+ * reason FALLBACK_HIERARCHY_LEVELS does: an unreachable endpoint shouldn't
+ * leave the create form with nothing to pick from.
  */
 export const PERMISSION_ACTIONS = [
   'VIEW',
@@ -13,6 +15,22 @@ export const PERMISSION_ACTIONS = [
   'PUBLISH',
   'ARCHIVE',
   'RESTORE',
+];
+
+/**
+ * The resource vocabulary from PERMISSION_MODULE.md's example response.
+ * Same fallback relationship to GET /permission/options as PERMISSION_ACTIONS
+ * has to the same endpoint's `actions`.
+ */
+export const FALLBACK_PERMISSION_RESOURCES = [
+  'USER',
+  'EMPLOYEE',
+  'DEPARTMENT',
+  'TEAM',
+  'DOCUMENT',
+  'PERMISSION',
+  'ROLE_PERMISSION',
+  'ACL',
 ];
 
 export const PERMISSION_STATUS = {
@@ -32,25 +50,38 @@ export function actionLabel(action) {
   return word.charAt(0) + word.slice(1).toLowerCase();
 }
 
-export function validateResource(value) {
-  const trimmed = String(value ?? '').trim();
+/**
+ * Resource is now a closed vocabulary (GET /permission/options), not free
+ * text — mirrors validateHierarchyLevel's relationship to its allowed list.
+ */
+export function validateResource(value, allowedResources) {
+  const allowed =
+    Array.isArray(allowedResources) && allowedResources.length
+      ? allowedResources
+      : FALLBACK_PERMISSION_RESOURCES;
 
-  if (!trimmed) return 'Resource is required';
+  if (!value) return 'Resource is required';
+  if (!allowed.includes(value)) return 'Select a valid resource';
 
   return undefined;
 }
 
-export function validateAction(value) {
+export function validateAction(value, allowedActions) {
+  const allowed =
+    Array.isArray(allowedActions) && allowedActions.length
+      ? allowedActions
+      : PERMISSION_ACTIONS;
+
   if (!value) return 'Action is required';
-  if (!PERMISSION_ACTIONS.includes(value)) return 'Select a valid action';
+  if (!allowed.includes(value)) return 'Select a valid action';
 
   return undefined;
 }
 
-export function validatePermissionForm(values) {
+export function validatePermissionForm(values, allowedResources, allowedActions) {
   const errors = {
-    resource: validateResource(values.resource),
-    action: validateAction(values.action),
+    resource: validateResource(values.resource, allowedResources),
+    action: validateAction(values.action, allowedActions),
   };
 
   const hasError = Object.values(errors).some(Boolean);

@@ -7,6 +7,7 @@ import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { PermissionFormFields } from '@components/permission/PermissionFormFields';
 import { usePermission } from '@hooks/usePermission';
+import { usePermissionVocabulary } from '@hooks/usePermissionVocabulary';
 import { useUpdatePermission } from '@hooks/useUpdatePermission';
 import { validatePermissionForm } from '@validation/permission';
 
@@ -44,6 +45,8 @@ export function EditPermissionScreen({ navigation, route }) {
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useUpdatePermission();
 
+  const vocabulary = usePermissionVocabulary();
+
   const [initial, setInitial] = useState(null);
   const [values, setValues] = useState(null);
   const [localErrors, setLocalErrors] = useState({});
@@ -73,7 +76,11 @@ export function EditPermissionScreen({ navigation, route }) {
   const errorFor = (key) => fieldErrors[key] || localErrors[key];
 
   const handleSubmit = async () => {
-    const { errors, hasError } = validatePermissionForm(values);
+    const { errors, hasError } = validatePermissionForm(
+      values,
+      vocabulary.resources,
+      vocabulary.actions
+    );
 
     if (hasError) {
       setLocalErrors(errors);
@@ -148,6 +155,8 @@ export function EditPermissionScreen({ navigation, route }) {
           values={values}
           setField={setField}
           errorFor={errorFor}
+          resourceOptions={vocabulary.resourceOptions}
+          actionOptions={vocabulary.actionOptions}
           disabled={isSubmitting}
         />
 

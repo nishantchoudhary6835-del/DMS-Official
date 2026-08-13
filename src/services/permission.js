@@ -15,6 +15,17 @@ import { axiosInstance } from '@services/axiosInstance';
  */
 const SERVER_OWNED = ['createdBy', 'createdAt', 'updatedAt', '__v', '_id'];
 
+/**
+ * The closed vocabulary for the Resource and Action fields, per
+ * PERMISSION_MODULE.md's "Permission Options API". Lets the create/edit form
+ * offer a Select instead of a free-text Resource field, which previously let
+ * "TEAM" and "Team" exist as two different resources with nothing to stop it.
+ */
+export async function getPermissionOptions() {
+  const { data } = await axiosInstance.get('/permission/options');
+  return data;
+}
+
 export async function createPermission({ resource, action, description = '' }) {
   const { data } = await axiosInstance.post('/permission', {
     resource: String(resource ?? '').trim(),

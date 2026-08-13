@@ -1,33 +1,29 @@
-import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import { Select } from '@components/common/Select';
 import { TextField } from '@components/common/TextField';
-import { actionLabel, PERMISSION_ACTIONS } from '@validation/permission';
 
 import { styles } from '@theme/styles/PermissionFormFields.styles';
 
-export function PermissionFormFields({ values, setField, errorFor, disabled = false }) {
-  const actionOptions = useMemo(
-    () =>
-      PERMISSION_ACTIONS.map((action) => ({
-        value: action,
-        label: actionLabel(action),
-      })),
-    []
-  );
-
+export function PermissionFormFields({
+  values,
+  setField,
+  errorFor,
+  resourceOptions,
+  actionOptions,
+  disabled = false,
+}) {
   return (
     <>
-      <TextField
+      <Select
         label="Resource"
         value={values.resource}
-        onChangeText={(text) => setField('resource', text)}
+        options={resourceOptions}
+        onChange={(value) => setField('resource', value)}
         error={errorFor('resource')}
-        placeholder="TEAM"
+        placeholder="Select a resource"
         helper="The system resource this permission applies to."
-        autoCorrect={false}
-        editable={!disabled}
+        disabled={disabled || !resourceOptions.length}
       />
 
       <Select
@@ -38,7 +34,7 @@ export function PermissionFormFields({ values, setField, errorFor, disabled = fa
         error={errorFor('action')}
         placeholder="Select an action"
         helper="One of the nine actions the Permission Engine supports."
-        disabled={disabled}
+        disabled={disabled || !actionOptions.length}
       />
 
       <TextField

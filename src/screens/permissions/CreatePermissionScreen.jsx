@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { PermissionFormFields } from '@components/permission/PermissionFormFields';
 import { useCreatePermission } from '@hooks/useCreatePermission';
+import { usePermissionVocabulary } from '@hooks/usePermissionVocabulary';
 import { validatePermissionForm } from '@validation/permission';
 
 import { styles } from '@theme/styles/CreatePermissionScreen.styles';
@@ -13,6 +14,8 @@ import { styles } from '@theme/styles/CreatePermissionScreen.styles';
 export function CreatePermissionScreen({ navigation }) {
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreatePermission();
+
+  const vocabulary = usePermissionVocabulary();
 
   const [values, setValues] = useState({
     resource: '',
@@ -30,7 +33,11 @@ export function CreatePermissionScreen({ navigation }) {
   const errorFor = (key) => fieldErrors[key] || localErrors[key];
 
   const handleSubmit = async () => {
-    const { errors, hasError } = validatePermissionForm(values);
+    const { errors, hasError } = validatePermissionForm(
+      values,
+      vocabulary.resources,
+      vocabulary.actions
+    );
 
     if (hasError) {
       setLocalErrors(errors);
@@ -70,6 +77,8 @@ export function CreatePermissionScreen({ navigation }) {
           values={values}
           setField={setField}
           errorFor={errorFor}
+          resourceOptions={vocabulary.resourceOptions}
+          actionOptions={vocabulary.actionOptions}
           disabled={isSubmitting}
         />
 
