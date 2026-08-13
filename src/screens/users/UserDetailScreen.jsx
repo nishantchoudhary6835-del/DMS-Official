@@ -11,6 +11,7 @@ import { Select } from '@components/common/Select';
 import { TextField } from '@components/common/TextField';
 import { Screen } from '@components/layout/Screen';
 import { employeeOf } from '@components/user/UserCard';
+import { useToast } from '@context/ToastContext';
 import { useDeleteUser } from '@hooks/useDeleteUser';
 import { useResetPassword } from '@hooks/useResetPassword';
 import { useUser } from '@hooks/useUser';
@@ -47,6 +48,7 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
 
 export function UserDetailScreen({ navigation, route }) {
   const { userId } = route.params ?? {};
+  const toast = useToast();
 
   const { user, isLoading, error, isForbidden, isNotFound, refresh } =
     useUser(userId);
@@ -99,7 +101,10 @@ export function UserDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(userId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success('Account status updated.');
+      refresh();
+    }
   };
 
   const handleResetPassword = async () => {
@@ -121,6 +126,7 @@ export function UserDetailScreen({ navigation, route }) {
       setPasswordErrors({});
       setIsPasswordOpen(false);
       setPasswordDone(true);
+      toast.success('Password reset.');
       refresh();
     }
   };
@@ -130,7 +136,10 @@ export function UserDetailScreen({ navigation, route }) {
 
     setIsConfirmingDelete(false);
 
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Account removed.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {

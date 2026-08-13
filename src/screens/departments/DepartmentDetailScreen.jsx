@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useDeleteDepartment } from '@hooks/useDeleteDepartment';
 import { useDepartment } from '@hooks/useDepartment';
 import { useDepartmentStatus } from '@hooks/useDepartmentStatus';
@@ -49,6 +50,7 @@ function Row({ label, value, fallback = 'Not assigned', divider = false }) {
 
 export function DepartmentDetailScreen({ navigation, route }) {
   const { departmentId } = route.params ?? {};
+  const toast = useToast();
 
   const { department, isLoading, error, isForbidden, isNotFound, refresh } =
     useDepartment(departmentId);
@@ -94,7 +96,14 @@ export function DepartmentDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(departmentId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success(
+        nextStatus === DEPARTMENT_STATUS.ACTIVE
+          ? 'Department activated.'
+          : 'Department deactivated.'
+      );
+      refresh();
+    }
   };
 
   const handleDelete = async () => {
@@ -104,7 +113,10 @@ export function DepartmentDetailScreen({ navigation, route }) {
 
     // Only leave on success. A refusal — employees still assigned — has to
     // keep the department on screen with its explanation attached.
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Department deleted.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {

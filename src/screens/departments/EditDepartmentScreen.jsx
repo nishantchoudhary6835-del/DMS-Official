@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { DepartmentFormFields } from '@components/department/DepartmentFormFields';
+import { useToast } from '@context/ToastContext';
 import { useDepartment } from '@hooks/useDepartment';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { useUpdateDepartment } from '@hooks/useUpdateDepartment';
@@ -35,6 +36,7 @@ function changedFields(initial, current) {
 
 export function EditDepartmentScreen({ navigation, route }) {
   const { departmentId } = route.params ?? {};
+  const toast = useToast();
 
   const {
     department,
@@ -89,6 +91,7 @@ export function EditDepartmentScreen({ navigation, route }) {
     const updated = await submit(departmentId, changes);
 
     if (updated) {
+      toast.success('Department updated.');
       navigation.goBack();
     }
   };

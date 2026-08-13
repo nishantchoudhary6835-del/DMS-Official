@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { DocumentFormFields } from '@components/document/DocumentFormFields';
+import { useToast } from '@context/ToastContext';
 import { useCreateDocument } from '@hooks/useCreateDocument';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useTeamOptions } from '@hooks/useTeamOptions';
@@ -13,6 +14,7 @@ import { validateDocumentForm } from '@validation/document';
 import { styles } from '@theme/styles/CreateDocumentScreen.styles';
 
 export function CreateDocumentScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateDocument();
 
@@ -59,6 +61,7 @@ export function CreateDocumentScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Document uploaded.');
       navigation.goBack();
     }
   };

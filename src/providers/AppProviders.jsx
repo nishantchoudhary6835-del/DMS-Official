@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from '@context/AuthContext';
+import { ToastProvider } from '@context/ToastContext';
 import { setupInterceptors } from '@services/axiosInstance';
 
 const queryClient = new QueryClient({
@@ -30,12 +31,14 @@ function ApiBridge({ children }) {
 
 export function AppProviders({ children }) {
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ApiBridge>{children}</ApiBridge>
-        </AuthProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <ToastProvider>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <ApiBridge>{children}</ApiBridge>
+          </AuthProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </ToastProvider>
   );
 }

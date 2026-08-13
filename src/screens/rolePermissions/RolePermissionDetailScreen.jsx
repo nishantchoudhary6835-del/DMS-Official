@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useDeleteRolePermission } from '@hooks/useDeleteRolePermission';
 import { useRolePermission } from '@hooks/useRolePermission';
 import { useRolePermissionStatus } from '@hooks/useRolePermissionStatus';
@@ -32,6 +33,7 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
 
 export function RolePermissionDetailScreen({ navigation, route }) {
   const { rolePermissionId } = route.params ?? {};
+  const toast = useToast();
 
   const { rolePermission, isLoading, error, isForbidden, isNotFound, refresh } =
     useRolePermission(rolePermissionId);
@@ -76,7 +78,14 @@ export function RolePermissionDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(rolePermissionId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success(
+        nextStatus === ROLE_PERMISSION_STATUS.ACTIVE
+          ? 'Role assignment activated.'
+          : 'Role assignment deactivated.'
+      );
+      refresh();
+    }
   };
 
   const handleDelete = async () => {
@@ -84,7 +93,10 @@ export function RolePermissionDetailScreen({ navigation, route }) {
 
     setIsConfirmingDelete(false);
 
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Role assignment deleted.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {

@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useCreateEmployee } from '@hooks/useCreateEmployee';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -15,6 +16,7 @@ import { validateEmployeeForm } from '@validation/employee';
 import { styles } from '@theme/styles/CreateEmployeeScreen.styles';
 
 export function CreateEmployeeScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateEmployee();
 
@@ -79,6 +81,7 @@ export function CreateEmployeeScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Employee created.');
       navigation.goBack();
     }
   };

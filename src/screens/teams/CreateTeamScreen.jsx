@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { TeamFormFields } from '@components/team/TeamFormFields';
+import { useToast } from '@context/ToastContext';
 import { useCreateTeam } from '@hooks/useCreateTeam';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -13,6 +14,7 @@ import { TEAM_LEAD_LEVEL, validateTeamForm } from '@validation/team';
 import { styles } from '@theme/styles/CreateTeamScreen.styles';
 
 export function CreateTeamScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateTeam();
 
@@ -48,6 +50,7 @@ export function CreateTeamScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Team created.');
       navigation.goBack();
     }
   };

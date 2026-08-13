@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { TeamFormFields } from '@components/team/TeamFormFields';
+import { useToast } from '@context/ToastContext';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { useTeam } from '@hooks/useTeam';
@@ -36,6 +37,7 @@ function changedFields(initial, current) {
 
 export function EditTeamScreen({ navigation, route }) {
   const { teamId } = route.params ?? {};
+  const toast = useToast();
 
   const {
     team,
@@ -91,6 +93,7 @@ export function EditTeamScreen({ navigation, route }) {
     const updated = await submit(teamId, changes);
 
     if (updated) {
+      toast.success('Team updated.');
       navigation.goBack();
     }
   };

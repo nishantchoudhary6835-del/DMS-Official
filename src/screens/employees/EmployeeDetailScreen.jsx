@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useDeleteEmployee } from '@hooks/useDeleteEmployee';
 import { useEmployee } from '@hooks/useEmployee';
 import { useEmployeeAccount } from '@hooks/useEmployeeAccount';
@@ -58,6 +59,7 @@ function Row({ label, value, fallback = 'Not assigned', divider = false }) {
 
 export function EmployeeDetailScreen({ navigation, route }) {
   const { employeeId } = route.params ?? {};
+  const toast = useToast();
 
   const { employee, isLoading, error, isForbidden, isNotFound, refresh } =
     useEmployee(employeeId);
@@ -109,7 +111,14 @@ export function EmployeeDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(employeeId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success(
+        nextStatus === EMPLOYEE_STATUS.ACTIVE
+          ? 'Employee activated.'
+          : 'Employee deactivated.'
+      );
+      refresh();
+    }
   };
 
   const handleDelete = async () => {
@@ -117,7 +126,10 @@ export function EmployeeDetailScreen({ navigation, route }) {
 
     setIsConfirmingDelete(false);
 
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Employee deleted.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {

@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployee } from '@hooks/useEmployee';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -41,6 +42,7 @@ function changedFields(initial, current) {
 
 export function EditEmployeeScreen({ navigation, route }) {
   const { employeeId } = route.params ?? {};
+  const toast = useToast();
 
   const {
     employee,
@@ -140,6 +142,7 @@ export function EditEmployeeScreen({ navigation, route }) {
     const updated = await submit(employeeId, changes);
 
     if (updated) {
+      toast.success('Employee updated.');
       navigation.goBack();
     }
   };

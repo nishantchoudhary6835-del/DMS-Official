@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { RolePermissionFormFields } from '@components/rolePermission/RolePermissionFormFields';
+import { useToast } from '@context/ToastContext';
 import { useHierarchy } from '@hooks/useHierarchy';
 import { usePermissionOptions } from '@hooks/usePermissionOptions';
 import { useRolePermission } from '@hooks/useRolePermission';
@@ -35,6 +36,7 @@ function changedFields(initial, current) {
 
 export function EditRolePermissionScreen({ navigation, route }) {
   const { rolePermissionId } = route.params ?? {};
+  const toast = useToast();
 
   const {
     rolePermission,
@@ -90,6 +92,7 @@ export function EditRolePermissionScreen({ navigation, route }) {
     const updated = await submit(rolePermissionId, changes);
 
     if (updated) {
+      toast.success('Role assignment updated.');
       navigation.goBack();
     }
   };

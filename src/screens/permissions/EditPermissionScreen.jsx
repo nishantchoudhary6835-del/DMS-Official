@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { PermissionFormFields } from '@components/permission/PermissionFormFields';
+import { useToast } from '@context/ToastContext';
 import { usePermission } from '@hooks/usePermission';
 import { usePermissionVocabulary } from '@hooks/usePermissionVocabulary';
 import { useUpdatePermission } from '@hooks/useUpdatePermission';
@@ -32,6 +33,7 @@ function changedFields(initial, current) {
 
 export function EditPermissionScreen({ navigation, route }) {
   const { permissionId } = route.params ?? {};
+  const toast = useToast();
 
   const {
     permission,
@@ -90,6 +92,7 @@ export function EditPermissionScreen({ navigation, route }) {
     const updated = await submit(permissionId, changes);
 
     if (updated) {
+      toast.success('Permission updated.');
       navigation.goBack();
     }
   };

@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { PermissionFormFields } from '@components/permission/PermissionFormFields';
+import { useToast } from '@context/ToastContext';
 import { useCreatePermission } from '@hooks/useCreatePermission';
 import { usePermissionVocabulary } from '@hooks/usePermissionVocabulary';
 import { validatePermissionForm } from '@validation/permission';
@@ -12,6 +13,7 @@ import { validatePermissionForm } from '@validation/permission';
 import { styles } from '@theme/styles/CreatePermissionScreen.styles';
 
 export function CreatePermissionScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreatePermission();
 
@@ -47,6 +49,7 @@ export function CreatePermissionScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Permission created.');
       navigation.goBack();
     }
   };

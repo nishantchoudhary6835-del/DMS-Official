@@ -6,6 +6,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useAcl } from '@hooks/useAcl';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -42,6 +43,7 @@ function changedFields(initial, current) {
 
 export function EditAclScreen({ navigation, route }) {
   const { aclId } = route.params ?? {};
+  const toast = useToast();
 
   const {
     acl,
@@ -107,6 +109,7 @@ export function EditAclScreen({ navigation, route }) {
     const updated = await submit(aclId, changes);
 
     if (updated) {
+      toast.success('Access rule updated.');
       navigation.goBack();
     }
   };

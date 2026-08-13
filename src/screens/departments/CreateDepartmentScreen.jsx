@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { DepartmentFormFields } from '@components/department/DepartmentFormFields';
+import { useToast } from '@context/ToastContext';
 import { useCreateDepartment } from '@hooks/useCreateDepartment';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
 import { validateDepartmentForm } from '@validation/department';
@@ -12,6 +13,7 @@ import { validateDepartmentForm } from '@validation/department';
 import { styles } from '@theme/styles/CreateDepartmentScreen.styles';
 
 export function CreateDepartmentScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateDepartment();
 
@@ -45,6 +47,7 @@ export function CreateDepartmentScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Department created.');
       navigation.goBack();
     }
   };

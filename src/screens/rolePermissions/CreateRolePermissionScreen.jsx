@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { RolePermissionFormFields } from '@components/rolePermission/RolePermissionFormFields';
+import { useToast } from '@context/ToastContext';
 import { useCreateRolePermission } from '@hooks/useCreateRolePermission';
 import { useHierarchy } from '@hooks/useHierarchy';
 import { usePermissionOptions } from '@hooks/usePermissionOptions';
@@ -13,6 +14,7 @@ import { validateRolePermissionForm } from '@validation/rolePermission';
 import { styles } from '@theme/styles/CreateRolePermissionScreen.styles';
 
 export function CreateRolePermissionScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateRolePermission();
 
@@ -44,6 +46,7 @@ export function CreateRolePermissionScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Role assignment created.');
       navigation.goBack();
     }
   };

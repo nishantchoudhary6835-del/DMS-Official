@@ -5,6 +5,7 @@ import { AclFormFields } from '@components/acl/AclFormFields';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useCreateAcl } from '@hooks/useCreateAcl';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -16,6 +17,7 @@ import { validateAclForm } from '@validation/acl';
 import { styles } from '@theme/styles/CreateAclScreen.styles';
 
 export function CreateAclScreen({ navigation }) {
+  const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateAcl();
 
@@ -67,6 +69,7 @@ export function CreateAclScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
+      toast.success('Access rule created.');
       navigation.goBack();
     }
   };

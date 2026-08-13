@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useDeletePermission } from '@hooks/useDeletePermission';
 import { usePermission } from '@hooks/usePermission';
 import { usePermissionStatus } from '@hooks/usePermissionStatus';
@@ -37,6 +38,7 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
 
 export function PermissionDetailScreen({ navigation, route }) {
   const { permissionId } = route.params ?? {};
+  const toast = useToast();
 
   const { permission, isLoading, error, isForbidden, isNotFound, refresh } =
     usePermission(permissionId);
@@ -81,7 +83,14 @@ export function PermissionDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(permissionId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success(
+        nextStatus === PERMISSION_STATUS.ACTIVE
+          ? 'Permission activated.'
+          : 'Permission deactivated.'
+      );
+      refresh();
+    }
   };
 
   const handleDelete = async () => {
@@ -91,7 +100,10 @@ export function PermissionDetailScreen({ navigation, route }) {
 
     // Only leave on success. A refusal keeps the record on screen with its
     // reason attached rather than dropping it optimistically.
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Permission deleted.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {

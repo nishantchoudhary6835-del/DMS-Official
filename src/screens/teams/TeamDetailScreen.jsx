@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useDeleteTeam } from '@hooks/useDeleteTeam';
 import { useTeam } from '@hooks/useTeam';
 import { useTeamStatus } from '@hooks/useTeamStatus';
@@ -56,6 +57,7 @@ function Row({ label, value, fallback = 'Not assigned', divider = false }) {
 
 export function TeamDetailScreen({ navigation, route }) {
   const { teamId } = route.params ?? {};
+  const toast = useToast();
 
   const { team, isLoading, error, isForbidden, isNotFound, refresh } =
     useTeam(teamId);
@@ -101,7 +103,12 @@ export function TeamDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(teamId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success(
+        nextStatus === TEAM_STATUS.ACTIVE ? 'Team activated.' : 'Team deactivated.'
+      );
+      refresh();
+    }
   };
 
   const handleDelete = async () => {
@@ -111,7 +118,10 @@ export function TeamDetailScreen({ navigation, route }) {
 
     // Only leave on success. A refusal — employees still assigned, or a Team
     // Lead lacking delete rights — keeps the team on screen with its reason.
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Team deleted.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {

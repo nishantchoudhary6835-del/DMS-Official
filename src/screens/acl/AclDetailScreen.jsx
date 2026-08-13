@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { useToast } from '@context/ToastContext';
 import { useAcl } from '@hooks/useAcl';
 import { useAclStatus } from '@hooks/useAclStatus';
 import { useDeleteAcl } from '@hooks/useDeleteAcl';
@@ -40,6 +41,7 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
 
 export function AclDetailScreen({ navigation, route }) {
   const { aclId } = route.params ?? {};
+  const toast = useToast();
 
   const { acl, isLoading, error, isForbidden, isNotFound, refresh } =
     useAcl(aclId);
@@ -82,7 +84,14 @@ export function AclDetailScreen({ navigation, route }) {
 
     const updated = await changeStatus(aclId, nextStatus);
 
-    if (updated) refresh();
+    if (updated) {
+      toast.success(
+        nextStatus === ACL_STATUS.ACTIVE
+          ? 'Access rule activated.'
+          : 'Access rule deactivated.'
+      );
+      refresh();
+    }
   };
 
   const handleDelete = async () => {
@@ -90,7 +99,10 @@ export function AclDetailScreen({ navigation, route }) {
 
     setIsConfirmingDelete(false);
 
-    if (deleted) navigation.goBack();
+    if (deleted) {
+      toast.success('Access rule deleted.');
+      navigation.goBack();
+    }
   };
 
   const renderBody = () => {
