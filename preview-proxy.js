@@ -47,6 +47,11 @@ function shape(value, key) {
 
 function proxyToBackend(req, res) {
   const target = new URL(TARGET);
+  // TARGET may point at a plain-HTTP local backend during testing — always
+  // using https here would try to TLS-handshake a server that isn't
+  // speaking TLS.
+  const isHttps = target.protocol === 'https:';
+  const client = isHttps ? https : http;
   const headers = Object.assign({}, req.headers);
   headers.host = target.host;
   headers.origin = target.origin;
@@ -54,10 +59,10 @@ function proxyToBackend(req, res) {
 
   const started = Date.now();
 
-  const upstream = https.request(
+  const upstream = client.request(
     {
       hostname: target.hostname,
-      port: target.port || 443,
+      port: target.port || (isHttps ? 443 : 80),
       path: req.url,
       method: req.method,
       headers,

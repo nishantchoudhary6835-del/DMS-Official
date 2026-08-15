@@ -1,3 +1,4 @@
+const http = require('http');
 const https = require('https');
 const { URL } = require('url');
 
@@ -26,6 +27,11 @@ function shape(value, key) {
 
 function createApiProxy({ target, logBodies = true }) {
   const upstream = new URL(target);
+  // TARGET is developer-supplied and commonly points at a plain-HTTP local
+  // backend (http://localhost:5000) during local testing — always using
+  // https here would try to TLS-handshake a server that isn't speaking TLS.
+  const isHttps = upstream.protocol === 'https:';
+  const client = isHttps ? https : http;
 
   return function proxyToBackend(req, res) {
     const headers = Object.assign({}, req.headers);
@@ -35,10 +41,10 @@ function createApiProxy({ target, logBodies = true }) {
 
     const started = Date.now();
 
-    const proxied = https.request(
+    const proxied = client.request(
       {
         hostname: upstream.hostname,
-        port: upstream.port || 443,
+        port: upstream.port || (isHttps ? 443 : 80),
         path: req.url,
         method: req.method,
         headers,
