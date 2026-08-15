@@ -58,50 +58,17 @@ what the controller expects.
 
 ---
 
-## 2. `GET /team?department=<id>&status=ACTIVE` — 500, `Cannot read properties of undefined (reading 'department')`
+## 2. `GET /team` — 500 on every call — see `TEAM_LIST_ENDPOINT_ERROR.md`
 
-### What was found
-
-```
-GET /api/v1/team?department=6a7178421c73966a2997d72b&status=ACTIVE
-→ 500 (1336ms, 2653ms — reproduced twice)
-{
-  "success": false,
-  "errorName": "TypeError",
-  "message": "Cannot read properties of undefined (reading 'department')",
-  "errors": []
-}
-```
-
-`6a7178421c73966a2997d72b` is a real, active department id — confirmed
-immediately beforehand by a successful `GET /department` call that returned
-it in the list. So this isn't a bad/unknown id being passed.
-
-### Why this is a backend bug
-
-`Cannot read properties of undefined (reading 'department')` means the
-handler tried to read a `.department` property off something that was
-`undefined` — most likely `req.query` being accessed unsafely, or a
-destructure that assumes a body/object exists when this is a GET request
-with query parameters, not a POST body. This is unrelated to the document
-upload bug above; it's the team list endpoint specifically failing when
-filtered by `department` + `status` together (the exact query the frontend
-sends every time it needs to scope a team picker to one department — used
-on the Create Document, Create Employee, and Create ACL forms).
-
-### Impact
-
-Any screen that scopes a team dropdown to a chosen department — Create
-Document, Create Employee, Create Access Rule — silently gets an empty/
-errored team list instead of the department's actual teams.
-
-### What to check
-
-The team list controller's query-parameter handling, specifically whatever
-code path is only reached when `department` and `status` are both present
-together — the `undefined.department` access suggests a specific branch for
-the combined filter that isn't reached by a `department`-only or
-`status`-only query.
+**Moved to its own document.** What was originally written here as a
+department+status-combined-filter bug turned out, on retesting, to be
+broader — `GET /team` 500s with `Cannot read properties of undefined
+(reading 'department')` on *every* call, including a bare one with no query
+params at all. That's a big enough correction and a severe enough bug (it
+breaks the Team list screen outright, not just a scoped dropdown) to warrant
+its own writeup rather than staying buried as one bullet here. Full detail,
+reproductions, and root-cause hypothesis:
+[`TEAM_LIST_ENDPOINT_ERROR.md`](./TEAM_LIST_ENDPOINT_ERROR.md).
 
 ---
 
@@ -153,7 +120,7 @@ have an obvious meaning to begin with).
 | Endpoint | Problem | Severity |
 | --- | --- | --- |
 | `POST /document` | 500 — `documentService.createDocument` isn't a function | **Blocking** — document upload is completely broken |
-| `GET /team?department=&status=` | 500 — reads `.department` off `undefined` | **Blocking** for any department-scoped team picker |
+| `GET /team` (any/no query params) — [detail](./TEAM_LIST_ENDPOINT_ERROR.md) | 500 — reads `.department` off `undefined` on every call | **Blocking** — the entire Team list endpoint, not just department-scoped pickers |
 | `GET /workflow/my-submissions` | 404 instead of 200+empty on no results | Non-blocking, but breaks the empty-state UX and is inconsistent with the rest of the API |
 
 All three were reproduced more than once with identical results, so these

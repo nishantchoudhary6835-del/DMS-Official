@@ -17,8 +17,9 @@ record of what it was written to satisfy.
 | `EGKMS-Backend-Change-Request.pdf` | Requested backend changes |
 | `React-folder-structure.pdf` | Reference folder layout |
 | `CORS_CHANGE_REQUEST.md` | CORS allow-list and cookie `SameSite` changes needed for direct (proxy-less) frontend access |
-| `DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md` | Three confirmed server-side bugs: document upload 500, department-scoped team lookup 500, workflow my-submissions 404-on-empty |
-| `WORKFLOW_SUBMIT_MISSING_TEAM.md` | Workflow submit 400 ("Unable to determine next workflow authority") — a downstream effect of the still-open team-lookup 500 above |
+| `DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md` | Three confirmed server-side bugs: document upload 500, `GET /team` 500 (see next row), workflow my-submissions 404-on-empty |
+| `TEAM_LIST_ENDPOINT_ERROR.md` | `GET /team` 500s on every call, including with no query params at all — not just department-scoped lookups. Blocks the Team list screen and every team dropdown |
+| `WORKFLOW_SUBMIT_MISSING_TEAM.md` | Workflow submit 400 ("Unable to determine next workflow authority") — likely the submitting Employee's own team/teamLead assignment, not the document's `team` field |
 
 `AUTH_FLOW.md` here differs from `docs/AUTH_FLOW.md` in the backend repo
 (`kirangawande39/DMS`) — that copy is longer. Treat the backend repo's version
@@ -45,10 +46,13 @@ code-level fix available.
 
 ## Client-side state
 
-The Hierarchy, Department and Team modules are implemented and their read paths
-are confirmed against the live backend. **No write path has been exercised** —
-create, edit, status toggle, delete-protection refusal, the Team-Lead-only
-delete 403, and duplicate-name-per-department are all unverified.
+The Hierarchy and Department modules are implemented and their read paths are
+confirmed against the live backend. Team's write path (`POST /team`) is
+confirmed working, but its read path (`GET /team`) is not — it 500s on every
+call; see `TEAM_LIST_ENDPOINT_ERROR.md`. **Most other write paths remain
+unexercised** — edit, status toggle, delete-protection refusal, the
+Team-Lead-only delete 403, and duplicate-name-per-department are all
+unverified.
 
 Also outstanding: `clearHierarchyCache()` is exported but never wired to logout;
 the dashboard still renders from `src/screens/home/placeholders.js` rather than

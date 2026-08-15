@@ -1,8 +1,15 @@
 # Workflow submit fails with "Unable to determine next workflow authority"
 
-**Status:** Confirmed. Downstream effect of an already-reported bug, not a
-new one — see the last section. Nothing here is fixable from the frontend
-repo.
+**Status:** Confirmed, but see the correction below — this needs a backend
+check, not just the already-reported team-lookup fix. Nothing here is
+fixable from the frontend repo.
+
+**Correction (2026-08-15):** the original version of this document attributed
+the error to the created document having `"team": null`. Re-reading
+`WORKFLOW_MODULE.md` §4 shows that's wrong — submit routing never reads the
+document's `team` field. It resolves the reviewer from the *submitting
+user's own Employee record*. The "Why this happens" and "What to fix"
+sections below have been corrected accordingly.
 
 **Audience:** Backend team (`kirangawande39/DMS`).
 
@@ -59,40 +66,57 @@ POST /api/v1/workflow/6a7f0732e9b609566550a400/submit
 
 ## Why this happens
 
-The document was created with `"team": null`. Per `WORKFLOW_MODULE.md`,
-reviewer routing is `Employee → Team → Team.teamLead` — the next reviewer is
-resolved from the document's team, specifically that team's assigned team
-lead. With no team on the document, there is no team lead to route to, so
-the workflow-submit handler correctly has nothing to resolve and returns
-this error.
+Per `WORKFLOW_MODULE.md` §4, submit routing does **not** read the document's
+`team` field at all. It resolves the next reviewer from the *submitting
+user's own Employee record*:
 
-The document has no team not because the user left it blank by choice, but
-because the Team dropdown had nothing to offer: the first call in the log
-above, `GET /team?department=&status=ACTIVE`, 500s. This is the same bug
-already reported in
-[`DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md`](./DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md)
-(§2) — it was never fixed, only the separate `documentService.createDocument`
-bug (§1 of that document) was. Every department-scoped team lookup still
-fails, so every document created through the UI right now gets `team: null`,
-and every workflow submission on such a document will hit this same 400.
+```
+Authenticated User → User.employeeId → Employee → Employee.team → Team.teamLead
+```
+
+So "Unable to determine next workflow authority" means the account that
+submitted (`superadmin@dms.com` in this test run) has no `team` assigned on
+its Employee record, or that team has no `teamLead` set. The `"team": null`
+visible on the created document in the log above is a red herring for this
+particular error — it's caused by the same broken `GET /team` lookup, but
+through an unrelated path, since document.team isn't what submit reads.
+
+`WORKFLOW_MODULE.md` §27 ("Important Test Data") lists exactly this as a
+prerequisite to check before testing:
+
+```
+Employee.team    → correct Team
+Team.teamLead    → correct Team Lead
+```
+
+and warns "incorrect hierarchy relationships can cause incorrect routing."
+Whether the Super Admin test account actually has a team assigned isn't
+something the frontend can see or fix — it needs a backend-side check of
+that Employee record.
 
 ## Impact
 
-Submit-for-review is completely blocked for any document created since the
-team lookup started failing — which, as far as this testing can tell, is
-all of them. This isn't a separate defect to schedule; it's the practical
-consequence of §2 in the existing bug report, and it raises that bug's
-severity: it doesn't just break a dropdown, it blocks the entire approval
-workflow from ever starting.
+Unknown scope from the frontend side. If `superadmin@dms.com`'s Employee
+record has no team (or its team has no teamLead), submit will fail for
+every document that account creates, regardless of the document's own
+`team` field. Whether this also affects other/normal Employee accounts
+depends on whether their Employee.team is correctly set — can't be
+determined without backend-side data.
 
 ## What to fix
 
-Fix `GET /team?department=&status=ACTIVE` (already described in
-`DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md` §2). No separate change should be
-needed here — once documents can actually be created with a team attached,
-this workflow-submit error should resolve on its own, since the routing
-logic itself is doing the right thing given the input it's currently
-getting.
+Two separate things, not one:
+
+1. `GET /team` still 500s on every call, not just department-scoped ones
+   (already reported in
+   [`TEAM_LIST_ENDPOINT_ERROR.md`](./TEAM_LIST_ENDPOINT_ERROR.md)) — worth
+   fixing regardless, since it breaks the Team list screen and every team
+   dropdown, not just document creation.
+2. Independently, verify `superadmin@dms.com`'s Employee record has a `team`
+   assigned, and that team has a `teamLead`. If not, submit-for-review will
+   keep failing with this exact error even after (1) is fixed, since per §4
+   the routing logic never looks at the document's team — only the
+   submitter's.
 
 If it's useful as a secondary safeguard: consider whether `POST
 /workflow/:id/submit` should return a clearer, field-specific error (e.g.
