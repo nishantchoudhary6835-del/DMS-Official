@@ -32,10 +32,15 @@ function toFilePart(asset) {
 }
 
 /**
- * §9 warns explicitly against setting Content-Type by hand for a FormData
- * body — axios's default transformRequest already clears the instance's
- * JSON default and lets the browser attach its own multipart boundary, so
- * this deliberately passes no headers override.
+ * §9 warns against setting Content-Type by hand for a FormData body, but
+ * that only holds for a bare axios instance. `axiosInstance` sets
+ * `Content-Type: application/json` as an instance-level default
+ * (axiosInstance.js), and axios's transformRequest only clears that for
+ * FormData when no Content-Type is already present — here one always is, so
+ * without this override axios silently JSON.stringifies the FormData and
+ * sends it as `application/json` instead of multipart, dropping the file
+ * entirely. Setting it to `undefined` per-request removes the instance
+ * default so axios/the browser can attach the real multipart boundary.
  */
 export async function createDocument({
   title,
@@ -58,6 +63,8 @@ export async function createDocument({
   const filePart = toFilePart(file);
   if (filePart) formData.append('file', filePart);
 
-  const { data } = await axiosInstance.post('/document', formData);
+  const { data } = await axiosInstance.post('/document', formData, {
+    headers: { 'Content-Type': undefined },
+  });
   return data;
 }
