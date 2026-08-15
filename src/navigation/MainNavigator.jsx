@@ -28,6 +28,8 @@ import { RolePermissionDetailScreen } from '@screens/rolePermissions/RolePermiss
 import { RolePermissionListScreen } from '@screens/rolePermissions/RolePermissionListScreen';
 import { UserDetailScreen } from '@screens/users/UserDetailScreen';
 import { UserListScreen } from '@screens/users/UserListScreen';
+import { MySubmissionsScreen } from '@screens/workflow/MySubmissionsScreen';
+import { PendingApprovalsScreen } from '@screens/workflow/PendingApprovalsScreen';
 
 import { ROUTES } from './routes';
 
@@ -131,6 +133,14 @@ export function MainNavigator() {
       <Stack.Screen
         name={ROUTES.MAIN.CREATE_DOCUMENT}
         component={CreateDocumentScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.MY_SUBMISSIONS}
+        component={MySubmissionsScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.PENDING_APPROVALS}
+        component={PendingApprovalsScreen}
       />
     </Stack.Navigator>
   );

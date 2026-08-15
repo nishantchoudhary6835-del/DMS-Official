@@ -33,5 +33,7 @@ export const ROUTES = {
     ACL_DETAIL: 'AclDetail',
     EDIT_ACL: 'EditAcl',
     CREATE_DOCUMENT: 'CreateDocument',
+    MY_SUBMISSIONS: 'MySubmissions',
+    PENDING_APPROVALS: 'PendingApprovals',
   },
 };
