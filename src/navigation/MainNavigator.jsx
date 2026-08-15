@@ -30,6 +30,7 @@ import { UserDetailScreen } from '@screens/users/UserDetailScreen';
 import { UserListScreen } from '@screens/users/UserListScreen';
 import { MySubmissionsScreen } from '@screens/workflow/MySubmissionsScreen';
 import { PendingApprovalsScreen } from '@screens/workflow/PendingApprovalsScreen';
+import { WorkflowDetailScreen } from '@screens/workflow/WorkflowDetailScreen';
 
 import { ROUTES } from './routes';
 
@@ -141,6 +142,10 @@ export function MainNavigator() {
       <Stack.Screen
         name={ROUTES.MAIN.PENDING_APPROVALS}
         component={PendingApprovalsScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.WORKFLOW_DETAIL}
+        component={WorkflowDetailScreen}
       />
     </Stack.Navigator>
   );

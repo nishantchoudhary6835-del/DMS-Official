@@ -1,18 +1,35 @@
 import { labelFor } from '@validation/employee';
 
 /**
- * Only PENDING_REVIEW is real today. WORKFLOW_MODULE.md's FRS section shows
- * the full Approve/Return/Escalate lifecycle, but §11–§12 mark all of that as
- * remaining, untested backend work — so this stays a single-entry map rather
- * than guessing at status names that don't exist on the server yet.
+ * WORKFLOW_MODULE.md §31 marks the full lifecycle as implemented now, so
+ * this covers every workflow.status value §3/§24 name (COMPLETED is the
+ * terminal published state, not a level).
  */
 export const WORKFLOW_STATUS = {
   PENDING_REVIEW: 'PENDING_REVIEW',
+  REVISION: 'REVISION',
+  REJECTED: 'REJECTED',
+  COMPLETED: 'COMPLETED',
 };
 
 const STATUS_LABELS = {
   PENDING_REVIEW: 'Pending Review',
+  REVISION: 'Needs Revision',
+  REJECTED: 'Rejected',
+  COMPLETED: 'Completed',
 };
+
+/** Badge tones confirmed available in Badge.styles.js — no 'warning' tone exists. */
+const STATUS_TONES = {
+  PENDING_REVIEW: 'info',
+  REVISION: 'accent',
+  REJECTED: 'danger',
+  COMPLETED: 'success',
+};
+
+export function workflowStatusTone(status) {
+  return STATUS_TONES[status] ?? 'neutral';
+}
 
 function titleCase(value) {
   return String(value)

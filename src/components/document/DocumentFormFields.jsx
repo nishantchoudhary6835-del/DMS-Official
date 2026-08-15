@@ -91,8 +91,8 @@ export function DocumentFormFields({
       <View style={styles.notice}>
         <Text style={styles.noticeTitle}>Saved as a draft</Text>
         <Text style={styles.noticeBody}>
-          This creates the document as a Draft. Submitting it for review and
-          the approval workflow aren't available in this app yet.
+          This creates the document as a Draft. You'll be prompted to submit
+          it for review on the next screen.
         </Text>
       </View>
     </>

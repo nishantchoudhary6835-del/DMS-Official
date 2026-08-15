@@ -8,6 +8,7 @@ import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { WorkflowCard } from '@components/workflow/WorkflowCard';
 import { useMySubmissions } from '@hooks/useMySubmissions';
+import { ROUTES } from '@navigation/routes';
 
 import { styles } from '@theme/styles/WorkflowListScreen.styles';
 
@@ -84,7 +85,17 @@ export function MySubmissionsScreen({ navigation }) {
         <FlatList
           data={workflows}
           keyExtractor={(item, index) => item._id ?? String(index)}
-          renderItem={({ item }) => <WorkflowCard workflow={item} />}
+          renderItem={({ item }) => (
+            <WorkflowCard
+              workflow={item}
+              onPress={() =>
+                navigation.navigate(ROUTES.MAIN.WORKFLOW_DETAIL, {
+                  workflow: item,
+                  origin: 'submissions',
+                })
+              }
+            />
+          )}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmpty}
           refreshControl={
