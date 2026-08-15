@@ -16,6 +16,9 @@ record of what it was written to satisfy.
 | `EGKMS-System-Specification.pdf` | Whole-product specification |
 | `EGKMS-Backend-Change-Request.pdf` | Requested backend changes |
 | `React-folder-structure.pdf` | Reference folder layout |
+| `CORS_CHANGE_REQUEST.md` | CORS allow-list and cookie `SameSite` changes needed for direct (proxy-less) frontend access |
+| `DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md` | Three confirmed server-side bugs: document upload 500, department-scoped team lookup 500, workflow my-submissions 404-on-empty |
+| `WORKFLOW_SUBMIT_MISSING_TEAM.md` | Workflow submit 400 ("Unable to determine next workflow authority") — a downstream effect of the still-open team-lookup 500 above |
 
 `AUTH_FLOW.md` here differs from `docs/AUTH_FLOW.md` in the backend repo
 (`kirangawande39/DMS`) — that copy is longer. Treat the backend repo's version
