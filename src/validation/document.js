@@ -62,6 +62,23 @@ export function validateDocumentForm(values) {
 }
 
 /**
+ * Same as create except the file — §14's update example only appends a
+ * file when one was actually picked, so keeping the existing file by
+ * leaving the picker untouched has to be a valid submission.
+ */
+export function validateDocumentEditForm(values) {
+  const errors = {
+    title: validateTitle(values.title),
+    documentType: validateDocumentType(values.documentType),
+    department: validateDocumentDepartment(values.department),
+  };
+
+  const hasError = Object.values(errors).some(Boolean);
+
+  return { errors, hasError };
+}
+
+/**
  * Routes a backend error to the field that caused it, per §13's documented
  * error messages.
  */

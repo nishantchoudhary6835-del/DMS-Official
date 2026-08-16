@@ -10,14 +10,40 @@ import { useCreateDocument } from '@hooks/useCreateDocument';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
 import { useSubmitDocument } from '@hooks/useSubmitDocument';
 import { useTeamOptions } from '@hooks/useTeamOptions';
-import { validateDocumentForm } from '@validation/document';
+import { useUpdateDocument } from '@hooks/useUpdateDocument';
+import { referenceId } from '@utils/format';
+import { validateDocumentEditForm, validateDocumentForm } from '@validation/document';
 
 import { styles } from '@theme/styles/CreateDocumentScreen.styles';
 
+const EMPTY_VALUES = {
+  title: '',
+  description: '',
+  documentType: '',
+  department: null,
+  team: null,
+  file: null,
+};
+
+/**
+ * `screenMode` walks: 'create' -> 'created' -> optionally 'edit' -> back to
+ * 'created'. Editing loops back rather than leaving the screen because
+ * GET /document doesn't exist — the create response is the only moment this
+ * app ever has the document's id and fields, so there is nowhere else an
+ * edit could be re-entered from once this screen is left.
+ */
 export function CreateDocumentScreen({ navigation }) {
   const toast = useToast();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateDocument();
+
+  const {
+    submit: submitUpdate,
+    isSubmitting: isUpdating,
+    error: updateError,
+    fieldErrors: updateFieldErrors,
+    clearMessages: clearUpdateMessages,
+  } = useUpdateDocument();
 
   const {
     submit: submitForReview,
@@ -25,22 +51,12 @@ export function CreateDocumentScreen({ navigation }) {
     error: submitForReviewError,
   } = useSubmitDocument();
 
-  // Set once the document is created — GET /document doesn't exist yet, so
-  // this response is the only moment a Draft's id is ever available. While
-  // it's set, the screen shows a "submit for review" follow-up instead of
-  // the form rather than losing that id by navigating straight back.
+  const [screenMode, setScreenMode] = useState('create');
   const [createdDocument, setCreatedDocument] = useState(null);
 
   const departments = useDepartmentOptions();
 
-  const [values, setValues] = useState({
-    title: '',
-    description: '',
-    documentType: '',
-    department: null,
-    team: null,
-    file: null,
-  });
+  const [values, setValues] = useState(EMPTY_VALUES);
   const [localErrors, setLocalErrors] = useState({});
 
   // Scoped to the chosen department — no department, no teams to offer.
@@ -59,9 +75,12 @@ export function CreateDocumentScreen({ navigation }) {
     });
     setLocalErrors((prev) => ({ ...prev, [key]: undefined }));
     clearMessages();
+    clearUpdateMessages();
   };
 
-  const errorFor = (key) => fieldErrors[key] || localErrors[key];
+  const isEditing = screenMode === 'edit';
+  const activeFieldErrors = isEditing ? updateFieldErrors : fieldErrors;
+  const errorFor = (key) => activeFieldErrors[key] || localErrors[key];
 
   const handleSubmit = async () => {
     const { errors, hasError } = validateDocumentForm(values);
@@ -76,6 +95,7 @@ export function CreateDocumentScreen({ navigation }) {
     if (created) {
       toast.success('Document uploaded.');
       setCreatedDocument(created);
+      setScreenMode('created');
     }
   };
 
@@ -88,7 +108,90 @@ export function CreateDocumentScreen({ navigation }) {
     }
   };
 
-  if (createdDocument) {
+  const startEditing = () => {
+    setValues({
+      title: createdDocument.title ?? '',
+      description: createdDocument.description ?? '',
+      documentType: createdDocument.documentType ?? '',
+      department: referenceId(createdDocument.department),
+      team: referenceId(createdDocument.team),
+      file: null,
+    });
+    setLocalErrors({});
+    clearUpdateMessages();
+    setScreenMode('edit');
+  };
+
+  const cancelEditing = () => {
+    setScreenMode('created');
+  };
+
+  const handleUpdate = async () => {
+    const { errors, hasError } = validateDocumentEditForm(values);
+
+    if (hasError) {
+      setLocalErrors(errors);
+      return;
+    }
+
+    const updated = await submitUpdate(createdDocument._id, values);
+
+    if (updated) {
+      toast.success(
+        updated.currentVersion
+          ? `Document updated to ${updated.currentVersion}.`
+          : 'Document updated.'
+      );
+      setCreatedDocument(updated);
+      setScreenMode('created');
+    }
+  };
+
+  if (screenMode === 'edit') {
+    return (
+      <Screen>
+        <View style={styles.header}>
+          <Button
+            title="Cancel"
+            icon="chevron-back"
+            onPress={cancelEditing}
+            variant="text"
+            fullWidth={false}
+            disabled={isUpdating}
+          />
+        </View>
+
+        <Text style={styles.title}>Edit document</Text>
+        <Text style={styles.subtitle}>
+          Update the document's details, or replace its file. Saving creates
+          a new version.
+        </Text>
+
+        <View style={styles.card}>
+          <ErrorBanner message={updateError} />
+
+          <DocumentFormFields
+            mode="edit"
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            departmentOptions={departments.options}
+            teamOptions={teams.options}
+            disabled={isUpdating}
+          />
+
+          <Button
+            title={isUpdating ? 'Saving…' : 'Save changes'}
+            onPress={handleUpdate}
+            loading={isUpdating}
+            style={styles.action}
+          />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (screenMode === 'created') {
     return (
       <Screen>
         <View style={styles.header}>
@@ -103,8 +206,10 @@ export function CreateDocumentScreen({ navigation }) {
 
         <Text style={styles.title}>Document created</Text>
         <Text style={styles.subtitle}>
-          "{createdDocument.title}" was saved as a Draft. Submit it now to
-          send it to your Team Lead for review, or come back to it later.
+          "{createdDocument.title}" was saved as a Draft
+          {createdDocument.currentVersion ? ` (${createdDocument.currentVersion})` : ''}.
+          Submit it now to send it to your Team Lead for review, edit it
+          first, or come back to it later.
         </Text>
 
         <View style={styles.card}>
@@ -114,6 +219,13 @@ export function CreateDocumentScreen({ navigation }) {
             title="Submit for review"
             onPress={handleSubmitForReview}
             loading={isSubmittingForReview}
+            style={styles.action}
+          />
+          <Button
+            title="Edit document"
+            onPress={startEditing}
+            variant="secondary"
+            disabled={isSubmittingForReview}
             style={styles.action}
           />
           <Button
@@ -149,6 +261,7 @@ export function CreateDocumentScreen({ navigation }) {
         <ErrorBanner message={error} />
 
         <DocumentFormFields
+          mode="create"
           values={values}
           setField={setField}
           errorFor={errorFor}

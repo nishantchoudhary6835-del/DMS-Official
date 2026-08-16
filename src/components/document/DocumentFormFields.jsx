@@ -13,7 +13,9 @@ export function DocumentFormFields({
   departmentOptions,
   teamOptions,
   disabled = false,
+  mode = 'create',
 }) {
+  const isEdit = mode === 'edit';
   // A team belongs to one department, so there is nothing to scope to until
   // one is chosen — same rule EmployeeFormFields and AclFormFields use.
   const hasDepartment = Boolean(values.department);
@@ -80,20 +82,36 @@ export function DocumentFormFields({
       />
 
       <FilePicker
-        label="File"
+        label={isEdit ? 'Replace file (optional)' : 'File'}
         value={values.file}
         onChange={(file) => setField('file', file)}
         error={errorFor('file')}
-        helper="PDF or Word document."
+        helper={
+          isEdit
+            ? 'PDF or Word document. Leave blank to keep the current file.'
+            : 'PDF or Word document.'
+        }
         disabled={disabled}
       />
 
       <View style={styles.notice}>
-        <Text style={styles.noticeTitle}>Saved as a draft</Text>
-        <Text style={styles.noticeBody}>
-          This creates the document as a Draft. You'll be prompted to submit
-          it for review on the next screen.
-        </Text>
+        {isEdit ? (
+          <>
+            <Text style={styles.noticeTitle}>Creates a new version</Text>
+            <Text style={styles.noticeBody}>
+              Saving creates a new version of this document — the backend
+              tracks the version number, not this form.
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.noticeTitle}>Saved as a draft</Text>
+            <Text style={styles.noticeBody}>
+              This creates the document as a Draft. You'll be prompted to
+              submit it for review on the next screen.
+            </Text>
+          </>
+        )}
       </View>
     </>
   );
