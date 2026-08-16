@@ -1,32 +1,77 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
 
 import { ConfirmDialog } from '@components/common/ConfirmDialog';
-import { ActivityPanel } from '@components/dashboard/ActivityPanel';
 import { ApprovalFlowPanel } from '@components/dashboard/ApprovalFlowPanel';
 import { DocumentStatusPanel } from '@components/dashboard/DocumentStatusPanel';
-import { IdeasPipelinePanel } from '@components/dashboard/IdeasPipelinePanel';
 import { QuickActionsPanel } from '@components/dashboard/QuickActionsPanel';
-import { RecentDocumentsPanel } from '@components/dashboard/RecentDocumentsPanel';
 import { StatCard } from '@components/dashboard/StatCard';
+import { WorkflowListPanel } from '@components/dashboard/WorkflowListPanel';
 import { AppShell } from '@components/shell/AppShell';
 import { useAuth } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import { useBreakpoint } from '@hooks/useBreakpoint';
-import { theme } from '@theme';
-
+import { useDashboard } from '@hooks/useDashboard';
+import { useDepartments } from '@hooks/useDepartments';
+import { useMySubmissions } from '@hooks/useMySubmissions';
+import { usePendingWorkflows } from '@hooks/usePendingWorkflows';
+import { useTeams } from '@hooks/useTeams';
+import { ROUTES } from '@navigation/routes';
 import {
-  APPROVAL_FLOW,
-  DOCUMENT_STATUS,
-  IDEAS_PIPELINE,
-  QUICK_ACTIONS,
-  RECENT_ACTIVITY,
-  RECENT_DOCUMENTS,
-  STAT_CARDS,
-} from './placeholders';
+  documentRefLabel,
+  employeeRefLabel,
+  workflowLevelLabel,
+  workflowStatusLabel,
+  workflowStatusTone,
+} from '@validation/workflow';
 
 import { styles } from '@theme/styles/HomeScreen.styles';
+
+/**
+ * Every stat/panel below is sourced from an endpoint this app has already
+ * confirmed live (workflow pending/my-submissions, employee, department,
+ * team). Nothing here is a placeholder number — a slot with no backing
+ * endpoint (an org-wide approval-stage breakdown, a strategic-ideas
+ * pipeline, an audit-log feed) was removed rather than filled with a
+ * fabricated one. See docs/backend-specs/README.md's "Client-side state".
+ */
+const QUICK_ACTIONS = [
+  {
+    key: 'create-document',
+    label: 'Create Document',
+    icon: 'add-circle-outline',
+    tone: 'info',
+    route: ROUTES.MAIN.CREATE_DOCUMENT,
+  },
+  {
+    key: 'my-approvals',
+    label: 'My Pending Approvals',
+    icon: 'checkmark-done-outline',
+    tone: 'success',
+    route: ROUTES.MAIN.PENDING_APPROVALS,
+  },
+  {
+    key: 'my-submissions',
+    label: 'My Submissions',
+    icon: 'send-outline',
+    tone: 'accent',
+    route: ROUTES.MAIN.MY_SUBMISSIONS,
+  },
+  {
+    key: 'employees',
+    label: 'Employees',
+    icon: 'people-outline',
+    tone: 'primary',
+    route: ROUTES.MAIN.EMPLOYEES,
+  },
+  {
+    key: 'departments',
+    label: 'Departments',
+    icon: 'business-outline',
+    tone: 'neutral',
+    route: ROUTES.MAIN.DEPARTMENTS,
+  },
+];
 
 /**
  * Percentage bases rather than flex weights, because only a real width can
@@ -74,10 +119,42 @@ function displayNameFor(user) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
+/** Mirrors WorkflowCard's own field logic: the pending-approvals list is
+ * scoped to workflows where you're the reviewer, so the useful line is who
+ * submitted it; my-submissions is scoped to workflows you own, so the
+ * useful line is who's holding it now. */
+function metaFor(workflow, perspective) {
+  const level = workflowLevelLabel(workflow.currentLevel);
+
+  if (perspective === 'pending') {
+    const owner = employeeRefLabel(workflow.owner ?? workflow.document?.owner);
+    return owner ? `Submitted by ${owner}` : level ? `Waiting on ${level}` : null;
+  }
+
+  const reviewer = employeeRefLabel(workflow.currentReviewer);
+  return reviewer ? `With ${reviewer}` : level ? `Waiting on ${level}` : null;
+}
+
+function toListItems(workflows, perspective) {
+  return workflows.slice(0, 5).map((workflow) => ({
+    key: workflow._id,
+    title: documentRefLabel(workflow.document) ?? 'Untitled document',
+    meta: metaFor(workflow, perspective),
+    stage: workflowStatusLabel(workflow.status),
+    tone: workflowStatusTone(workflow.status),
+  }));
+}
+
 export function HomeScreen({ navigation }) {
   const { user, signOut } = useAuth();
   const toast = useToast();
   const { columns, statColumns } = useBreakpoint();
+
+  const dashboard = useDashboard();
+  const pending = usePendingWorkflows();
+  const submissions = useMySubmissions();
+  const departments = useDepartments();
+  const teams = useTeams();
 
   const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -91,6 +168,88 @@ export function HomeScreen({ navigation }) {
     setIsConfirmingSignOut(false);
     toast.success('Signed out.');
   };
+
+  const goTo = (route) => () => navigation.navigate(route);
+
+  const statCards = [
+    {
+      key: 'pending-approvals',
+      icon: 'checkmark-done-outline',
+      tone: 'success',
+      value: pending.isLoading ? '—' : String(pending.workflows.length),
+      label: 'Pending Approvals',
+      linkLabel: 'Review now',
+      onPress: goTo(ROUTES.MAIN.PENDING_APPROVALS),
+    },
+    {
+      key: 'my-submissions',
+      icon: 'send-outline',
+      tone: 'info',
+      value: submissions.isLoading ? '—' : String(submissions.workflows.length),
+      label: 'My Submissions',
+      linkLabel: 'View submissions',
+      onPress: goTo(ROUTES.MAIN.MY_SUBMISSIONS),
+    },
+    {
+      key: 'active-employees',
+      icon: 'people-outline',
+      tone: 'primary',
+      value: dashboard.isLoading ? '—' : String(dashboard.stats.active),
+      label: 'Active Employees',
+      linkLabel: 'View employees',
+      onPress: goTo(ROUTES.MAIN.EMPLOYEES),
+    },
+    {
+      key: 'departments',
+      icon: 'business-outline',
+      tone: 'accent',
+      value: departments.isLoading ? '—' : String(departments.totalCount),
+      label: 'Departments',
+      linkLabel: 'View departments',
+      onPress: goTo(ROUTES.MAIN.DEPARTMENTS),
+    },
+  ];
+
+  const employeeOverview = useMemo(() => {
+    const { total, active, inactive, awaitingRegistration } = dashboard.stats;
+    const pct = (count) => (total ? `${Math.round((count / total) * 100)}%` : '0%');
+
+    return {
+      total: String(total),
+      segments: [
+        { key: 'active', label: 'Active', count: active, share: pct(active), tone: 'success' },
+        { key: 'inactive', label: 'Inactive', count: inactive, share: pct(inactive), tone: 'neutral' },
+        {
+          key: 'awaiting',
+          label: 'Awaiting Registration',
+          count: awaitingRegistration,
+          share: pct(awaitingRegistration),
+          tone: 'accent',
+        },
+      ],
+    };
+  }, [dashboard.stats]);
+
+  const organizationSnapshot = [
+    {
+      key: 'departments',
+      label: 'Departments',
+      value: departments.isLoading ? 0 : departments.totalCount,
+      tone: 'primary',
+    },
+    {
+      key: 'teams',
+      label: 'Teams',
+      value: teams.isLoading ? 0 : teams.teams.length,
+      tone: 'info',
+    },
+    {
+      key: 'employees',
+      label: 'Employees',
+      value: dashboard.isLoading ? 0 : dashboard.stats.active,
+      tone: 'success',
+    },
+  ];
 
   return (
     <AppShell
@@ -108,30 +267,12 @@ export function HomeScreen({ navigation }) {
             Here&rsquo;s what&rsquo;s happening in your workspace today.
           </Text>
         </View>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Change period"
-          style={({ hovered }) => [styles.period, hovered && styles.periodHovered]}
-        >
-          <Ionicons
-            name="calendar-outline"
-            size={14}
-            color={theme.colors.textSecondary}
-          />
-          <Text style={styles.periodLabel}>This Month</Text>
-          <Ionicons
-            name="chevron-down"
-            size={14}
-            color={theme.colors.textMuted}
-          />
-        </Pressable>
       </View>
 
       <Grid
         columns={statColumns}
         weights={[1, 1, 1, 1]}
-        items={STAT_CARDS.map((card) => (
+        items={statCards.map((card) => (
           <StatCard
             key={card.key}
             icon={card.icon}
@@ -139,6 +280,7 @@ export function HomeScreen({ navigation }) {
             value={card.value}
             label={card.label}
             linkLabel={card.linkLabel}
+            onPress={card.onPress}
           />
         ))}
       />
@@ -147,8 +289,8 @@ export function HomeScreen({ navigation }) {
         columns={columns}
         weights={[1.1, 1.1, 0.8]}
         items={[
-          <DocumentStatusPanel key="status" data={DOCUMENT_STATUS} />,
-          <ApprovalFlowPanel key="flow" series={APPROVAL_FLOW} />,
+          <DocumentStatusPanel key="employees" title="Employee Overview" data={employeeOverview} />,
+          <ApprovalFlowPanel key="org" title="Organization Snapshot" series={organizationSnapshot} />,
           <QuickActionsPanel
             key="actions"
             actions={QUICK_ACTIONS}
@@ -161,11 +303,36 @@ export function HomeScreen({ navigation }) {
 
       <Grid
         columns={columns}
-        weights={[1.25, 0.9, 0.85]}
+        weights={[1, 1]}
         items={[
-          <RecentDocumentsPanel key="documents" documents={RECENT_DOCUMENTS} />,
-          <IdeasPipelinePanel key="ideas" ideas={IDEAS_PIPELINE} />,
-          <ActivityPanel key="activity" entries={RECENT_ACTIVITY} />,
+          <WorkflowListPanel
+            key="pending"
+            title="My Pending Approvals"
+            footerLabel="View all pending"
+            onFooterPress={goTo(ROUTES.MAIN.PENDING_APPROVALS)}
+            items={toListItems(pending.workflows, 'pending')}
+            emptyLabel={
+              pending.isForbidden
+                ? 'Not visible to your role.'
+                : pending.isLoading
+                ? 'Loading…'
+                : 'Nothing waiting on your review.'
+            }
+          />,
+          <WorkflowListPanel
+            key="submissions"
+            title="My Submissions"
+            footerLabel="View all submissions"
+            onFooterPress={goTo(ROUTES.MAIN.MY_SUBMISSIONS)}
+            items={toListItems(submissions.workflows, 'submissions')}
+            emptyLabel={
+              submissions.isForbidden
+                ? 'Not visible to your role.'
+                : submissions.isLoading
+                ? 'Loading…'
+                : "You haven't submitted anything yet."
+            }
+          />,
         ]}
       />
 

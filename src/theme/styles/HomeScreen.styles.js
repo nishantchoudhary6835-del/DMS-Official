@@ -27,26 +27,6 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  period: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 34,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
-    marginTop: theme.spacing.sm,
-  },
-  periodHovered: {
-    backgroundColor: theme.colors.surfaceSunk,
-  },
-  periodLabel: {
-    ...theme.typography.label,
-    color: theme.colors.textPrimary,
-    marginHorizontal: theme.spacing.sm,
-  },
-
   // The negative margins cancel the trailing gutter on the last cell of each
   // wrapped line, so the grid's right edge lines up with everything above it.
   grid: {

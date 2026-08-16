@@ -1,24 +1,42 @@
 import { Text, View } from 'react-native';
 
-import { styles } from '@theme/styles/ChartPlaceholder.styles';
+import { toneOf } from '@theme/tones';
 
-/**
- * Stand-ins for the two charts.
- *
- * These hold the real footprint and the real labels but draw no data series —
- * the ring is undivided and the bars are unfilled grey. Swapping either for a
- * real chart later is a change to this file alone; nothing above it knows the
- * difference.
- */
+import { styles } from '@theme/styles/ChartPlaceholder.styles';
 
 const PLOT_HEIGHT = 140;
 
-export function DonutPlaceholder({ total, caption = 'Total' }) {
+/**
+ * A proportional stacked bar rather than a literal ring — React Native has
+ * no built-in way to draw a circular arc without an SVG dependency this
+ * project doesn't have. Segment widths are still proportional to real
+ * `count` values, so the color is accurate, just laid out straight instead
+ * of curved.
+ */
+export function DonutPlaceholder({ total, segments = [], caption = 'Total' }) {
+  const sum = segments.reduce((running, segment) => running + (segment.count || 0), 0);
+
   return (
     <View style={styles.donutWrap}>
-      <View style={styles.donut}>
-        <Text style={styles.donutTotal}>{total}</Text>
-        <Text style={styles.donutCaption}>{caption}</Text>
+      <Text style={styles.donutTotal}>{total}</Text>
+      <Text style={styles.donutCaption}>{caption}</Text>
+
+      <View style={styles.proportionBar}>
+        {sum > 0
+          ? segments.map((segment) => {
+              if (!segment.count) return null;
+
+              return (
+                <View
+                  key={segment.key}
+                  style={[
+                    styles.proportionSegment,
+                    { flex: segment.count, backgroundColor: toneOf(segment.tone).ink },
+                  ]}
+                />
+              );
+            })
+          : null}
       </View>
     </View>
   );
@@ -36,7 +54,10 @@ export function BarsPlaceholder({ series }) {
             <View
               style={[
                 styles.bar,
-                { height: Math.max(4, Math.round((item.value / max) * PLOT_HEIGHT)) },
+                {
+                  height: Math.max(4, Math.round((item.value / max) * PLOT_HEIGHT)),
+                  backgroundColor: toneOf(item.tone).ink,
+                },
               ]}
             />
           </View>

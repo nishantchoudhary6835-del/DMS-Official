@@ -1,9 +1,9 @@
 import { Panel } from './Panel';
 import { BarsPlaceholder } from './ChartPlaceholder';
 
-export function ApprovalFlowPanel({ series, style }) {
+export function ApprovalFlowPanel({ title, series, style }) {
   return (
-    <Panel title="Approval Flow Overview" style={style}>
+    <Panel title={title} style={style}>
       <BarsPlaceholder series={series} />
     </Panel>
   );

@@ -6,21 +6,10 @@ const DONUT_SIZE = 148;
 
 export const styles = StyleSheet.create({
   donutWrap: {
+    width: DONUT_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: theme.spacing.sm,
-  },
-  // A ring rather than a disc, so the footprint and the centred total match
-  // what the real chart will occupy. Left undivided because an invented
-  // series is worse than an obvious gap.
-  donut: {
-    width: DONUT_SIZE,
-    height: DONUT_SIZE,
-    borderRadius: DONUT_SIZE / 2,
-    borderWidth: 26,
-    borderColor: theme.colors.surfaceSunk,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   donutTotal: {
     ...theme.typography.displaySm,
@@ -30,6 +19,18 @@ export const styles = StyleSheet.create({
     ...theme.typography.small,
     color: theme.colors.textMuted,
     marginTop: -2,
+  },
+  proportionBar: {
+    flexDirection: 'row',
+    width: '100%',
+    height: 14,
+    borderRadius: theme.radius.full,
+    overflow: 'hidden',
+    backgroundColor: theme.colors.surfaceSunk,
+    marginTop: theme.spacing.md,
+  },
+  proportionSegment: {
+    height: '100%',
   },
 
   barsWrap: {
@@ -55,10 +56,6 @@ export const styles = StyleSheet.create({
   },
   bar: {
     alignSelf: 'stretch',
-    backgroundColor: theme.colors.surfaceSunk,
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: theme.colors.cardBorder,
     borderTopLeftRadius: theme.radius.xs,
     borderTopRightRadius: theme.radius.xs,
   },
