@@ -115,17 +115,17 @@ export function LoginScreen({ navigation }) {
               style={styles.action}
             />
           </View>
-        </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>First time logging in?</Text>
-          <Button
-            title="Set up your account"
-            onPress={() => navigation.navigate(ROUTES.AUTH.REGISTER)}
-            variant="text"
-            fullWidth={false}
-            disabled={isSubmitting}
-          />
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>First time logging in?</Text>
+            <Button
+              title="Set up your account"
+              onPress={() => navigation.navigate(ROUTES.AUTH.REGISTER)}
+              variant="text"
+              fullWidth={false}
+              disabled={isSubmitting}
+            />
+          </View>
         </View>
       </View>
     </Screen>

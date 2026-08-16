@@ -51,7 +51,10 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.cardBorder,
+    backgroundColor: theme.colors.surfaceSunk,
   },
   footerText: {
     ...theme.typography.caption,
