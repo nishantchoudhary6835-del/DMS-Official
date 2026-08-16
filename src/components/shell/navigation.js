@@ -24,8 +24,6 @@ export const NAV_SECTIONS = [
     key: 'documents',
     title: 'Document Management',
     items: [
-      { key: 'my-documents', label: 'My Documents', icon: 'document-text-outline' },
-      { key: 'all-documents', label: 'All Documents', icon: 'documents-outline' },
       {
         key: 'create-document',
         label: 'Create Document',
@@ -44,23 +42,14 @@ export const NAV_SECTIONS = [
         icon: 'time-outline',
         route: ROUTES.MAIN.PENDING_APPROVALS,
       },
-      { key: 'published-documents', label: 'Published Documents', icon: 'checkmark-done-outline' },
-      { key: 'archived-documents', label: 'Archived Documents', icon: 'archive-outline' },
-    ],
-  },
-  {
-    key: 'ideas',
-    title: 'Strategic Ideas',
-    items: [
-      { key: 'my-ideas', label: 'My Ideas', icon: 'bulb-outline' },
-      { key: 'submitted-ideas', label: 'Submitted Ideas', icon: 'paper-plane-outline' },
-      { key: 'pending-reviews', label: 'Pending Reviews', icon: 'hourglass-outline' },
-      { key: 'approved-ideas', label: 'Approved Ideas', icon: 'checkmark-circle-outline' },
     ],
   },
   {
     key: 'administration',
     title: 'Administration',
+    // Whole section: Super Admin or Executive only — see AuthContext.jsx for
+    // how that's determined (there's no role field to read it from directly).
+    requiresAccess: 'ADMIN_OR_ABOVE',
     items: [
       {
         key: 'users',
@@ -91,33 +80,24 @@ export const NAV_SECTIONS = [
         label: 'Permissions',
         icon: 'lock-closed-outline',
         route: ROUTES.MAIN.PERMISSIONS,
+        // Narrower than the section itself — Super Admin only, hidden even
+        // from an Executive who can otherwise see Administration.
+        requiresAccess: 'SUPER_ADMIN',
       },
       {
         key: 'role-permissions',
         label: 'Role Assignments',
         icon: 'ribbon-outline',
         route: ROUTES.MAIN.ROLE_PERMISSIONS,
+        requiresAccess: 'SUPER_ADMIN',
       },
       {
         key: 'acl',
         label: 'Access Rules',
         icon: 'shield-checkmark-outline',
         route: ROUTES.MAIN.ACLS,
+        requiresAccess: 'SUPER_ADMIN',
       },
     ],
-  },
-  {
-    key: 'reports',
-    title: 'Reports & Analytics',
-    items: [
-      { key: 'analytics', label: 'Analytics Dashboard', icon: 'bar-chart-outline' },
-      { key: 'audit-logs', label: 'Audit Logs', icon: 'list-outline' },
-      { key: 'escalations', label: 'Escalations', icon: 'trending-up-outline' },
-    ],
-  },
-  {
-    key: 'system',
-    title: 'System',
-    items: [{ key: 'settings', label: 'Settings', icon: 'settings-outline' }],
   },
 ];

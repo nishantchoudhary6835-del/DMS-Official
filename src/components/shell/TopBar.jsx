@@ -1,33 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { theme } from '@theme';
 import { initialsOf } from '@utils/format';
 
 import { styles } from '@theme/styles/TopBar.styles';
 
-function IconAction({ icon, count, label, onPress }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={count ? `${label}, ${count} unread` : label}
-      hitSlop={6}
-      style={({ hovered }) => [styles.iconAction, hovered && styles.hovered]}
-    >
-      <Ionicons name={icon} size={19} color={theme.colors.textSecondary} />
-      {count ? (
-        <View style={styles.count}>
-          <Text style={styles.countLabel}>{count}</Text>
-        </View>
-      ) : null}
-    </Pressable>
-  );
-}
-
 export function TopBar({
   isCompact = false,
-  isPhone = false,
   email,
   name = 'Signed in',
   role = 'Team Lead',
@@ -52,36 +32,7 @@ export function TopBar({
         </Pressable>
       ) : null}
 
-      <View style={styles.search}>
-        <Ionicons
-          name="search"
-          size={16}
-          color={theme.colors.textMuted}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          placeholder={
-            isPhone ? 'Search…' : 'Search documents, users, ideas…'
-          }
-          placeholderTextColor={theme.colors.textMuted}
-          style={styles.searchInput}
-          returnKeyType="search"
-        />
-        {/* The shortcut hint is only true where there is a keyboard to press. */}
-        {Platform.OS === 'web' && !isPhone ? (
-          <View style={styles.shortcut}>
-            <Text style={styles.shortcutLabel}>⌘K</Text>
-          </View>
-        ) : null}
-      </View>
-
       <View style={styles.actions}>
-        <IconAction icon="notifications-outline" count={10} label="Notifications" />
-        <IconAction icon="mail-outline" count={3} label="Messages" />
-        {isPhone ? null : (
-          <IconAction icon="help-circle-outline" label="Help" />
-        )}
-
         <Pressable
           onPress={onProfilePress}
           accessibilityRole="button"

@@ -1,12 +1,27 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { BrandMark } from '@components/common/BrandMark';
+import { useAuth } from '@context/AuthContext';
 import { theme } from '@theme';
 
 import { NAV_SECTIONS } from './navigation';
 
 import { styles } from '@theme/styles/Sidebar.styles';
+
+/**
+ * `requiresAccess` is missing entirely for anything with no restriction —
+ * that reads as "everyone" rather than as a third access level to track.
+ * Unresolved (null) fails closed: an item stays hidden until its tier is
+ * confirmed, not the reverse, since the alternative is briefly showing
+ * Administration to someone who turns out not to have it.
+ */
+function isVisible(requiresAccess, { isSuperAdmin, isAdminOrAbove }) {
+  if (requiresAccess === 'SUPER_ADMIN') return isSuperAdmin === true;
+  if (requiresAccess === 'ADMIN_OR_ABOVE') return isAdminOrAbove === true;
+  return true;
+}
 
 /**
  * Entries without a `route` are structural placeholders — they hover and read
@@ -58,6 +73,19 @@ export function Sidebar({
   // temporary, so the control would only be a second way to close it.
   const collapsed = isCollapsed && !isOverlay;
 
+  const { isSuperAdmin, isAdminOrAbove } = useAuth();
+
+  const sections = useMemo(() => {
+    const access = { isSuperAdmin, isAdminOrAbove };
+
+    return NAV_SECTIONS.filter((section) => isVisible(section.requiresAccess, access))
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) => isVisible(item.requiresAccess, access)),
+      }))
+      .filter((section) => section.items.length > 0);
+  }, [isSuperAdmin, isAdminOrAbove]);
+
   return (
     <View
       style={[
@@ -97,7 +125,7 @@ export function Sidebar({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {NAV_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <View key={section.key} style={styles.section}>
             {section.title ? (
               collapsed ? (

@@ -26,7 +26,7 @@ export function AppShell({
   onProfilePress,
   children,
 }) {
-  const { isCompact, isPhone } = useBreakpoint();
+  const { isCompact } = useBreakpoint();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -53,7 +53,6 @@ export function AppShell({
         <View style={styles.main}>
           <TopBar
             isCompact={isCompact}
-            isPhone={isPhone}
             email={email}
             name={name}
             role={role}

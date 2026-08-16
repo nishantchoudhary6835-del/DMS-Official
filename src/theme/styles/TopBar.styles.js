@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
@@ -12,42 +12,6 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.card,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.cardBorder,
-  },
-
-  search: {
-    flex: 1,
-    maxWidth: 420,
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 36,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surfaceSunk,
-    paddingHorizontal: theme.spacing.sm,
-    marginHorizontal: theme.spacing.sm,
-  },
-  searchIcon: {
-    marginRight: theme.spacing.sm,
-  },
-  searchInput: {
-    flex: 1,
-    ...theme.typography.caption,
-    color: theme.colors.textPrimary,
-    // Web focus rings are drawn by the browser and clash with Bureau's own.
-    ...Platform.select({ web: { outlineStyle: 'none' }, default: {} }),
-  },
-  shortcut: {
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: theme.radius.xs,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
-  },
-  shortcutLabel: {
-    ...theme.typography.monoSmall,
-    color: theme.colors.textMuted,
   },
 
   actions: {
@@ -65,26 +29,6 @@ export const styles = StyleSheet.create({
   },
   hovered: {
     backgroundColor: theme.colors.surfaceSunk,
-  },
-  count: {
-    position: 'absolute',
-    top: 2,
-    right: 1,
-    minWidth: 15,
-    height: 15,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-    borderWidth: 1.5,
-    borderColor: theme.colors.card,
-  },
-  countLabel: {
-    ...theme.typography.monoSmall,
-    fontSize: 9,
-    lineHeight: 12,
-    color: theme.colors.textOnPrimary,
   },
 
   profile: {
