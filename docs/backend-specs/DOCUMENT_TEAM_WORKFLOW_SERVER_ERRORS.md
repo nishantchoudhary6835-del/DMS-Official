@@ -1,6 +1,8 @@
 # Server errors: document upload, team lookup, workflow submissions
 
-**Status:** Three separate, confirmed backend bugs. Nothing here is
+**Status:** Originally three separate, confirmed backend bugs. Bug #1
+(document upload) is now resolved — see the update in that section. The
+other two are unaffected by this update. Nothing remaining here is
 fixable from the frontend repo — the frontend is sending correctly-formed
 requests in every case below and displaying exactly what the server sent
 back.
@@ -17,6 +19,12 @@ frontend.
 ---
 
 ## 1. `POST /document` — 500, `documentService.createDocument is not a function`
+
+**Resolved as of 2026-08-16.** A later retest (logged in
+[`WORKFLOW_SUBMIT_MISSING_TEAM.md`](./WORKFLOW_SUBMIT_MISSING_TEAM.md))
+shows `POST /document` returning a clean `201 Created` with a real
+document body. Left below for the record, since it's the reproduction
+that made the original bug traceable.
 
 ### What was found
 
@@ -119,9 +127,12 @@ have an obvious meaning to begin with).
 
 | Endpoint | Problem | Severity |
 | --- | --- | --- |
-| `POST /document` | 500 — `documentService.createDocument` isn't a function | **Blocking** — document upload is completely broken |
-| `GET /team` (any/no query params) — [detail](./TEAM_LIST_ENDPOINT_ERROR.md) | 500 — reads `.department` off `undefined` on every call | **Blocking** — the entire Team list endpoint, not just department-scoped pickers |
-| `GET /workflow/my-submissions` | 404 instead of 200+empty on no results | Non-blocking, but breaks the empty-state UX and is inconsistent with the rest of the API |
+| `POST /document` | ~~500 — `documentService.createDocument` isn't a function~~ **Resolved 2026-08-16** | Was blocking; now returns 201 |
+| `GET /team` (any/no query params) — [detail](./TEAM_LIST_ENDPOINT_ERROR.md) | ~~500 — reads `.department` off `undefined` on every call~~ **Resolved 2026-08-16** | Was blocking; now returns 200 |
+| `GET /workflow/my-submissions` | 404 instead of 200+empty on no results | Non-blocking, but breaks the empty-state UX and is inconsistent with the rest of the API — still open |
 
-All three were reproduced more than once with identical results, so these
-aren't one-off flukes — they're consistently broken as of this writing.
+The first two were reproduced more than once with identical results before
+their fixes landed, so they weren't one-off flukes — they were consistently
+broken at the time of writing. Both are confirmed fixed as of the 2026-08-16
+retest logged in `WORKFLOW_SUBMIT_MISSING_TEAM.md`. Only the third bug is
+still open.
