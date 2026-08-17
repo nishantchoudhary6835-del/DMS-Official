@@ -35,6 +35,7 @@ export const ROUTES = {
     CREATE_DOCUMENT: 'CreateDocument',
     MY_SUBMISSIONS: 'MySubmissions',
     PENDING_APPROVALS: 'PendingApprovals',
+    PUBLISHED_DOCUMENTS: 'PublishedDocuments',
     WORKFLOW_DETAIL: 'WorkflowDetail',
   },
 };

@@ -42,6 +42,12 @@ export const NAV_SECTIONS = [
         icon: 'time-outline',
         route: ROUTES.MAIN.PENDING_APPROVALS,
       },
+      {
+        key: 'published-documents',
+        label: 'Published Documents',
+        icon: 'checkmark-circle-outline',
+        route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
+      },
     ],
   },
   {
