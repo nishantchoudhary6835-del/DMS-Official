@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AppDataProvider } from '@context/AppDataContext';
 import { AuthProvider, useAuth } from '@context/AuthContext';
 import { ToastProvider } from '@context/ToastContext';
 import { setupInterceptors } from '@services/axiosInstance';
@@ -20,7 +21,9 @@ export function AppProviders({ children }) {
     <ToastProvider>
       <SafeAreaProvider>
         <AuthProvider>
-          <ApiBridge>{children}</ApiBridge>
+          <AppDataProvider>
+            <ApiBridge>{children}</ApiBridge>
+          </AppDataProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </ToastProvider>

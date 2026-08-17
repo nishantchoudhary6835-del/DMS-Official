@@ -1,84 +1,54 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { normalizeError } from '@utils/errors';
+import { useAppData } from '@context/AppDataContext';
 import { EMPLOYEE_STATUS } from '@validation/employee';
-import * as employeeApi from '@services/employee';
-import * as userApi from '@services/user';
 
 export function useDashboard() {
-  const [employees, setEmployees] = useState([]);
-  const [users, setUsers] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isForbidden, setIsForbidden] = useState(false);
-
-  const requestRef = useRef(0);
-
-  const load = useCallback(async () => {
-    const requestId = requestRef.current + 1;
-    requestRef.current = requestId;
-
-    setError(null);
-    setIsForbidden(false);
-
-    const [employeeResult, userResult] = await Promise.allSettled([
-      employeeApi.listEmployees(),
-      userApi.listUsers(),
-    ]);
-
-    if (requestRef.current !== requestId) return;
-
-    if (employeeResult.status === 'fulfilled') {
-      const data = employeeResult.value?.data;
-      setEmployees(Array.isArray(data) ? data : []);
-    } else {
-      const normalized = normalizeError(employeeResult.reason);
-
-      if (normalized.status === 403) {
-        setIsForbidden(true);
-        setError('You are not authorized to view employees.');
-      } else {
-        setError(normalized.message);
-      }
-
-      setEmployees([]);
-    }
-
-    const userData =
-      userResult.status === 'fulfilled' ? userResult.value?.data : null;
-
-    setUsers(Array.isArray(userData) ? userData : null);
-
-    setIsLoading(false);
-  }, []);
+  const { employees, users } = useAppData();
 
   useEffect(() => {
-    load();
-  }, [load]);
+    employees.ensure();
+    users.ensure();
+  }, [employees.ensure, users.ensure]);
 
   const stats = useMemo(() => {
-    const active = employees.filter(
+    const list = employees.data;
+    const active = list.filter(
       (item) => item.status === EMPLOYEE_STATUS.ACTIVE
     ).length;
 
     return {
-      total: employees.length,
+      total: list.length,
       active,
-      inactive: employees.length - active,
-      awaitingRegistration: employees.filter((item) => !item.isRegistered)
-        .length,
+      inactive: list.length - active,
+      awaitingRegistration: list.filter((item) => !item.isRegistered).length,
     };
-  }, [employees]);
+  }, [employees.data]);
 
+  // Best-effort, same as before: a failed/not-yet-loaded users fetch leaves
+  // this null rather than surfacing its own error — the dashboard's account
+  // stats are a nice-to-have, not worth an error banner of their own.
   const accountStats = useMemo(() => {
-    if (!users) return null;
+    if (!users.hasLoaded || users.isForbidden || users.error) return null;
 
     return {
-      total: users.length,
-      locked: users.filter((item) => item.lockUntil).length,
-      unverified: users.filter((item) => !item.isEmailVerified).length,
+      total: users.data.length,
+      locked: users.data.filter((item) => item.lockUntil).length,
+      unverified: users.data.filter((item) => !item.isEmailVerified).length,
     };
-  }, [users]);
+  }, [users.hasLoaded, users.isForbidden, users.error, users.data]);
 
-  return { stats, accountStats, isLoading, error, isForbidden, refresh: load };
+  const refresh = useCallback(() => {
+    employees.refresh();
+    users.refresh();
+  }, [employees.refresh, users.refresh]);
+
+  return {
+    stats,
+    accountStats,
+    isLoading: employees.isLoading,
+    error: employees.error,
+    isForbidden: employees.isForbidden,
+    refresh,
+  };
 }

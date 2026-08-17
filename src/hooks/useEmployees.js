@@ -1,61 +1,45 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { normalizeError } from '@utils/errors';
-import * as employeeApi from '@services/employee';
+import { useAppData } from '@context/AppDataContext';
+import { referenceId } from '@utils/format';
 
+/**
+ * All employees, filtered client-side. Previously sent hierarchyLevel/
+ * department/team/status to the server as query params — now the full list
+ * is shared via AppDataContext, so filtering happens here instead, the same
+ * way useDepartments already worked.
+ */
 export function useEmployees() {
-  const [employees, setEmployees] = useState([]);
+  const { employees } = useAppData();
   const [filters, setFilters] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState(null);
-  const [isForbidden, setIsForbidden] = useState(false);
-
-  const requestRef = useRef(0);
-
-  const load = useCallback(
-    async (activeFilters, { refresh = false } = {}) => {
-      const requestId = requestRef.current + 1;
-      requestRef.current = requestId;
-
-      if (refresh) setIsRefreshing(true);
-      else setIsLoading(true);
-
-      setError(null);
-      setIsForbidden(false);
-
-      try {
-        const response = await employeeApi.listEmployees(activeFilters);
-
-        if (requestRef.current !== requestId) return;
-
-        setEmployees(Array.isArray(response?.data) ? response.data : []);
-      } catch (caught) {
-        if (requestRef.current !== requestId) return;
-
-        const normalized = normalizeError(caught);
-
-        if (normalized.status === 403) {
-          setIsForbidden(true);
-          setError('You are not authorized to view employees.');
-        } else {
-          setError(normalized.message);
-        }
-
-        setEmployees([]);
-      } finally {
-        if (requestRef.current === requestId) {
-          setIsLoading(false);
-          setIsRefreshing(false);
-        }
-      }
-    },
-    []
-  );
 
   useEffect(() => {
-    load(filters);
-  }, [filters, load]);
+    employees.ensure();
+  }, [employees.ensure]);
+
+  const visible = useMemo(
+    () =>
+      employees.data.filter((employee) => {
+        if (
+          filters.hierarchyLevel &&
+          employee.hierarchyLevel !== filters.hierarchyLevel
+        ) {
+          return false;
+        }
+        if (
+          filters.department &&
+          referenceId(employee.department) !== filters.department
+        ) {
+          return false;
+        }
+        if (filters.team && referenceId(employee.team) !== filters.team) {
+          return false;
+        }
+        if (filters.status && employee.status !== filters.status) return false;
+        return true;
+      }),
+    [employees.data, filters]
+  );
 
   const toggleFilter = useCallback((key, value) => {
     setFilters((prev) => {
@@ -77,22 +61,18 @@ export function useEmployees() {
 
   const clearFilters = useCallback(() => setFilters({}), []);
 
-  const refresh = useCallback(() => {
-    load(filters, { refresh: true });
-  }, [filters, load]);
-
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return {
-    employees,
+    employees: visible,
     filters,
     activeFilterCount,
-    isLoading,
-    isRefreshing,
-    error,
-    isForbidden,
+    isLoading: employees.isLoading,
+    isRefreshing: employees.isRefreshing,
+    error: employees.error,
+    isForbidden: employees.isForbidden,
     toggleFilter,
     clearFilters,
-    refresh,
+    refresh: employees.refresh,
   };
 }

@@ -1,65 +1,42 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { normalizeError } from '@utils/errors';
-import * as teamApi from '@services/team';
+import { useAppData } from '@context/AppDataContext';
+import { referenceId } from '@utils/format';
 
 /**
- * Teams, filtered server-side.
- *
- * Unlike useDepartments, the endpoint accepts department/teamLead/status
- * parameters, so filters go over the wire — this follows useEmployees rather
- * than filtering a full list on the client.
+ * All teams, filtered client-side. Previously sent department/teamLead/
+ * status to the server as query params — now the full list is shared via
+ * AppDataContext, so filtering happens here instead, the same way
+ * useDepartments already worked.
  */
 export function useTeams() {
-  const [teams, setTeams] = useState([]);
+  const { teams } = useAppData();
   const [filters, setFilters] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState(null);
-  const [isForbidden, setIsForbidden] = useState(false);
-
-  const requestRef = useRef(0);
-
-  const load = useCallback(async (activeFilters, { refresh = false } = {}) => {
-    const requestId = requestRef.current + 1;
-    requestRef.current = requestId;
-
-    if (refresh) setIsRefreshing(true);
-    else setIsLoading(true);
-
-    setError(null);
-    setIsForbidden(false);
-
-    try {
-      const response = await teamApi.listTeams(activeFilters);
-
-      if (requestRef.current !== requestId) return;
-
-      setTeams(Array.isArray(response?.data) ? response.data : []);
-    } catch (caught) {
-      if (requestRef.current !== requestId) return;
-
-      const normalized = normalizeError(caught);
-
-      if (normalized.status === 403) {
-        setIsForbidden(true);
-        setError('You are not authorized to view teams.');
-      } else {
-        setError(normalized.message);
-      }
-
-      setTeams([]);
-    } finally {
-      if (requestRef.current === requestId) {
-        setIsLoading(false);
-        setIsRefreshing(false);
-      }
-    }
-  }, []);
 
   useEffect(() => {
-    load(filters);
-  }, [filters, load]);
+    teams.ensure();
+  }, [teams.ensure]);
+
+  const visible = useMemo(
+    () =>
+      teams.data.filter((team) => {
+        if (
+          filters.department &&
+          referenceId(team.department) !== filters.department
+        ) {
+          return false;
+        }
+        if (
+          filters.teamLead &&
+          referenceId(team.teamLead) !== filters.teamLead
+        ) {
+          return false;
+        }
+        if (filters.status && team.status !== filters.status) return false;
+        return true;
+      }),
+    [teams.data, filters]
+  );
 
   const toggleFilter = useCallback((key, value) => {
     setFilters((prev) => ({
@@ -70,23 +47,18 @@ export function useTeams() {
 
   const clearFilters = useCallback(() => setFilters({}), []);
 
-  const refresh = useCallback(
-    () => load(filters, { refresh: true }),
-    [filters, load]
-  );
-
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return {
-    teams,
+    teams: visible,
     filters,
     activeFilterCount,
-    isLoading,
-    isRefreshing,
-    error,
-    isForbidden,
+    isLoading: teams.isLoading,
+    isRefreshing: teams.isRefreshing,
+    error: teams.error,
+    isForbidden: teams.isForbidden,
     toggleFilter,
     clearFilters,
-    refresh,
+    refresh: teams.refresh,
   };
 }

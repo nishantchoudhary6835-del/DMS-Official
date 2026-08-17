@@ -1,73 +1,27 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { normalizeError } from '@utils/errors';
-import * as aclApi from '@services/acl';
+import { useAppData } from '@context/AppDataContext';
 
 /**
- * All ACL rules.
- *
- * No query parameters are documented, so status and effect filtering happen
- * here rather than being sent to the server, same as usePermissions.
+ * All ACL rules, status/effect-filtered client-side (the endpoint takes no
+ * query parameters).
  */
 export function useAcls() {
-  const [acls, setAcls] = useState([]);
+  const { acls } = useAppData();
   const [filters, setFilters] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState(null);
-  const [isForbidden, setIsForbidden] = useState(false);
-
-  const requestRef = useRef(0);
-
-  const load = useCallback(async ({ refresh = false } = {}) => {
-    const requestId = requestRef.current + 1;
-    requestRef.current = requestId;
-
-    if (refresh) setIsRefreshing(true);
-    else setIsLoading(true);
-
-    setError(null);
-    setIsForbidden(false);
-
-    try {
-      const response = await aclApi.listAcls();
-
-      if (requestRef.current !== requestId) return;
-
-      setAcls(Array.isArray(response?.data) ? response.data : []);
-    } catch (caught) {
-      if (requestRef.current !== requestId) return;
-
-      const normalized = normalizeError(caught);
-
-      if (normalized.status === 403) {
-        setIsForbidden(true);
-        setError('You are not authorized to view access rules.');
-      } else {
-        setError(normalized.message);
-      }
-
-      setAcls([]);
-    } finally {
-      if (requestRef.current === requestId) {
-        setIsLoading(false);
-        setIsRefreshing(false);
-      }
-    }
-  }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    acls.ensure();
+  }, [acls.ensure]);
 
   const visible = useMemo(
     () =>
-      acls.filter((acl) => {
+      acls.data.filter((acl) => {
         if (filters.status && acl.status !== filters.status) return false;
         if (filters.effect && acl.effect !== filters.effect) return false;
         return true;
       }),
-    [acls, filters]
+    [acls.data, filters]
   );
 
   const toggleFilter = useCallback((key, value) => {
@@ -81,19 +35,17 @@ export function useAcls() {
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
-  const refresh = useCallback(() => load({ refresh: true }), [load]);
-
   return {
     acls: visible,
-    totalCount: acls.length,
+    totalCount: acls.data.length,
     filters,
     activeFilterCount,
     toggleFilter,
     clearFilters,
-    isLoading,
-    isRefreshing,
-    error,
-    isForbidden,
-    refresh,
+    isLoading: acls.isLoading,
+    isRefreshing: acls.isRefreshing,
+    error: acls.error,
+    isForbidden: acls.isForbidden,
+    refresh: acls.refresh,
   };
 }
