@@ -21,7 +21,7 @@ record of what it was written to satisfy.
 | `EGKMS-Backend-Change-Request.pdf` | Requested backend changes |
 | `React-folder-structure.pdf` | Reference folder layout |
 | `CORS_CHANGE_REQUEST.md` | CORS allow-list and cookie `SameSite` changes needed for direct (proxy-less) frontend access |
-| `DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md` | Originally three server-side bugs; document upload 500 and `GET /team` 500 are now resolved, only the workflow my-submissions 404-on-empty is still open |
+| `DOCUMENT_TEAM_WORKFLOW_SERVER_ERRORS.md` | Originally three server-side bugs; document upload 500 and `GET /team` 500 are now resolved. `GET /workflow/my-submissions` is still open and got worse on 2026-08-17: a confirmed real owner gets 404 for their own completed document while a different account (the approver, not the author) sees it under their own submissions — looks like it scopes by the wrong field, not just a 404-vs-empty status code issue |
 | `TEAM_LIST_ENDPOINT_ERROR.md` | `GET /team` 500'd on every call — **resolved 2026-08-16**, every variant now returns 200 |
 | `WORKFLOW_SUBMIT_MISSING_TEAM.md` | Workflow submit 400 ("Unable to determine next workflow authority") — confirmed by elimination to be the Super Admin test account's own missing `Employee.team`, not the document's `team` field |
 | `OTP_EMAIL_SEND_TIMEOUT.md` | `POST /auth/send-email-otp` always fails — IPv6 SMTP connection issue in `src/config/mail.js`, root-caused against the backend's own source; two fixes attached (minimal `family: 4` patch, or switch to Brevo's HTTP API) |
@@ -76,6 +76,12 @@ instead of `src/screens/home/placeholders.js`, which has been removed. Panels
 with no backing endpoint at all (an org-wide approval-stage breakdown, a
 strategic-ideas pipeline, an audit-log feed) were dropped rather than kept as
 fabricated numbers.
+
+The new Published Documents screen (`src/screens/workflow/PublishedDocumentsScreen.jsx`)
+filters `GET /workflow/my-submissions` to `status: COMPLETED` — there's no
+org-wide document list endpoint, so like My Submissions it's scoped to "my
+own." It inherits the my-submissions owner-scoping bug above: confirmed
+live, an account's own published document did not appear for them.
 
 Also outstanding: `clearHierarchyCache()` is exported but never wired to
 logout; `@tanstack/react-query` is configured but entirely unused.

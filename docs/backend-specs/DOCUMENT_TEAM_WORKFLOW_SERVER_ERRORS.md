@@ -80,7 +80,11 @@ reproductions, and root-cause hypothesis:
 
 ---
 
-## 3. `GET /workflow/my-submissions` — returns 404 instead of 200 with an empty list
+## 3. `GET /workflow/my-submissions` — returns 404 instead of 200 with an empty list, and appears to scope by the wrong field
+
+**Upgraded 2026-08-17** from a status-code/UX nitpick to a data-correctness
+bug — see "Update" below. The original 404-vs-200 finding is left in place
+first since it's still true and still worth fixing on its own.
 
 ### What was found
 
@@ -121,6 +125,77 @@ convention. Reserve `404` for cases where something referenced by the URL
 itself doesn't exist (there's no id in this URL, so a 404 here doesn't
 have an obvious meaning to begin with).
 
+### Update (2026-08-17): the 404 isn't always "genuinely empty" — a real owner got it for a document they demonstrably own
+
+Building a "Published Documents" screen (filters `my-submissions` to
+`status: COMPLETED`) surfaced something worse than the status-code issue
+above: an intern account (`EMP-007`, `nishantchoudhary6835@gmail.com`)
+called `GET /workflow/my-submissions` and got the same 404 shown above —
+but that account unambiguously owns a real, completed workflow. The same
+workflow's `document.owner` and `workflow.owner` are both `EMP-007`
+throughout its whole lifecycle (create → submit → escalate → approve).
+
+At almost the same time, a **different** account —
+`superadmin@dms.com` (`SA-001`, `SUPER_ADMIN`) — called the same endpoint
+for themselves and got a `200` including that exact workflow as one of
+their own "my submissions," even though Super Admin never authored it —
+they only supplied the final `APPROVE` action
+(`lastActionBy: "6a709395067edbac89537d0e"`, Super Admin's own id).
+
+```
+# Logged in as SA-001 (Super Admin) — this account did not create this document
+GET /api/v1/workflow/my-submissions → 200
+{
+  "data": [
+    {
+      "_id": "6a82ac993e3c5dd4f296df90",
+      "document": {
+        "owner": { "employeeId": "EMP-007", "firstName": "Nishant", ... },
+        "status": "PUBLISHED"
+      },
+      "status": "COMPLETED",
+      "lastAction": "APPROVED",
+      "lastActionBy": "6a709395067edbac89537d0e"   // Super Admin's own id
+    },
+    "...2 more"
+  ]
+}
+
+# Logged in as EMP-007 (Nishant Choudhary, INTERN) — the actual document.owner
+GET /api/v1/workflow/my-submissions → 404
+{ "success": false, "message": "No document submissions found.", "errors": [] }
+```
+
+Reproduced twice more for `EMP-007` in a **fresh incognito window, single
+account only, no other session active** — ruling out cross-tab cookie
+interference as the cause. The 404 is consistent and repeatable for the
+true owner.
+
+This suggests `my-submissions` may not be scoping strictly by
+`document.owner`/`workflow.owner` as its name implies — the Super Admin
+result is consistent with scoping by something like "workflows I've most
+recently acted on" (`lastActionBy`) instead, or some other non-owner field.
+Whatever the actual query is, it produces the exact inverse of what the
+endpoint name promises: the true owner sees nothing, and an uninvolved-in-
+authorship approver sees it as their own.
+
+### Impact (revised)
+
+This is no longer just an empty-state UX gap. A real employee's own
+completed, published document is completely invisible to them through the
+one endpoint meant to show it, while it incorrectly appears under another
+account's submissions. Any frontend screen scoped to "documents I
+submitted" (My Submissions, and the new Published Documents view) is
+silently wrong for at least this account.
+
+### What to fix (revised)
+
+Audit whatever query backs `GET /workflow/my-submissions` and confirm it
+filters by the true document/workflow owner (matching the authenticated
+user's own `Employee._id`), not by `lastActionBy`, `currentReviewer`
+history, or any other field. The 404-vs-200-empty fix above is still
+correct and still needed, but is secondary to this.
+
 ---
 
 ## Summary
@@ -129,7 +204,7 @@ have an obvious meaning to begin with).
 | --- | --- | --- |
 | `POST /document` | ~~500 — `documentService.createDocument` isn't a function~~ **Resolved 2026-08-16** | Was blocking; now returns 201 |
 | `GET /team` (any/no query params) — [detail](./TEAM_LIST_ENDPOINT_ERROR.md) | ~~500 — reads `.department` off `undefined` on every call~~ **Resolved 2026-08-16** | Was blocking; now returns 200 |
-| `GET /workflow/my-submissions` | 404 instead of 200+empty on no results | Non-blocking, but breaks the empty-state UX and is inconsistent with the rest of the API — still open |
+| `GET /workflow/my-submissions` | 404 instead of 200+empty on no results; **and** appears to scope by the wrong field — the true owner got 404 for a document they demonstrably own, while a different account (only the final approver, not the author) saw it under their own "my submissions" | Was non-blocking UX; **now confirmed data-correctness — still open** |
 
 The first two were reproduced more than once with identical results before
 their fixes landed, so they weren't one-off flukes — they were consistently
