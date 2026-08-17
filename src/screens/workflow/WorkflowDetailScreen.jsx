@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
 import { Button } from '@components/common/Button';
@@ -75,6 +75,8 @@ export function WorkflowDetailScreen({ navigation, route }) {
 
   const title = documentRefLabel(workflow.document) ?? 'Untitled document';
   const documentType = workflow.document?.documentType || null;
+  const fileUrl = workflow.document?.fileUrl || null;
+  const fileName = workflow.document?.fileName || null;
   const status = workflowStatusLabel(workflow.status);
   const level = workflowLevelLabel(workflow.currentLevel);
   const reviewer = employeeRefLabel(workflow.currentReviewer);
@@ -124,6 +126,10 @@ export function WorkflowDetailScreen({ navigation, route }) {
     }
   };
 
+  const handleOpenDocument = () => {
+    if (fileUrl) Linking.openURL(fileUrl);
+  };
+
   return (
     <Screen padded={false} style={styles.page}>
       <View style={styles.header}>
@@ -144,6 +150,21 @@ export function WorkflowDetailScreen({ navigation, route }) {
           <Badge label={status || '—'} tone={workflowStatusTone(workflow.status)} />
         </View>
         {documentType ? <Text style={styles.code}>{documentType}</Text> : null}
+      </View>
+
+      <View style={styles.section}>
+        <Button
+          title={fileName ? `Open document (${fileName})` : 'Open document'}
+          icon="document-attach-outline"
+          onPress={handleOpenDocument}
+          disabled={!fileUrl}
+          variant="secondary"
+        />
+        {!fileUrl ? (
+          <Text style={styles.statusHint}>
+            No file is attached to this submission yet.
+          </Text>
+        ) : null}
       </View>
 
       <Text style={styles.sectionLabel}>Workflow</Text>
