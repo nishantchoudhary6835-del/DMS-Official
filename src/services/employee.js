@@ -1,4 +1,4 @@
-import { axiosInstance } from '@services/axiosInstance';
+import { axiosInstance, dedupedGet } from '@services/axiosInstance';
 import { normalizeEmail } from '@utils/format';
 
 export async function createEmployee({
@@ -32,7 +32,7 @@ export async function listEmployees(filters = {}) {
   if (filters.team) params.team = filters.team;
   if (filters.status) params.status = filters.status;
 
-  const { data } = await axiosInstance.get('/employee', { params });
+  const { data } = await dedupedGet('/employee', { params });
   return data;
 }
 

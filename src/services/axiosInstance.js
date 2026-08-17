@@ -25,6 +25,36 @@ const isPublicPath = (url = '') => PUBLIC_PATHS.some((p) => url.includes(p));
 
 let refreshPromise = null;
 
+const inFlightGets = new Map();
+
+/**
+ * Collapses identical concurrent GET requests into one network call.
+ *
+ * AuthContext's access probe (GET /employee, GET /department, to infer
+ * isSuperAdmin/isAdminOrAbove) and whichever screen loads right after login
+ * ask for the same lists within a moment of each other on every session —
+ * two round-trips for data one response could have answered. This only
+ * collapses requests that are still in flight when a duplicate is made; the
+ * map entry is cleared the instant the request settles, so it caches
+ * nothing and a later, genuinely separate fetch still hits the network,
+ * same as before. Safe by construction: two GETs to the same URL+params
+ * fired close enough together to overlap would have returned the same data
+ * anyway.
+ */
+export function dedupedGet(url, config) {
+  const key = `${url}?${JSON.stringify(config?.params ?? {})}`;
+
+  const existing = inFlightGets.get(key);
+  if (existing) return existing;
+
+  const promise = axiosInstance.get(url, config).finally(() => {
+    inFlightGets.delete(key);
+  });
+
+  inFlightGets.set(key, promise);
+  return promise;
+}
+
 export function setupInterceptors({ onSessionExpired }) {
   const responseId = axiosInstance.interceptors.response.use(
     (response) => response,

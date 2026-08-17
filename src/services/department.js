@@ -1,4 +1,4 @@
-import { axiosInstance } from '@services/axiosInstance';
+import { axiosInstance, dedupedGet } from '@services/axiosInstance';
 import { referenceId } from '@utils/format';
 
 /**
@@ -24,7 +24,7 @@ export async function createDepartment({ name, code, head = null }) {
 }
 
 export async function listDepartments() {
-  const { data } = await axiosInstance.get('/department');
+  const { data } = await dedupedGet('/department');
   return data;
 }
 
