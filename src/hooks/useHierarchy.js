@@ -16,7 +16,7 @@ import * as hierarchyApi from '@services/hierarchy';
 let cachedRows = null;
 let inFlight = null;
 
-export function clearHierarchyCache() {
+function clearHierarchyCache() {
   cachedRows = null;
   inFlight = null;
 }

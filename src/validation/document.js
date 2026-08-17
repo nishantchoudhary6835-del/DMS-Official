@@ -1,14 +1,4 @@
 /**
- * The only status DOCUMENT_MANAGEMENT.md's current Create API can produce.
- * The FRS lifecycle (Submitted, Review, Approved, Published, …) exists on
- * paper but has no API yet — see the module's §14/§15 — so nothing here
- * pretends a document can be anything else through this app.
- */
-export const DOCUMENT_STATUS = {
-  DRAFT: 'DRAFT',
-};
-
-/**
  * §3's field table names PDF/DOCX explicitly; the picker is restricted to
  * these so a rejected file type is caught before upload rather than as a
  * server error after one.

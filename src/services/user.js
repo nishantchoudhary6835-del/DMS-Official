@@ -1,34 +1,12 @@
-import { axiosInstance } from '@services/axiosInstance';
-import { normalizeEmail } from '@utils/format';
-
-const PROTECTED_FIELDS = [
-  'password',
-  'refreshTokenHash',
-  'failedLoginAttempts',
-  'lockUntil',
-  'passwordChangedAt',
-  'lastLogin',
-  'employeeId',
-];
+import { axiosInstance, dedupedGet } from '@services/axiosInstance';
 
 export async function listUsers() {
-  const { data } = await axiosInstance.get('/user');
+  const { data } = await dedupedGet('/user');
   return data;
 }
 
 export async function getUserById(userId) {
   const { data } = await axiosInstance.get(`/user/${userId}`);
-  return data;
-}
-
-export async function updateUser(userId, changes) {
-  const payload = { ...changes };
-
-  PROTECTED_FIELDS.forEach((field) => delete payload[field]);
-
-  if (payload.email) payload.email = normalizeEmail(payload.email);
-
-  const { data } = await axiosInstance.patch(`/user/${userId}`, payload);
   return data;
 }
 

@@ -29,12 +29,3 @@ export const ACCOUNT_STATUS_SPINES = {
   SUSPENDED: 'primary',
 };
 
-export function mapUserError(normalized) {
-  const message = String(normalized.message ?? '');
-
-  if (normalized.status === 409) {
-    return { fieldErrors: { email: message }, formError: null };
-  }
-
-  return { fieldErrors: {}, formError: message };
-}
