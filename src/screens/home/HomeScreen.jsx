@@ -34,6 +34,13 @@ import { styles } from '@theme/styles/HomeScreen.styles';
  * endpoint (an org-wide approval-stage breakdown, a strategic-ideas
  * pipeline, an audit-log feed) was removed rather than filled with a
  * fabricated one. See docs/backend-specs/README.md's "Client-side state".
+ *
+ * `requires` marks the ones only some roles can actually use — GET /employee
+ * is SUPER_ADMIN-only and GET /department is SUPER_ADMIN/EXECUTIVE-only, so
+ * an Employee/Intern account 403s on both. There's no client-visible role
+ * field to gate on directly (see AuthContext's header comment), so this is
+ * gated on the real per-request `isForbidden` each list hook already surfaces
+ * — the same signal that already exists, not a new guess.
  */
 const QUICK_ACTIONS = [
   {
@@ -42,6 +49,7 @@ const QUICK_ACTIONS = [
     icon: 'add-circle-outline',
     tone: 'info',
     route: ROUTES.MAIN.CREATE_DOCUMENT,
+    requires: null,
   },
   {
     key: 'my-approvals',
@@ -49,6 +57,7 @@ const QUICK_ACTIONS = [
     icon: 'checkmark-done-outline',
     tone: 'success',
     route: ROUTES.MAIN.PENDING_APPROVALS,
+    requires: null,
   },
   {
     key: 'my-submissions',
@@ -56,6 +65,7 @@ const QUICK_ACTIONS = [
     icon: 'send-outline',
     tone: 'accent',
     route: ROUTES.MAIN.MY_SUBMISSIONS,
+    requires: null,
   },
   {
     key: 'employees',
@@ -63,6 +73,7 @@ const QUICK_ACTIONS = [
     icon: 'people-outline',
     tone: 'primary',
     route: ROUTES.MAIN.EMPLOYEES,
+    requires: 'employees',
   },
   {
     key: 'departments',
@@ -70,6 +81,7 @@ const QUICK_ACTIONS = [
     icon: 'business-outline',
     tone: 'neutral',
     route: ROUTES.MAIN.DEPARTMENTS,
+    requires: 'departments',
   },
 ];
 
@@ -171,6 +183,13 @@ export function HomeScreen({ navigation }) {
 
   const goTo = (route) => () => navigation.navigate(route);
 
+  // Fails closed while a probe is still in flight, same reasoning as the
+  // Sidebar's role gating: a card that appears and then vanishes once the
+  // 403 lands reads worse than one that simply appears a beat later.
+  const canSeeEmployees = !dashboard.isLoading && !dashboard.isForbidden;
+  const canSeeDepartments = !departments.isLoading && !departments.isForbidden;
+  const canSeeTeams = !teams.isLoading && !teams.isForbidden;
+
   const statCards = [
     {
       key: 'pending-approvals',
@@ -190,25 +209,31 @@ export function HomeScreen({ navigation }) {
       linkLabel: 'View submissions',
       onPress: goTo(ROUTES.MAIN.MY_SUBMISSIONS),
     },
-    {
+    canSeeEmployees && {
       key: 'active-employees',
       icon: 'people-outline',
       tone: 'primary',
-      value: dashboard.isLoading ? '—' : String(dashboard.stats.active),
+      value: String(dashboard.stats.active),
       label: 'Active Employees',
       linkLabel: 'View employees',
       onPress: goTo(ROUTES.MAIN.EMPLOYEES),
     },
-    {
+    canSeeDepartments && {
       key: 'departments',
       icon: 'business-outline',
       tone: 'accent',
-      value: departments.isLoading ? '—' : String(departments.totalCount),
+      value: String(departments.totalCount),
       label: 'Departments',
       linkLabel: 'View departments',
       onPress: goTo(ROUTES.MAIN.DEPARTMENTS),
     },
-  ];
+  ].filter(Boolean);
+
+  const visibleQuickActions = QUICK_ACTIONS.filter((action) => {
+    if (action.requires === 'employees') return canSeeEmployees;
+    if (action.requires === 'departments') return canSeeDepartments;
+    return true;
+  });
 
   const employeeOverview = useMemo(() => {
     const { total, active, inactive, awaitingRegistration } = dashboard.stats;
@@ -231,25 +256,53 @@ export function HomeScreen({ navigation }) {
   }, [dashboard.stats]);
 
   const organizationSnapshot = [
-    {
+    canSeeDepartments && {
       key: 'departments',
       label: 'Departments',
-      value: departments.isLoading ? 0 : departments.totalCount,
+      value: departments.totalCount,
       tone: 'primary',
     },
-    {
+    canSeeTeams && {
       key: 'teams',
       label: 'Teams',
-      value: teams.isLoading ? 0 : teams.teams.length,
+      value: teams.teams.length,
       tone: 'info',
     },
-    {
+    canSeeEmployees && {
       key: 'employees',
       label: 'Employees',
-      value: dashboard.isLoading ? 0 : dashboard.stats.active,
+      value: dashboard.stats.active,
       tone: 'success',
     },
-  ];
+  ].filter(Boolean);
+
+  // Built together so the weight array always matches the panels actually
+  // rendered — Employee Overview and Organization Snapshot each depend on
+  // data this account may not be authorized to see at all.
+  const middlePanels = [
+    canSeeEmployees && {
+      weight: 1.1,
+      node: (
+        <DocumentStatusPanel key="employees" title="Employee Overview" data={employeeOverview} />
+      ),
+    },
+    organizationSnapshot.length && {
+      weight: 1.1,
+      node: (
+        <ApprovalFlowPanel key="org" title="Organization Snapshot" series={organizationSnapshot} />
+      ),
+    },
+    {
+      weight: 0.8,
+      node: (
+        <QuickActionsPanel
+          key="actions"
+          actions={visibleQuickActions}
+          onActionPress={(action) => action.route && navigation.navigate(action.route)}
+        />
+      ),
+    },
+  ].filter(Boolean);
 
   return (
     <AppShell
@@ -271,7 +324,7 @@ export function HomeScreen({ navigation }) {
 
       <Grid
         columns={statColumns}
-        weights={[1, 1, 1, 1]}
+        weights={statCards.map(() => 1)}
         items={statCards.map((card) => (
           <StatCard
             key={card.key}
@@ -287,18 +340,8 @@ export function HomeScreen({ navigation }) {
 
       <Grid
         columns={columns}
-        weights={[1.1, 1.1, 0.8]}
-        items={[
-          <DocumentStatusPanel key="employees" title="Employee Overview" data={employeeOverview} />,
-          <ApprovalFlowPanel key="org" title="Organization Snapshot" series={organizationSnapshot} />,
-          <QuickActionsPanel
-            key="actions"
-            actions={QUICK_ACTIONS}
-            onActionPress={(action) =>
-              action.route && navigation.navigate(action.route)
-            }
-          />,
-        ]}
+        weights={middlePanels.map((panel) => panel.weight)}
+        items={middlePanels.map((panel) => panel.node)}
       />
 
       <Grid
