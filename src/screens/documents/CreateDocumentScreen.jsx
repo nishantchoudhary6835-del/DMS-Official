@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { DocumentFormFields } from '@components/document/DocumentFormFields';
+import { useAuth } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import { useCreateDocument } from '@hooks/useCreateDocument';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
@@ -26,6 +27,34 @@ const EMPTY_VALUES = {
 };
 
 /**
+ * `GET /department` and `GET /team` are restricted to SUPER_ADMIN/EXECUTIVE
+ * and SUPER_ADMIN/TEAM_LEAD respectively, so most employees creating a
+ * document can never browse those lists — the dropdowns come back empty.
+ * `/auth/login` does, however, populate `user.employeeId` with the caller's
+ * own department/team ids. There is still no way to resolve those ids to a
+ * display name (no authorized route returns one), so the best this can do
+ * honestly is offer the id back as "Your department" / "Your team" rather
+ * than a real name — but that's enough to unblock the required field.
+ */
+function ownReferenceOptions(list, ownId, noun, currentValue) {
+  if (list.length) return list;
+
+  const options = [];
+  const seen = new Set();
+
+  const add = (id, label) => {
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    options.push({ value: id, label, hint: 'Assigned to your account' });
+  };
+
+  add(ownId, `Your ${noun}`);
+  add(currentValue, `Assigned ${noun}`);
+
+  return options;
+}
+
+/**
  * `screenMode` walks: 'create' -> 'created' -> optionally 'edit' -> back to
  * 'created'. Editing loops back rather than leaving the screen because
  * GET /document doesn't exist — the create response is the only moment this
@@ -34,6 +63,7 @@ const EMPTY_VALUES = {
  */
 export function CreateDocumentScreen({ navigation }) {
   const toast = useToast();
+  const { user } = useAuth();
   const { submit, isSubmitting, error, fieldErrors, clearMessages } =
     useCreateDocument();
 
@@ -61,6 +91,49 @@ export function CreateDocumentScreen({ navigation }) {
 
   // Scoped to the chosen department — no department, no teams to offer.
   const teams = useTeamOptions(values.department);
+
+  // Populated on login (see the header comment); bare id/null otherwise.
+  const ownEmployee =
+    user?.employeeId && typeof user.employeeId === 'object'
+      ? user.employeeId
+      : null;
+  const ownDepartmentId = referenceId(ownEmployee?.department);
+  const ownTeamId = referenceId(ownEmployee?.team);
+
+  const departmentOptions = useMemo(
+    () =>
+      ownReferenceOptions(
+        departments.options,
+        ownDepartmentId,
+        'department',
+        values.department
+      ),
+    [departments.options, ownDepartmentId, values.department]
+  );
+
+  const teamOptions = useMemo(
+    () => ownReferenceOptions(teams.options, ownTeamId, 'team', values.team),
+    [teams.options, ownTeamId, values.team]
+  );
+
+  // Department is required and, for most employees, the directory is
+  // unbrowsable — so once it's clear the real list has nothing to offer,
+  // default to the one department this account is actually authorized to
+  // know about instead of leaving a required field impossible to fill.
+  useEffect(() => {
+    if (screenMode !== 'create') return;
+    if (values.department) return;
+    if (departments.isLoading || departments.options.length) return;
+    if (!ownDepartmentId) return;
+
+    setValues((prev) => ({ ...prev, department: ownDepartmentId }));
+  }, [
+    screenMode,
+    values.department,
+    departments.isLoading,
+    departments.options.length,
+    ownDepartmentId,
+  ]);
 
   const setField = (key, value) => {
     setValues((prev) => {
@@ -175,8 +248,8 @@ export function CreateDocumentScreen({ navigation }) {
             values={values}
             setField={setField}
             errorFor={errorFor}
-            departmentOptions={departments.options}
-            teamOptions={teams.options}
+            departmentOptions={departmentOptions}
+            teamOptions={teamOptions}
             disabled={isUpdating}
           />
 
@@ -265,8 +338,8 @@ export function CreateDocumentScreen({ navigation }) {
           values={values}
           setField={setField}
           errorFor={errorFor}
-          departmentOptions={departments.options}
-          teamOptions={teams.options}
+          departmentOptions={departmentOptions}
+          teamOptions={teamOptions}
           disabled={isSubmitting}
         />
 
