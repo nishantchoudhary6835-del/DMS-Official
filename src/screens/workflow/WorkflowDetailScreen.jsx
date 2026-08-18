@@ -150,7 +150,9 @@ export function WorkflowDetailScreen({ navigation, route }) {
   };
 
   const handleResubmit = async () => {
-    const updated = await resubmit(workflow._id);
+    if (!documentId) return;
+
+    const updated = await resubmit(documentId);
 
     if (updated) {
       toast.success('Document resubmitted for review.');
@@ -338,13 +340,13 @@ export function WorkflowDetailScreen({ navigation, route }) {
             title="Resubmit"
             onPress={handleResubmit}
             loading={isResubmitting}
-            disabled={isResubmitting}
+            disabled={!documentId || isResubmitting}
             style={styles.action}
           />
           <Text style={styles.statusHint}>
-            Resubmitting sends the current version back for review, starting
-            again from your Team Lead. Edit the document first if it needs
-            changes — saving there creates a new version.
+            {documentId
+              ? 'Resubmitting sends the current version back for review, starting again from your Team Lead. Edit the document first if it needs changes — saving there creates a new version.'
+              : 'This submission has no document attached, so it cannot be resubmitted.'}
           </Text>
         </View>
       ) : null}

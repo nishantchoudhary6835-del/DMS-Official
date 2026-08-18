@@ -39,7 +39,15 @@ export async function reviewWorkflow(workflowId, action, reviewComment = null) {
   return data;
 }
 
-export async function resubmitWorkflow(workflowId) {
-  const { data } = await axiosInstance.post(`/workflow/${workflowId}/resubmit`);
+/**
+ * Despite living under /workflow, this route is `/workflow/:documentId/resubmit`
+ * — same shape as submit — and the backend does `Document.findById(documentId)`
+ * directly (confirmed by reading workflow.service.js's resubmitDocument).
+ * Sending a workflow id here 404s "Document not found"; it only happens to
+ * share a URL prefix with the workflow-scoped /:workflowId/review route
+ * above, not its parameter's meaning.
+ */
+export async function resubmitDocument(documentId) {
+  const { data } = await axiosInstance.post(`/workflow/${documentId}/resubmit`);
   return data;
 }

@@ -11,14 +11,14 @@ export function useResubmitWorkflow() {
   const clearMessages = useCallback(() => setError(null), []);
 
   const submit = useCallback(
-    async (workflowId) => {
+    async (documentId) => {
       if (isSubmitting) return null;
 
       setIsSubmitting(true);
       clearMessages();
 
       try {
-        const response = await workflowApi.resubmitWorkflow(workflowId);
+        const response = await workflowApi.resubmitDocument(documentId);
         return response?.data ?? null;
       } catch (caught) {
         const normalized = normalizeError(caught);
