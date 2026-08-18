@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { ConfirmDialog } from '@components/common/ConfirmDialog';
+import { Loader } from '@components/common/Loader';
 import { ApprovalFlowPanel } from '@components/dashboard/ApprovalFlowPanel';
 import { DocumentStatusPanel } from '@components/dashboard/DocumentStatusPanel';
 import { QuickActionsPanel } from '@components/dashboard/QuickActionsPanel';
@@ -190,6 +191,14 @@ export function HomeScreen({ navigation }) {
   const canSeeDepartments = !departments.isLoading && !departments.isForbidden;
   const canSeeTeams = !teams.isLoading && !teams.isForbidden;
 
+  // While any of these three are still in flight, statCards/middlePanels
+  // below would render whatever's resolved so far — on an account switch
+  // that's a real (if very brief) window where the layout reflects "nothing
+  // confirmed yet" rather than either account's actual access. A generic
+  // loader in that window reads as "checking", not as a wrong-sized layout.
+  const isCheckingAccess =
+    dashboard.isLoading || departments.isLoading || teams.isLoading;
+
   const statCards = [
     {
       key: 'pending-approvals',
@@ -322,27 +331,33 @@ export function HomeScreen({ navigation }) {
         </View>
       </View>
 
-      <Grid
-        columns={statColumns}
-        weights={statCards.map(() => 1)}
-        items={statCards.map((card) => (
-          <StatCard
-            key={card.key}
-            icon={card.icon}
-            tone={card.tone}
-            value={card.value}
-            label={card.label}
-            linkLabel={card.linkLabel}
-            onPress={card.onPress}
+      {isCheckingAccess ? (
+        <Loader message="Loading your dashboard…" fullScreen={false} />
+      ) : (
+        <>
+          <Grid
+            columns={statColumns}
+            weights={statCards.map(() => 1)}
+            items={statCards.map((card) => (
+              <StatCard
+                key={card.key}
+                icon={card.icon}
+                tone={card.tone}
+                value={card.value}
+                label={card.label}
+                linkLabel={card.linkLabel}
+                onPress={card.onPress}
+              />
+            ))}
           />
-        ))}
-      />
 
-      <Grid
-        columns={columns}
-        weights={middlePanels.map((panel) => panel.weight)}
-        items={middlePanels.map((panel) => panel.node)}
-      />
+          <Grid
+            columns={columns}
+            weights={middlePanels.map((panel) => panel.weight)}
+            items={middlePanels.map((panel) => panel.node)}
+          />
+        </>
+      )}
 
       <Grid
         columns={columns}

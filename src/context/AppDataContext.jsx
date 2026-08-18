@@ -47,9 +47,18 @@ const AppDataContext = createContext(null);
  * instant instead of a network round trip.
  */
 function useListResource(fetcher, forbiddenMessage) {
+  // isLoading starts true, not false: every consumer calls ensure() from a
+  // useEffect, which only fires after the first render commits. Starting
+  // false left a one-render gap — right after AppDataProvider remounts on
+  // account switch (see ScopedAppData in AppProviders.jsx) — where
+  // isLoading/isForbidden both read as false before ensure() has even run,
+  // which looks identical to "confirmed, nothing to hide" to any consumer
+  // gating on `!isLoading && !isForbidden`. That flashed the full,
+  // unrestricted card layout for one frame on every account switch,
+  // regardless of the new account's real access.
   const [state, setState] = useState({
     data: [],
-    isLoading: false,
+    isLoading: true,
     isRefreshing: false,
     error: null,
     isForbidden: false,
