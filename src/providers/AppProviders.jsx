@@ -45,9 +45,22 @@ export function AppProviders({ children }) {
     <ToastProvider>
       <SafeAreaProvider>
         <AuthProvider>
-          <ScopedAppData>
-            <ApiBridge>{children}</ApiBridge>
-          </ScopedAppData>
+          {/*
+            ApiBridge wraps ScopedAppData, not the other way around: the
+            axios response interceptor it registers is what catches a 401,
+            attempts a refresh, and signs the user out automatically on
+            failure. ScopedAppData remounts AppDataProvider on every account
+            switch (see its own comment) — if ApiBridge were inside that
+            boundary, the interceptor would be torn down and re-registered on
+            every switch too, leaving a real window right as the new
+            account's screens fire their first requests where no interceptor
+            is attached to catch a 401 at all. Keeping it outside means the
+            interceptor stays continuously registered across account
+            switches, independent of the data cache being reset.
+          */}
+          <ApiBridge>
+            <ScopedAppData>{children}</ScopedAppData>
+          </ApiBridge>
         </AuthProvider>
       </SafeAreaProvider>
     </ToastProvider>

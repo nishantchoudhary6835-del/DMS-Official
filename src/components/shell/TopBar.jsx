@@ -10,7 +10,7 @@ export function TopBar({
   isCompact = false,
   email,
   name = 'Signed in',
-  role = 'Team Lead',
+  role,
   onOpenMenu,
   onProfilePress,
 }) {
@@ -51,9 +51,11 @@ export function TopBar({
                 <Text style={styles.name} numberOfLines={1}>
                   {name}
                 </Text>
-                <Text style={styles.role} numberOfLines={1}>
-                  {role}
-                </Text>
+                {role ? (
+                  <Text style={styles.role} numberOfLines={1}>
+                    {role}
+                  </Text>
+                ) : null}
               </View>
               <Ionicons
                 name="chevron-down"

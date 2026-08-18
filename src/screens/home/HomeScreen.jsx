@@ -121,7 +121,23 @@ function Grid({ items, columns, weights }) {
   );
 }
 
+/**
+ * Prefers the real name from the populated Employee reference — every login
+ * response includes `user.employeeId.firstName`/`.lastName` — over guessing
+ * one from the email's local part, which was the only thing this could fall
+ * back on before (there's no top-level `name` field on the User model).
+ */
 function displayNameFor(user) {
+  const employee =
+    user?.employeeId && typeof user.employeeId === 'object'
+      ? user.employeeId
+      : null;
+
+  const fullName = [employee?.firstName, employee?.lastName]
+    .filter(Boolean)
+    .join(' ');
+  if (fullName) return fullName;
+
   if (user?.name) return user.name;
 
   const local = String(user?.email ?? '').split('@')[0];
@@ -319,7 +335,6 @@ export function HomeScreen({ navigation }) {
       onNavigate={(item) => item.route && navigation.navigate(item.route)}
       email={user?.email}
       name={name}
-      role="Team Lead"
       onProfilePress={() => setIsConfirmingSignOut(true)}
     >
       <View style={styles.greeting}>
