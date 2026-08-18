@@ -7,7 +7,7 @@ record of what it was written to satisfy.
 
 | Document | Covers |
 | --- | --- |
-| `AUTH_FLOW.md` | Registration, login, OTP, refresh, session cookies |
+| `AUTH_FLOW.md` | Registration, login, OTP, refresh, session cookies. Updated 2026-08-18: login response no longer returns `accessToken` in the body — the backend now sets it as an HttpOnly cookie instead, matching what this app's `axiosInstance.js` already assumed. The doc's own "Access Token" prose section wasn't updated to match and still describes the old body-token model; flagged inline. The doc's new fully-populated `employeeId.department`/`.team`/`.reportingManager` shape is not yet live on `dms-s32w.onrender.com` as tested this session — still flat ObjectId strings there |
 | `HIERARCHY_MODULE.md` | `GET /hierarchy` — the nine levels and their `level` ranks |
 | `DEPARTMENT_MANAGEMENT.md` | Department CRUD, status, head assignment, delete rules |
 | `TEAM_MANAGEMENT.md` | Team CRUD, department scoping, team-lead assignment |

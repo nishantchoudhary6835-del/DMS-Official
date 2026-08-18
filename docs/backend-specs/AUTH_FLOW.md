@@ -543,26 +543,88 @@ Return Access Token
 
 ## Expected Success Response
 
+> **Updated 2026-08-18** — backend team re-shared this doc with a changed
+> login response shape. `data.accessToken` is gone from the body, and
+> `employeeId` is now shown fully populated (`department.head`,
+> `team.teamLead`, `reportingManager` as full objects, plus `updatedAt`).
+> Two things to flag back to backend, not fixed here since neither blocks
+> the frontend:
+> 1. The "Access Token" section immediately below this still says the
+>    token is returned in the login body and is "NOT stored in the
+>    HttpOnly refresh-token cookie" — that's now wrong on both counts (see
+>    note there). The doc update didn't touch that prose.
+> 2. As tested live against `https://dms-s32w.onrender.com` today, the
+>    deployed backend does **not** yet return the fully-populated
+>    `department`/`team`/`reportingManager` shown below — it still returns
+>    flat ObjectId strings for those three fields (confirmed via the login
+>    response actually observed in this session's dev-server log). The
+>    doc's new example may describe an in-progress or not-yet-deployed
+>    change. No frontend code reads those nested fields yet, so this isn't
+>    blocking anything — just don't assume they're populated until
+>    re-verified live.
+
 ```json
 {
     "success": true,
     "message": "Login successful.",
     "data": {
-        "accessToken": "JWT_ACCESS_TOKEN",
         "user": {
             "_id": "USER_OBJECT_ID",
-            "employeeId": "EMPLOYEE_OBJECT_ID",
+            "employeeId": {
+                "_id": "EMPLOYEE_OBJECT_ID",
+                "employeeId": "EMP-001",
+                "firstName": "Kiran",
+                "lastName": "Gawande",
+                "email": "employee@company.com",
+                "hierarchyLevel": "EMPLOYEE",
+                "department": {
+                    "_id": "DEPARTMENT_OBJECT_ID",
+                    "name": "Information Technology",
+                    "head": {
+                        "_id": "HEAD_EMPLOYEE_OBJECT_ID",
+                        "employeeId": "EMP-000",
+                        "firstName": "Bhavesh",
+                        "lastName": "Yadav"
+                    }
+                },
+                "team": {
+                    "_id": "TEAM_OBJECT_ID",
+                    "name": "Frontend Engineering",
+                    "teamLead": {
+                        "_id": "TEAM_LEAD_EMPLOYEE_OBJECT_ID",
+                        "employeeId": "EMP-TL-001",
+                        "firstName": "Amit",
+                        "lastName": "Shinde"
+                    }
+                },
+                "reportingManager": {
+                    "_id": "TEAM_LEAD_EMPLOYEE_OBJECT_ID",
+                    "employeeId": "EMP-TL-001",
+                    "firstName": "Amit",
+                    "lastName": "Shinde"
+                },
+                "status": "ACTIVE"
+            },
             "email": "employee@company.com",
             "accountStatus": "ACTIVE",
             "isEmailVerified": true,
             "failedLoginAttempts": 0,
             "lockUntil": null,
-            "passwordChangedAt": null,
-            "lastLogin": "2026-08-02T18:30:48.779Z"
+            "passwordChangedAt": "2026-08-12T15:01:41.459Z",
+            "lastLogin": "2026-08-18T13:38:21.386Z",
+            "updatedAt": "2026-08-18T13:38:21.399Z"
         }
     }
 }
 ```
+
+No `accessToken` field is present in the body anymore. This matches what
+`src/services/axiosInstance.js` already assumes — it never reads or stores
+an access token from the response; it relies solely on `withCredentials:
+true` and lets the browser carry whatever cookie the backend sets. Live
+testing this session confirmed the backend now sets an `accessToken`
+HttpOnly cookie on login (`Max-Age=900`, i.e. 15 min) alongside the
+existing `refreshToken` cookie — see the note under "Access Token" below.
 
 ---
 
@@ -586,9 +648,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ## Important
 
-The current backend returns the access token in the **login response body**.
+> **This section is stale as of the 2026-08-18 doc update** — it still
+> describes the old body-token model and wasn't revised alongside the
+> login response example above. As actually observed against
+> `https://dms-s32w.onrender.com` this session: the login response body no
+> longer contains `accessToken` at all, and the backend instead sets it as
+> an **HttpOnly cookie** (`accessToken`, `Max-Age=900`) right alongside the
+> `refreshToken` cookie. So both bullets below are now inverted from
+> reality. The `Authorization: Bearer` header convention described in this
+> section and in "Authentication Middleware" further down is also no
+> longer how this frontend authenticates — every request just relies on
+> `withCredentials: true` sending the cookie automatically. Flagging for
+> backend to correct in the next doc pass; no frontend change needed since
+> `src/services/axiosInstance.js` was already built cookie-only.
 
-The access token is **NOT stored in the HttpOnly refresh-token cookie**.
+~~The current backend returns the access token in the login response body.~~
+
+~~The access token is NOT stored in the HttpOnly refresh-token cookie.~~
 
 Frontend is responsible for handling the access token according to the frontend application's authentication strategy.
 
