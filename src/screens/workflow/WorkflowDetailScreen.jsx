@@ -1,19 +1,23 @@
 import { useState } from 'react';
-import { Linking, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
 import { Button } from '@components/common/Button';
 import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
+import { TextField } from '@components/common/TextField';
 import { Screen } from '@components/layout/Screen';
 import { useToast } from '@context/ToastContext';
 import { useResubmitWorkflow } from '@hooks/useResubmitWorkflow';
 import { useReviewWorkflow } from '@hooks/useReviewWorkflow';
+import { useViewDocument } from '@hooks/useViewDocument';
+import { ROUTES } from '@navigation/routes';
 import { formatDate } from '@utils/format';
 import {
   WORKFLOW_STATUS,
   documentRefLabel,
   employeeRefLabel,
+  validateReviewComment,
   workflowLevelLabel,
   workflowStatusLabel,
   workflowStatusTone,
@@ -49,7 +53,15 @@ export function WorkflowDetailScreen({ navigation, route }) {
     error: resubmitError,
   } = useResubmitWorkflow();
 
+  const {
+    view: viewDocument,
+    isLoading: isOpeningDocument,
+    error: viewError,
+  } = useViewDocument();
+
   const [isConfirmingReject, setIsConfirmingReject] = useState(false);
+  const [reviewComment, setReviewComment] = useState('');
+  const [commentError, setCommentError] = useState(null);
 
   if (!workflow) {
     return (
@@ -75,8 +87,9 @@ export function WorkflowDetailScreen({ navigation, route }) {
 
   const title = documentRefLabel(workflow.document) ?? 'Untitled document';
   const documentType = workflow.document?.documentType || null;
-  const fileUrl = workflow.document?.fileUrl || null;
   const fileName = workflow.document?.fileName || null;
+  const documentId = workflow.document?._id || null;
+  const priorReviewComment = workflow.document?.reviewComment || null;
   const status = workflowStatusLabel(workflow.status);
   const level = workflowLevelLabel(workflow.currentLevel);
   const reviewer = employeeRefLabel(workflow.currentReviewer);
@@ -98,7 +111,14 @@ export function WorkflowDetailScreen({ navigation, route }) {
     origin === 'submissions' && workflow.status === WORKFLOW_STATUS.REVISION;
 
   const handleReview = async (action, successMessage) => {
-    const updated = await review(workflow._id, action);
+    const commentIssue = validateReviewComment(action, reviewComment);
+
+    if (commentIssue) {
+      setCommentError(commentIssue);
+      return;
+    }
+
+    const updated = await review(workflow._id, action, reviewComment.trim());
 
     if (updated) {
       toast.success(successMessage);
@@ -106,8 +126,20 @@ export function WorkflowDetailScreen({ navigation, route }) {
     }
   };
 
+  const handleRejectPress = () => {
+    const commentIssue = validateReviewComment('REJECT', reviewComment);
+
+    if (commentIssue) {
+      setCommentError(commentIssue);
+      return;
+    }
+
+    clearReviewError();
+    setIsConfirmingReject(true);
+  };
+
   const handleReject = async () => {
-    const updated = await review(workflow._id, 'REJECT');
+    const updated = await review(workflow._id, 'REJECT', reviewComment.trim());
 
     setIsConfirmingReject(false);
 
@@ -127,7 +159,13 @@ export function WorkflowDetailScreen({ navigation, route }) {
   };
 
   const handleOpenDocument = () => {
-    if (fileUrl) Linking.openURL(fileUrl);
+    if (documentId) viewDocument(documentId);
+  };
+
+  const handleEditDocument = () => {
+    if (documentId) {
+      navigation.navigate(ROUTES.MAIN.EDIT_DOCUMENT, { documentId });
+    }
   };
 
   return (
@@ -152,15 +190,24 @@ export function WorkflowDetailScreen({ navigation, route }) {
         {documentType ? <Text style={styles.code}>{documentType}</Text> : null}
       </View>
 
+      {priorReviewComment ? (
+        <View style={styles.feedbackBlock}>
+          <Text style={styles.sectionLabel}>Reviewer feedback</Text>
+          <Text style={styles.feedbackText}>{priorReviewComment}</Text>
+        </View>
+      ) : null}
+
       <View style={styles.section}>
+        <ErrorBanner message={viewError} />
         <Button
           title={fileName ? `Open document (${fileName})` : 'Open document'}
           icon="document-attach-outline"
           onPress={handleOpenDocument}
-          disabled={!fileUrl}
+          loading={isOpeningDocument}
+          disabled={!documentId || isOpeningDocument}
           variant="secondary"
         />
-        {!fileUrl ? (
+        {!documentId ? (
           <Text style={styles.statusHint}>
             No file is attached to this submission yet.
           </Text>
@@ -232,6 +279,21 @@ export function WorkflowDetailScreen({ navigation, route }) {
         <View style={styles.actionBlock}>
           <ErrorBanner message={reviewError} />
 
+          <TextField
+            label="Review comment"
+            value={reviewComment}
+            onChangeText={(text) => {
+              setReviewComment(text);
+              setCommentError(null);
+            }}
+            error={commentError}
+            placeholder="Explain what needs to change, or why this is rejected"
+            helper="Required for Return or Reject. Ignored for Approve."
+            multiline
+            numberOfLines={3}
+            editable={!isReviewing}
+          />
+
           <Button
             title="Approve"
             onPress={() => handleReview('APPROVE', 'Document approved.')}
@@ -251,10 +313,7 @@ export function WorkflowDetailScreen({ navigation, route }) {
           />
           <Button
             title="Reject"
-            onPress={() => {
-              clearReviewError();
-              setIsConfirmingReject(true);
-            }}
+            onPress={handleRejectPress}
             disabled={isReviewing}
             variant="danger"
           />
@@ -265,6 +324,16 @@ export function WorkflowDetailScreen({ navigation, route }) {
         <View style={styles.actionBlock}>
           <ErrorBanner message={resubmitError} />
 
+          {documentId ? (
+            <Button
+              title="Edit document"
+              icon="create-outline"
+              onPress={handleEditDocument}
+              variant="secondary"
+              disabled={isResubmitting}
+              style={styles.action}
+            />
+          ) : null}
           <Button
             title="Resubmit"
             onPress={handleResubmit}
@@ -273,9 +342,9 @@ export function WorkflowDetailScreen({ navigation, route }) {
             style={styles.action}
           />
           <Text style={styles.statusHint}>
-            Editing the document before resubmitting isn't available in this
-            app yet — this resubmits it as-is, starting again from your Team
-            Lead.
+            Resubmitting sends the current version back for review, starting
+            again from your Team Lead. Edit the document first if it needs
+            changes — saving there creates a new version.
           </Text>
         </View>
       ) : null}

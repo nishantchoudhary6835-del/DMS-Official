@@ -6,12 +6,13 @@ import { referenceId } from '@utils/format';
 /**
  * Confirmed live and auth-gated: POST /document -> 401 "No auth token"
  * without a token, the same contract every other module's create route has.
- * GET /document -> 404, which matches DOCUMENT_MANAGEMENT.md's own account
- * of itself. `updateDocument` below is written to the same doc's §9/§14 but
- * has not itself been exercised against the live backend yet — there is
- * still no documented list or detail GET route, so the only place this app
- * can reach an update from is the moment right after a create response, per
- * CreateDocumentScreen's comment on the same limitation.
+ * `createDocument`/`updateDocument` are both confirmed working live (see
+ * WORKFLOW_SUBMIT_MISSING_TEAM.md's 2026-08-16 log and DOCUMENT_MANAGEMENT.md
+ * §19's frontend note). `getDocumentById` is written to
+ * DOCUMENT_MODULE_DOCUMENTATION.md §10 (added 2026-08-18, which is also the
+ * first time a document detail route was documented at all) but has not yet
+ * been exercised against the live backend — treat it as documented, not
+ * confirmed, until it's actually been called and its response observed.
  */
 
 /**
@@ -72,6 +73,12 @@ export async function createDocument(values) {
   return data;
 }
 
+/** GET /document/:documentId — DOCUMENT_MODULE_DOCUMENTATION.md §10. */
+export async function getDocumentById(documentId) {
+  const { data } = await axiosInstance.get(`/document/${documentId}`);
+  return data;
+}
+
 /**
  * PATCH /document/:documentId — DOCUMENT_MANAGEMENT.md §8-9. `file` is the
  * only field that's genuinely optional here (§14's example only appends it
@@ -87,4 +94,43 @@ export async function updateDocument(documentId, values) {
     { headers: { 'Content-Type': undefined } }
   );
   return data;
+}
+
+/**
+ * GET /document/:documentId/view — DOCUMENT_VIEW_API.md. Replaces the old
+ * fileUrl-from-Cloudinary approach: that spec states fileUrl/filePublicId
+ * are no longer sent in any document response, and this is now the only way
+ * to view a document's file at all. The spec's own examples use a plural
+ * `/documents/:id/view` path, but every other confirmed document route in
+ * this app is singular (`/document`) — using singular here to match until
+ * proven otherwise live, the same kind of documented-vs-actual mismatch
+ * ROLE_PERMISSION_MODULE.md turned out to have with its own base path.
+ *
+ * Returns raw PDF bytes on success, so `responseType: 'blob'` is required —
+ * but that setting applies to error responses too, and the backend's own
+ * error body is JSON (400/401/403/404/500), not PDF. Without recovering it,
+ * axios hands back a Blob where callers expect `{ message }`, and
+ * normalizeError silently falls through to a generic message. The catch
+ * block re-reads that blob as text and reattaches it as parsed JSON so the
+ * usual error handling keeps working unchanged.
+ */
+export async function viewDocument(documentId) {
+  try {
+    const response = await axiosInstance.get(`/document/${documentId}/view`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  } catch (caught) {
+    const data = caught?.response?.data;
+
+    if (data instanceof Blob && data.type.includes('json')) {
+      try {
+        caught.response.data = JSON.parse(await data.text());
+      } catch {
+        // Not actually JSON — leave the original Blob in place.
+      }
+    }
+
+    throw caught;
+  }
 }

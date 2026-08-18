@@ -84,6 +84,20 @@ export const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
   },
 
+  feedbackBlock: {
+    backgroundColor: theme.colors.surfaceSunk,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.cardBorder,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  feedbackText: {
+    ...theme.typography.body,
+    color: theme.colors.textPrimary,
+  },
+
   actionBlock: {
     marginTop: theme.spacing.xl,
   },

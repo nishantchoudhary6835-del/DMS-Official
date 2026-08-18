@@ -11,14 +11,14 @@ export function useReviewWorkflow() {
   const clearMessages = useCallback(() => setError(null), []);
 
   const submit = useCallback(
-    async (workflowId, action) => {
+    async (workflowId, action, reviewComment = null) => {
       if (isSubmitting) return null;
 
       setIsSubmitting(true);
       clearMessages();
 
       try {
-        const response = await workflowApi.reviewWorkflow(workflowId, action);
+        const response = await workflowApi.reviewWorkflow(workflowId, action, reviewComment);
         return response?.data ?? null;
       } catch (caught) {
         const normalized = normalizeError(caught);

@@ -9,6 +9,7 @@ import { DepartmentDetailScreen } from '@screens/departments/DepartmentDetailScr
 import { DepartmentListScreen } from '@screens/departments/DepartmentListScreen';
 import { EditDepartmentScreen } from '@screens/departments/EditDepartmentScreen';
 import { CreateDocumentScreen } from '@screens/documents/CreateDocumentScreen';
+import { EditDocumentScreen } from '@screens/documents/EditDocumentScreen';
 import { CreateEmployeeScreen } from '@screens/employees/CreateEmployeeScreen';
 import { CreateTeamScreen } from '@screens/teams/CreateTeamScreen';
 import { EditTeamScreen } from '@screens/teams/EditTeamScreen';
@@ -135,6 +136,10 @@ export function MainNavigator() {
       <Stack.Screen
         name={ROUTES.MAIN.CREATE_DOCUMENT}
         component={CreateDocumentScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.EDIT_DOCUMENT}
+        component={EditDocumentScreen}
       />
       <Stack.Screen
         name={ROUTES.MAIN.MY_SUBMISSIONS}

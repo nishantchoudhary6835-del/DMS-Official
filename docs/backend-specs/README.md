@@ -13,8 +13,9 @@ record of what it was written to satisfy.
 | `TEAM_MANAGEMENT.md` | Team CRUD, department scoping, team-lead assignment |
 | `EMPLOYEE_MANAGEMENT.md` | Employee CRUD, filters, registration state |
 | `USER_MANAGEMENT.md` | Account status, lockout, role administration |
-| `DOCUMENT_MANAGEMENT.md` | Document create + update/versioning (`POST`/`PATCH /document`) — no list or detail GET route is documented anywhere in it |
+| `DOCUMENT_MANAGEMENT.md` | Document create + update/versioning (`POST`/`PATCH /document`) — earlier snapshot; superseded by `DOCUMENT_MODULE_DOCUMENTATION.md` for anything beyond create/update |
 | `DOCUMENT_UPDATE_VERSION.md` | One-page quick guide to the update → new-version flow; a trimmed pointer at `DOCUMENT_MANAGEMENT.md` §8-10 |
+| `DOCUMENT_MODULE_DOCUMENTATION.md` | 2026-08-18 update — documents the full CRUD surface: `GET /document` (list), `GET /document/:id` (detail), `GET /document/:id/versions`, `PATCH /document/:id/status`, `PATCH /document/:id/archive`, `PATCH /document/:id/restore`, `DELETE /document/:id`. Only create/update have ever been exercised live; the rest are documented but unverified |
 | `WORKFLOW_MODULE.md` | Full submit → review → approve/return/reject → resubmit → publish lifecycle, plus routing rules the frontend must never duplicate |
 | `WORKFLOW_REVIEW_ESCALATION.md` | One-page quick guide to reminders/escalation timing; a trimmed pointer at `WORKFLOW_MODULE.md` §15-19 |
 | `EGKMS-System-Specification.pdf` | Whole-product specification |
@@ -25,13 +26,15 @@ record of what it was written to satisfy.
 | `TEAM_LIST_ENDPOINT_ERROR.md` | `GET /team` 500'd on every call — **resolved 2026-08-16**, every variant now returns 200 |
 | `WORKFLOW_SUBMIT_MISSING_TEAM.md` | Workflow submit 400 ("Unable to determine next workflow authority") — confirmed by elimination to be the Super Admin test account's own missing `Employee.team`, not the document's `team` field |
 | `OTP_EMAIL_SEND_TIMEOUT.md` | `POST /auth/send-email-otp` always fails — IPv6 SMTP connection issue in `src/config/mail.js`, root-caused against the backend's own source; two fixes attached (minimal `family: 4` patch, or switch to Brevo's HTTP API) |
+| `EGKMS_PERMISSION_ROLEPERMISSION_ACL_DEFINITION.md` | Fills the gap `PERMISSION_MODULE.md`/`ACL_MODULE.md`/`ROLE_PERMISSION_MODULE.md` left — the full Permission → RolePermission → ACL engine (25 permissions, 62 RolePermission assignments, global-ACL-from-RolePermission seeding, Employee/Team/Department/Global precedence). Has a documented live discrepancy: INTERN should have a global ALLOW ACL for `DOCUMENT.CREATE` per this doc's own §7.8/§10, but a live 2026-08-18 test got 403 "No active ACL rule found" for exactly that request on an account that succeeded at the same call on 2026-08-16 |
+| `DOCUMENT_CREATE_ACL_MIDDLEWARE_ORDER_BUG.md` | Root cause of the discrepancy above, found by reading the backend source directly (`kirangawande39/DMS`, branch `develop`): `document.routes.js` runs `accessControl` before `upload.single("file")` on the create route, so `req.body` (which ACL scope resolution reads department/team from) is empty at that point for every multipart request — silently disabling Department- and Team-scoped ACL rules for `POST /document` specifically. One-line middleware reorder fix included, plus a zero-deploy workaround (use a Global-scoped rule instead) |
+| `DOCUMENT_VIEW_API.md` | New Document View API (`GET /document/:id/view`, returns PDF binary) replacing the old `fileUrl`/Cloudinary-direct-link approach — `fileUrl`/`filePublicId` are no longer sent in any document response at all. Implemented client-side (`useViewDocument`, blob fetch + object URL, web-only); not yet confirmed live — the spec's own examples use a plural `/documents/:id/view` path while every other confirmed document route in this app is singular, same kind of documented-vs-actual mismatch as `ROLE_PERMISSION_MODULE.md`'s route casing |
 
-**Still missing from this folder:** `PERMISSION_MODULE.md`, `ACL_MODULE.md`,
-and `ROLE_PERMISSION_MODULE.md` are cited by name in `src/services/`
-comments as the specs those three already-built, already-shipping modules
-were written against, but none of the three were ever saved here — same
-loose-file-in-chat problem this folder exists to prevent. If they turn up,
-they belong here.
+`PERMISSION_MODULE.md` and `ACL_MODULE.md`/`ROLE_PERMISSION_MODULE.md`
+themselves (the per-module versions cited by name in `src/services/`
+comments) still haven't turned up — `EGKMS_PERMISSION_ROLEPERMISSION_ACL_DEFINITION.md`
+above covers the same ground in one combined document instead. If the
+per-module originals turn up, they belong here too.
 
 `AUTH_FLOW.md` here differs from `docs/AUTH_FLOW.md` in the backend repo
 (`kirangawande39/DMS`) — that copy is longer. Treat the backend repo's version
@@ -66,9 +69,11 @@ refusal, the Team-Lead-only delete 403, and duplicate-name-per-department are
 all unverified.
 
 Document upload (`POST /document`) is confirmed working as of the same
-retest, but there is still no documented list/detail GET route for
-documents, so no Document List/Detail screen can be built yet — see
-`DOCUMENT_MANAGEMENT.md`'s frontend note.
+retest. As of 2026-08-18, `DOCUMENT_MODULE_DOCUMENTATION.md` documents a
+list/detail GET route, version history, status/archive/restore, and delete —
+none of it built or exercised from this app yet, but a Document List/Detail
+screen and the RETURN→edit→resubmit loop (previously blocked, see the
+Workflow review/resubmit plan) are both unblocked on the backend side now.
 
 The dashboard (`HomeScreen`) now renders from real hooks
 (`usePendingWorkflows`, `useMySubmissions`, `useDashboard`, `useDepartments`)

@@ -85,3 +85,19 @@ export function employeeRefLabel(employeeRef) {
 export function mapWorkflowError(normalized) {
   return { fieldErrors: {}, formError: normalized.message };
 }
+
+/**
+ * The backend rejects RETURN/REJECT with a 400 if reviewComment is empty
+ * (workflow.service.js's reviewWorkflow) — checked client-side first so the
+ * request never round-trips just to fail validation. APPROVE ignores the
+ * comment entirely, so nothing to validate there.
+ */
+export function validateReviewComment(action, reviewComment) {
+  if (action !== 'RETURN' && action !== 'REJECT') return undefined;
+
+  if (!String(reviewComment ?? '').trim()) {
+    return 'A comment is required when returning or rejecting a document.';
+  }
+
+  return undefined;
+}

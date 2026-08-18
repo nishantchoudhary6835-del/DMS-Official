@@ -23,11 +23,19 @@ export async function listMySubmissions() {
   return data;
 }
 
-/** action is one of 'APPROVE' | 'RETURN' | 'REJECT' — see WORKFLOW_MODULE.md §8. */
-export async function reviewWorkflow(workflowId, action) {
-  const { data } = await axiosInstance.post(`/workflow/${workflowId}/review`, {
-    action,
-  });
+/**
+ * action is one of 'APPROVE' | 'RETURN' | 'REJECT' — see WORKFLOW_MODULE.md
+ * §8. The backend requires a non-empty `reviewComment` when action is RETURN
+ * or REJECT (400 "Review comment is required when action is ${action}."
+ * otherwise) — confirmed by reading workflow.service.js directly. APPROVE
+ * ignores it and clears any previous comment on the document regardless of
+ * what's sent, so it's only included when actually provided.
+ */
+export async function reviewWorkflow(workflowId, action, reviewComment = null) {
+  const payload = { action };
+  if (reviewComment) payload.reviewComment = reviewComment;
+
+  const { data } = await axiosInstance.post(`/workflow/${workflowId}/review`, payload);
   return data;
 }
 

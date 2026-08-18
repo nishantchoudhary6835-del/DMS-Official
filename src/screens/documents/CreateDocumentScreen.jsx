@@ -13,6 +13,7 @@ import { useSubmitDocument } from '@hooks/useSubmitDocument';
 import { useTeamOptions } from '@hooks/useTeamOptions';
 import { useUpdateDocument } from '@hooks/useUpdateDocument';
 import { referenceId } from '@utils/format';
+import { ownReferenceOptions } from '@utils/referenceOptions';
 import { validateDocumentEditForm, validateDocumentForm } from '@validation/document';
 
 import { styles } from '@theme/styles/CreateDocumentScreen.styles';
@@ -27,39 +28,14 @@ const EMPTY_VALUES = {
 };
 
 /**
- * `GET /department` and `GET /team` are restricted to SUPER_ADMIN/EXECUTIVE
- * and SUPER_ADMIN/TEAM_LEAD respectively, so most employees creating a
- * document can never browse those lists — the dropdowns come back empty.
- * `/auth/login` does, however, populate `user.employeeId` with the caller's
- * own department/team ids. There is still no way to resolve those ids to a
- * display name (no authorized route returns one), so the best this can do
- * honestly is offer the id back as "Your department" / "Your team" rather
- * than a real name — but that's enough to unblock the required field.
- */
-function ownReferenceOptions(list, ownId, noun, currentValue) {
-  if (list.length) return list;
-
-  const options = [];
-  const seen = new Set();
-
-  const add = (id, label) => {
-    if (!id || seen.has(id)) return;
-    seen.add(id);
-    options.push({ value: id, label, hint: 'Assigned to your account' });
-  };
-
-  add(ownId, `Your ${noun}`);
-  add(currentValue, `Assigned ${noun}`);
-
-  return options;
-}
-
-/**
  * `screenMode` walks: 'create' -> 'created' -> optionally 'edit' -> back to
- * 'created'. Editing loops back rather than leaving the screen because
- * GET /document doesn't exist — the create response is the only moment this
- * app ever has the document's id and fields, so there is nowhere else an
- * edit could be re-entered from once this screen is left.
+ * 'created'. Editing loops back in-place, right after create, rather than
+ * navigating to the standalone EditDocumentScreen — the just-created
+ * response already has every field this form needs, so there's no reason to
+ * round-trip through GET /document/:id a second time in the same flow.
+ * EditDocumentScreen exists for the other entry point: editing a document
+ * from outside this screen (e.g. WorkflowDetailScreen's Resubmit block,
+ * after a reviewer RETURNs it), where the id is all that's carried over.
  */
 export function CreateDocumentScreen({ navigation }) {
   const toast = useToast();
