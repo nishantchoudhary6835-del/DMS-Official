@@ -46,5 +46,8 @@ export function useDocuments() {
     error: documents.error,
     isForbidden: documents.isForbidden,
     refresh: documents.refresh,
+    // For screens that change the document set without the list being
+    // mounted beneath them — see AppDataContext's invalidate().
+    invalidate: documents.invalidate,
   };
 }

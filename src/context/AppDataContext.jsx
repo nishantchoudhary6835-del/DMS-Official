@@ -134,9 +134,29 @@ function useListResource(fetcher, forbiddenMessage) {
 
   const refresh = useCallback(() => load({ refresh: true }), [load]);
 
+  /**
+   * Marks the cache stale so the next `ensure()` genuinely refetches.
+   *
+   * Needed because `ensure()` is a no-op once loaded and the list screens
+   * skip their first focus-refresh (that focus fires on mount, where
+   * `ensure()` is already responsible for loading). Both behaviours are
+   * right on their own, but together they mean a resource mutated from a
+   * screen the list is *not* mounted beneath — creating a document from the
+   * sidebar, say — leaves the list showing pre-mutation data the next time
+   * it opens, with no request made at all.
+   *
+   * Deliberately lazy rather than calling `refresh()`: a caller that mutates
+   * data may never visit the list, and this way nothing is fetched until
+   * something actually needs it.
+   */
+  const invalidate = useCallback(() => {
+    hasLoadedRef.current = false;
+    setState((prev) => ({ ...prev, hasLoaded: false }));
+  }, []);
+
   return useMemo(
-    () => ({ ...state, ensure, refresh }),
-    [state, ensure, refresh]
+    () => ({ ...state, ensure, refresh, invalidate }),
+    [state, ensure, refresh, invalidate]
   );
 }
 
