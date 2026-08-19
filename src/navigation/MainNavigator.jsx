@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AclDetailScreen } from '@screens/acl/AclDetailScreen';
 import { ChangePasswordScreen } from '@screens/account/ChangePasswordScreen';
 import { AclListScreen } from '@screens/acl/AclListScreen';
+import { AuditLogsScreen } from '@screens/audit/AuditLogsScreen';
 import { CreateAclScreen } from '@screens/acl/CreateAclScreen';
 import { EditAclScreen } from '@screens/acl/EditAclScreen';
 import { CreateDepartmentScreen } from '@screens/departments/CreateDepartmentScreen';
@@ -135,6 +136,7 @@ export function MainNavigator() {
       <Stack.Screen name={ROUTES.MAIN.CREATE_ACL} component={CreateAclScreen} />
       <Stack.Screen name={ROUTES.MAIN.ACL_DETAIL} component={AclDetailScreen} />
       <Stack.Screen name={ROUTES.MAIN.EDIT_ACL} component={EditAclScreen} />
+      <Stack.Screen name={ROUTES.MAIN.AUDIT_LOGS} component={AuditLogsScreen} />
       <Stack.Screen
         name={ROUTES.MAIN.CREATE_DOCUMENT}
         component={CreateDocumentScreen}

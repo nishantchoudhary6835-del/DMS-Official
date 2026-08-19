@@ -13,16 +13,42 @@ import { ROUTES } from '@navigation/routes';
 import { styles } from '@theme/styles/WorkflowListScreen.styles';
 
 const MODE_COPY = {
+  drafts: {
+    title: 'Drafts',
+    subtitle: "Documents saved but not yet submitted. Open one to submit it for review.",
+    empty: 'No drafts. New documents start here.',
+  },
   published: {
     title: 'Published Documents',
-    subtitle: 'Documents you can access that are not archived.',
-    empty: 'Nothing published yet.',
+    subtitle: 'Documents in review, approved, or published. Drafts have their own section.',
+    empty: 'Nothing here yet.',
   },
   archived: {
     title: 'Archived Documents',
     subtitle: 'Documents you can access that have been archived.',
     empty: 'Nothing archived yet.',
   },
+};
+
+/**
+ * Three mutually exclusive buckets over `document.status`, so a document
+ * appears in exactly one place and none can go missing:
+ *
+ *   drafts     DRAFT
+ *   archived   ARCHIVED
+ *   published  everything else
+ *
+ * "Published" therefore still includes the in-flight states — SUBMITTED,
+ * REVIEW, REVISION, APPROVED — which is imprecise naming but deliberate:
+ * narrowing it to genuinely-published statuses would leave a submitted
+ * document with nowhere to be seen at all, since Drafts no longer holds it.
+ * Splitting out an "In review" bucket is the obvious follow-up.
+ */
+const MODE_FILTERS = {
+  drafts: (document) => document.status === 'DRAFT',
+  archived: (document) => document.status === 'ARCHIVED',
+  published: (document) =>
+    document.status !== 'DRAFT' && document.status !== 'ARCHIVED',
 };
 
 /**
@@ -38,22 +64,20 @@ const MODE_COPY = {
  * unverified until the first real response is observed.
  *
  * `route.params.focus` picks which single lifecycle bucket to show —
- * 'archived' or anything else (default 'published') — rather than showing
- * both together, so the sidebar's Published/Archived links (and the
- * matching dashboard panels) each land on exactly what they say.
+ * 'drafts', 'archived', or anything else (default 'published') — rather than
+ * showing several together, so each sidebar link lands on exactly what it
+ * says.
  */
 export function PublishedDocumentsScreen({ navigation, route }) {
-  const mode = route?.params?.focus === 'archived' ? 'archived' : 'published';
+  const focus = route?.params?.focus;
+  const mode = MODE_FILTERS[focus] ? focus : 'published';
   const copy = MODE_COPY[mode];
 
   const { documents, isLoading, isRefreshing, error, isForbidden, refresh } =
     useDocuments();
 
   const visibleDocuments = useMemo(
-    () =>
-      documents.filter((document) =>
-        mode === 'archived' ? document.status === 'ARCHIVED' : document.status !== 'ARCHIVED'
-      ),
+    () => documents.filter(MODE_FILTERS[mode]),
     [documents, mode]
   );
 

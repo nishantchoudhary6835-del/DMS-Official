@@ -190,7 +190,7 @@ function toDocumentListItems(documents) {
 }
 
 export function HomeScreen({ navigation }) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isTeamLeadOrAbove } = useAuth();
   const toast = useToast();
   const { columns, statColumns } = useBreakpoint();
 
@@ -201,8 +201,14 @@ export function HomeScreen({ navigation }) {
   const teams = useTeams();
   const documents = useDocuments();
 
+  // Same three-way split PublishedDocumentsScreen uses, so a card and the
+  // screen its footer opens can never disagree about what they contain.
   const publishedDocuments = useMemo(
-    () => documents.documents.filter((document) => document.status !== 'ARCHIVED'),
+    () =>
+      documents.documents.filter(
+        (document) =>
+          document.status !== 'ARCHIVED' && document.status !== 'DRAFT'
+      ),
     [documents.documents]
   );
   const archivedDocuments = useMemo(
@@ -229,6 +235,11 @@ export function HomeScreen({ navigation }) {
   // Fails closed while a probe is still in flight, same reasoning as the
   // Sidebar's role gating: a card that appears and then vanishes once the
   // 403 lands reads worse than one that simply appears a beat later.
+  // Reviewing is supervisory — a workflow is never routed below Team Lead, so
+  // for anyone under it this panel is guaranteed empty. Fails closed while
+  // the role is unresolved (null), same as every other gate here.
+  const canReview = isTeamLeadOrAbove === true;
+
   const canSeeEmployees = !dashboard.isLoading && !dashboard.isForbidden;
   const canSeeDepartments = !departments.isLoading && !departments.isForbidden;
   const canSeeTeams = !teams.isLoading && !teams.isForbidden;
@@ -242,7 +253,7 @@ export function HomeScreen({ navigation }) {
     dashboard.isLoading || departments.isLoading || teams.isLoading;
 
   const statCards = [
-    {
+    canReview && {
       key: 'pending-approvals',
       icon: 'checkmark-done-outline',
       tone: 'success',
@@ -400,24 +411,29 @@ export function HomeScreen({ navigation }) {
         </>
       )}
 
+      {/* My Submissions is everyone's; the approvals panel joins it only for
+          Team Lead and above, and the row collapses to a single full-width
+          panel rather than leaving a gap where it would have been. */}
       <Grid
         columns={columns}
-        weights={[1, 1]}
+        weights={canReview ? [1, 1] : [1]}
         items={[
-          <WorkflowListPanel
-            key="pending"
-            title="My Pending Approvals"
-            footerLabel="View all pending"
-            onFooterPress={goTo(ROUTES.MAIN.PENDING_APPROVALS)}
-            items={toListItems(pending.workflows, 'pending')}
-            emptyLabel={
-              pending.isForbidden
-                ? 'Not visible to your role.'
-                : pending.isLoading
-                ? 'Loading…'
-                : 'Nothing waiting on your review.'
-            }
-          />,
+          canReview ? (
+            <WorkflowListPanel
+              key="pending"
+              title="My Pending Approvals"
+              footerLabel="View all pending"
+              onFooterPress={goTo(ROUTES.MAIN.PENDING_APPROVALS)}
+              items={toListItems(pending.workflows, 'pending')}
+              emptyLabel={
+                pending.isForbidden
+                  ? 'Not visible to your role.'
+                  : pending.isLoading
+                  ? 'Loading…'
+                  : 'Nothing waiting on your review.'
+              }
+            />
+          ) : null,
           <WorkflowListPanel
             key="submissions"
             title="My Submissions"
@@ -432,7 +448,7 @@ export function HomeScreen({ navigation }) {
                 : "You haven't submitted anything yet."
             }
           />,
-        ]}
+        ].filter(Boolean)}
       />
 
       <Grid

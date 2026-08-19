@@ -37,10 +37,22 @@ export const NAV_SECTIONS = [
         route: ROUTES.MAIN.MY_SUBMISSIONS,
       },
       {
+        key: 'drafts',
+        label: 'Drafts',
+        icon: 'create-outline',
+        route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
+        params: { focus: 'drafts' },
+      },
+      {
         key: 'pending-approvals',
         label: 'Pending Approvals',
         icon: 'time-outline',
         route: ROUTES.MAIN.PENDING_APPROVALS,
+        // Reviewing is supervisory. submitDocument routes an Employee's or
+        // Intern's work up to TEAM_LEAD, so Team Lead is the first level a
+        // workflow is ever assigned to — nobody below it can have a pending
+        // approval, and the list would always be empty for them.
+        requiresAccess: 'TEAM_LEAD_OR_ABOVE',
       },
       {
         key: 'published-documents',
@@ -53,10 +65,9 @@ export const NAV_SECTIONS = [
         label: 'Archived Documents',
         icon: 'archive-outline',
         route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
-        // Same screen as Published Documents (it already sections Published/
-        // Archived together) — this just lands scrolled to the Archived
-        // section instead of the top. See PublishedDocumentsScreen's
-        // handling of route.params.focus.
+        // One screen serves all three document buckets — Drafts, Published
+        // and Archived — selected by route.params.focus. See
+        // PublishedDocumentsScreen's MODE_COPY.
         params: { focus: 'archived' },
       },
     ],
@@ -113,6 +124,16 @@ export const NAV_SECTIONS = [
         label: 'Access Rules',
         icon: 'shield-checkmark-outline',
         route: ROUTES.MAIN.ACLS,
+        requiresAccess: 'SUPER_ADMIN',
+      },
+      {
+        key: 'audit',
+        label: 'Audit Log',
+        icon: 'receipt-outline',
+        route: ROUTES.MAIN.AUDIT_LOGS,
+        // GET /audit is gated by authorize("SUPER_ADMIN") on the backend — a
+        // fixed hierarchy check, not the configurable accessControl engine —
+        // so no permission grant can open this to a lower level.
         requiresAccess: 'SUPER_ADMIN',
       },
     ],

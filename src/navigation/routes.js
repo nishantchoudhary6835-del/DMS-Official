@@ -33,6 +33,7 @@ export const ROUTES = {
     CREATE_ACL: 'CreateAcl',
     ACL_DETAIL: 'AclDetail',
     EDIT_ACL: 'EditAcl',
+    AUDIT_LOGS: 'AuditLogs',
     CREATE_DOCUMENT: 'CreateDocument',
     EDIT_DOCUMENT: 'EditDocument',
     DOCUMENT_DETAIL: 'DocumentDetail',

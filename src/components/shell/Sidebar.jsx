@@ -17,9 +17,13 @@ import { styles } from '@theme/styles/Sidebar.styles';
  * confirmed, not the reverse, since the alternative is briefly showing
  * Administration to someone who turns out not to have it.
  */
-function isVisible(requiresAccess, { isSuperAdmin, isAdminOrAbove }) {
+function isVisible(
+  requiresAccess,
+  { isSuperAdmin, isAdminOrAbove, isTeamLeadOrAbove }
+) {
   if (requiresAccess === 'SUPER_ADMIN') return isSuperAdmin === true;
   if (requiresAccess === 'ADMIN_OR_ABOVE') return isAdminOrAbove === true;
+  if (requiresAccess === 'TEAM_LEAD_OR_ABOVE') return isTeamLeadOrAbove === true;
   return true;
 }
 
@@ -73,10 +77,10 @@ export function Sidebar({
   // temporary, so the control would only be a second way to close it.
   const collapsed = isCollapsed && !isOverlay;
 
-  const { isSuperAdmin, isAdminOrAbove } = useAuth();
+  const { isSuperAdmin, isAdminOrAbove, isTeamLeadOrAbove } = useAuth();
 
   const sections = useMemo(() => {
-    const access = { isSuperAdmin, isAdminOrAbove };
+    const access = { isSuperAdmin, isAdminOrAbove, isTeamLeadOrAbove };
 
     return NAV_SECTIONS.filter((section) => isVisible(section.requiresAccess, access))
       .map((section) => ({
@@ -84,7 +88,7 @@ export function Sidebar({
         items: section.items.filter((item) => isVisible(item.requiresAccess, access)),
       }))
       .filter((section) => section.items.length > 0);
-  }, [isSuperAdmin, isAdminOrAbove]);
+  }, [isSuperAdmin, isAdminOrAbove, isTeamLeadOrAbove]);
 
   return (
     <View

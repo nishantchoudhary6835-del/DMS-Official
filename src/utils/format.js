@@ -57,3 +57,24 @@ export function formatDate(value) {
     year: 'numeric',
   });
 }
+
+/**
+ * Date plus time. Audit logs need the clock as well as the day — several
+ * entries per second are normal during a burst of activity, and a date-only
+ * column makes their order look arbitrary.
+ */
+export function formatDateTime(value) {
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date.toLocaleString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}

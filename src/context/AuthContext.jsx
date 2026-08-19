@@ -12,6 +12,7 @@ import {
   getStoredUser,
   setStoredUser,
 } from '@utils/storage';
+import { FALLBACK_HIERARCHY_LEVELS } from '@validation/employee';
 import { IS_DEV } from '@config/env';
 import * as authApi from '@services/auth';
 import * as departmentApi from '@services/department';
@@ -28,6 +29,37 @@ const AuthContext = createContext(null);
  * ACL-checked server-side regardless. Left out until someone confirms it.
  */
 const ADMIN_OR_ABOVE_LEVELS = new Set(['SUPER_ADMIN', 'EXECUTIVE']);
+
+/**
+ * Rank by position in the seeded hierarchy — index 0 is SUPER_ADMIN, 8 is
+ * INTERN, so a *lower* number means more authority. Derived from
+ * FALLBACK_HIERARCHY_LEVELS rather than a second hand-written list, so
+ * inserting a level in one place cannot silently desync the two.
+ *
+ * GET /hierarchy returns the authoritative list with real `level` numbers,
+ * but this gate has to answer before any request completes and for a role
+ * the user cannot change, so the static order is the right source here.
+ */
+const HIERARCHY_RANK = FALLBACK_HIERARCHY_LEVELS.reduce(
+  (ranks, level, index) => ({ ...ranks, [level]: index }),
+  {}
+);
+
+/**
+ * Reviewing is a supervisory act: Team Lead is the first level anything is
+ * ever routed to (submitDocument sends Employee/Intern work to TEAM_LEAD),
+ * so nobody below it can ever have a pending approval. Note TEAM sits
+ * *below* TEAM_LEAD in the hierarchy despite the similar name, and is
+ * correctly excluded.
+ */
+function isAtOrAbove(level, floor) {
+  const rank = HIERARCHY_RANK[level];
+  const floorRank = HIERARCHY_RANK[floor];
+
+  if (rank === undefined || floorRank === undefined) return false;
+
+  return rank <= floorRank;
+}
 
 /**
  * The login response populates `employeeId` into a full Employee object,
@@ -58,6 +90,7 @@ export function deriveAccess(user) {
   return {
     isSuperAdmin: level === 'SUPER_ADMIN',
     isAdminOrAbove: ADMIN_OR_ABOVE_LEVELS.has(level),
+    isTeamLeadOrAbove: isAtOrAbove(level, 'TEAM_LEAD'),
   };
 }
 
@@ -84,7 +117,7 @@ export function deriveAccess(user) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isRestoring, setIsRestoring] = useState(true);
-  const [access, setAccess] = useState({ isSuperAdmin: null, isAdminOrAbove: null });
+  const [access, setAccess] = useState({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null });
 
   const applyUser = useCallback(async (userData) => {
     setUser(userData);
@@ -118,7 +151,7 @@ export function AuthProvider({ children }) {
   // sign-out rather than leaving a stale role behind for the next session.
   useEffect(() => {
     if (!user) {
-      setAccess({ isSuperAdmin: null, isAdminOrAbove: null });
+      setAccess({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null });
       return;
     }
 
@@ -143,12 +176,21 @@ export function AuthProvider({ children }) {
       if (cancelled) return;
 
       const isSuperAdmin = superAdminProbe.status === 'fulfilled';
+      const isAdminOrAbove =
+        // Super Admin is authorized everywhere Executive is, so passing the
+        // stricter probe implies passing this one too.
+        isSuperAdmin || adminProbe.status === 'fulfilled';
 
       setAccess({
         isSuperAdmin,
-        // Super Admin is authorized everywhere Executive is, so passing the
-        // stricter probe implies passing this one too.
-        isAdminOrAbove: isSuperAdmin || adminProbe.status === 'fulfilled',
+        isAdminOrAbove,
+        // The probe cannot see the difference between a Team Lead and an
+        // Intern — neither passes either request — so this deliberately
+        // under-reports rather than guessing. A genuine Team Lead on a
+        // pre-populate stored session loses the Pending Approvals entry
+        // until their next sign-in, which is the safe direction to be wrong
+        // in and self-heals on one login.
+        isTeamLeadOrAbove: isAdminOrAbove,
       });
     })();
 
@@ -190,6 +232,7 @@ export function AuthProvider({ children }) {
       // to render something briefly.
       isSuperAdmin: access.isSuperAdmin,
       isAdminOrAbove: access.isAdminOrAbove,
+      isTeamLeadOrAbove: access.isTeamLeadOrAbove,
       isCheckingAccess: Boolean(user) && access.isSuperAdmin === null,
       signIn,
       signOut,
