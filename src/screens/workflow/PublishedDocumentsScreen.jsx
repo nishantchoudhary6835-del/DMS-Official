@@ -1,6 +1,16 @@
-import { useCallback, useMemo, useRef } from 'react';
-import { FlatList, RefreshControl, ScrollView, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { theme } from '@theme';
 
 import { Button } from '@components/common/Button';
 import { Chip } from '@components/common/Chip';
@@ -101,9 +111,12 @@ export function PublishedDocumentsScreen({ navigation, route }) {
     toggleFilter,
     clearFilters,
     hasFilters,
+    activeFilterCount,
     options,
     documents: visibleDocuments,
   } = useDocumentFilters(bucketDocuments);
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   /**
    * A control that can only offer one value cannot narrow anything, so it is
@@ -117,6 +130,22 @@ export function PublishedDocumentsScreen({ navigation, route }) {
   const showDepartment = options.departments.length > 1;
   const showOwner = options.owners.length > 1;
   const showSelects = showType || showDepartment || showOwner;
+  const showFilterBar = showStatus || showSelects;
+
+  // Names what the collapsed controls are currently doing, so the bar is
+  // still informative closed. Falls back to the raw value only if an option
+  // list has not resolved yet.
+  const activeLabels = useMemo(() => {
+    const labelFrom = (list, value) =>
+      list.find((option) => option.value === value)?.label ?? value;
+
+    return [
+      filters.status && labelFrom(options.statuses, filters.status),
+      filters.documentType && labelFrom(options.documentTypes, filters.documentType),
+      filters.department && labelFrom(options.departments, filters.department),
+      filters.owner && labelFrom(options.owners, filters.owner),
+    ].filter(Boolean);
+  }, [filters, options]);
 
   const hasFocusedOnce = useRef(false);
 
@@ -193,75 +222,99 @@ export function PublishedDocumentsScreen({ navigation, route }) {
             />
           </View>
 
-          {showStatus ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterScroll}
-              contentContainerStyle={styles.filterRow}
-            >
-              {options.statuses.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={option.label}
-                  selected={filters.status === option.value}
-                  onPress={() => toggleFilter('status', option.value)}
+          {showFilterBar ? (
+            <View style={styles.filterBar}>
+              <Pressable
+                onPress={() => setIsFiltersOpen((prev) => !prev)}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: isFiltersOpen }}
+                style={styles.filterToggle}
+              >
+                <Text style={styles.filterToggleLabel}>
+                  Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+                </Text>
+                <Ionicons
+                  name={isFiltersOpen ? 'chevron-up' : 'chevron-down'}
+                  size={14}
+                  color={theme.colors.textSecondary}
+                  style={styles.filterChevron}
                 />
-              ))}
-            </ScrollView>
-          ) : null}
+              </Pressable>
 
-          {showSelects ? (
-            <View style={styles.filterFields}>
-              {showType ? (
-                <View style={styles.filterField}>
-                  <Select
-                    label="Type"
-                    value={filters.documentType}
-                    options={options.documentTypes}
-                    onChange={(value) => setFilter('documentType', value)}
-                    placeholder="Any type"
-                    allowClear
-                  />
-                </View>
-              ) : null}
+              <Text style={styles.filterSummary} numberOfLines={1}>
+                {activeLabels.length ? activeLabels.join(' · ') : 'No filters applied'}
+              </Text>
 
-              {showDepartment ? (
-                <View style={styles.filterField}>
-                  <Select
-                    label="Department"
-                    value={filters.department}
-                    options={options.departments}
-                    onChange={(value) => setFilter('department', value)}
-                    placeholder="Any department"
-                    allowClear
-                  />
-                </View>
-              ) : null}
-
-              {showOwner ? (
-                <View style={styles.filterField}>
-                  <Select
-                    label="Owner"
-                    value={filters.owner}
-                    options={options.owners}
-                    onChange={(value) => setFilter('owner', value)}
-                    placeholder="Anyone"
-                    allowClear
-                  />
-                </View>
+              {hasFilters ? (
+                <Pressable onPress={clearFilters} accessibilityRole="button">
+                  <Text style={styles.filterClear}>Clear</Text>
+                </Pressable>
               ) : null}
             </View>
           ) : null}
 
-          {hasFilters ? (
-            <View style={styles.filterActions}>
-              <Button
-                title="Clear filters"
-                onPress={clearFilters}
-                variant="text"
-                fullWidth={false}
-              />
+          {showFilterBar && isFiltersOpen ? (
+            <View style={styles.filterGroups}>
+              {showStatus ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.filterScroll}
+                  contentContainerStyle={styles.filterRow}
+                >
+                  {options.statuses.map((option) => (
+                    <Chip
+                      key={option.value}
+                      label={option.label}
+                      selected={filters.status === option.value}
+                      onPress={() => toggleFilter('status', option.value)}
+                    />
+                  ))}
+                </ScrollView>
+              ) : null}
+
+              {showSelects ? (
+                <View style={styles.filterFields}>
+                  {showType ? (
+                    <View style={styles.filterField}>
+                      <Select
+                        label="Type"
+                        value={filters.documentType}
+                        options={options.documentTypes}
+                        onChange={(value) => setFilter('documentType', value)}
+                        placeholder="Any type"
+                        allowClear
+                      />
+                    </View>
+                  ) : null}
+
+                  {showDepartment ? (
+                    <View style={styles.filterField}>
+                      <Select
+                        label="Department"
+                        value={filters.department}
+                        options={options.departments}
+                        onChange={(value) => setFilter('department', value)}
+                        placeholder="Any department"
+                        allowClear
+                      />
+                    </View>
+                  ) : null}
+
+                  {showOwner ? (
+                    <View style={styles.filterField}>
+                      <Select
+                        label="Owner"
+                        value={filters.owner}
+                        options={options.owners}
+                        onChange={(value) => setFilter('owner', value)}
+                        placeholder="Anyone"
+                        allowClear
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              ) : null}
             </View>
           ) : null}
         </>

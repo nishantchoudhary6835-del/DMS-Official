@@ -156,13 +156,16 @@ export function useDocumentFilters(documents) {
     });
   }, [documents, filters]);
 
-  const hasFilters = Boolean(
-    filters.search.trim() ||
-      filters.status ||
-      filters.documentType ||
-      filters.department ||
-      filters.owner
-  );
+  // Search is excluded on purpose: it has its own always-visible box, while
+  // this counts only what is hidden behind the collapsed Filters bar, which
+  // is the number a reader needs to decide whether to open it.
+  const activeFilterCount =
+    (filters.status ? 1 : 0) +
+    (filters.documentType ? 1 : 0) +
+    (filters.department ? 1 : 0) +
+    (filters.owner ? 1 : 0);
+
+  const hasFilters = Boolean(filters.search.trim()) || activeFilterCount > 0;
 
   return {
     filters,
@@ -170,6 +173,7 @@ export function useDocumentFilters(documents) {
     toggleFilter,
     clearFilters,
     hasFilters,
+    activeFilterCount,
     options,
     documents: visibleDocuments,
   };

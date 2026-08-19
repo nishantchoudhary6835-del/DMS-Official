@@ -57,6 +57,44 @@ export const styles = StyleSheet.create({
     paddingBottom: theme.spacing.sm,
   },
 
+  // The status chips and the three Selects together ran to most of a screen
+  // on a narrow window, pushing the documents themselves below the fold on
+  // the very screens whose job is to list them. They now sit behind this bar,
+  // which is one line whether or not anything is filtered — the same
+  // disclosure EmployeeListScreen and UserListScreen use.
+  filterBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
+  },
+  filterToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xs,
+    paddingRight: theme.spacing.sm,
+  },
+  filterToggleLabel: {
+    ...theme.typography.overline,
+    color: theme.colors.textSecondary,
+  },
+  filterChevron: {
+    marginLeft: theme.spacing.xs,
+  },
+  filterSummary: {
+    ...theme.typography.small,
+    color: theme.colors.textMuted,
+    flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  filterClear: {
+    ...theme.typography.overline,
+    color: theme.colors.danger,
+  },
+  filterGroups: {
+    paddingBottom: theme.spacing.xs,
+  },
+
   filterFields: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -70,13 +108,6 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     flexBasis: 180,
     minWidth: 180,
-  },
-
-  filterActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
   },
 
   errorBlock: {
