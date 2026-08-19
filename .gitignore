@@ -21,6 +21,15 @@ webdist/
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+.devweb.log
+.devweb.err.log
+
+# Backend API specs and bug writeups — kept locally as the record of what
+# this client was built against, but deliberately not tracked: they are the
+# backend team's documents, they churn constantly, and they were crowding
+# the repo. Still recoverable from history (they were tracked up to b55cea8).
+# Use `git add -f` if one ever genuinely needs committing.
+docs/
 
 # OS noise
 .DS_Store
