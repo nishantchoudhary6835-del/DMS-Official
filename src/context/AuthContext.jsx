@@ -20,16 +20,65 @@ import * as employeeApi from '@services/employee';
 const AuthContext = createContext(null);
 
 /**
- * There is no hierarchyLevel/role field anywhere in the login response or
- * the JWT (checked against AUTH_FLOW.md) and the one endpoint that could
- * look it up, GET /employee/:id, is itself SUPER_ADMIN-only — so a logged-in
- * user has no way to learn their own role, and neither do we. This infers it
- * indirectly: firing two lightweight requests against endpoints whose
- * authorization is already documented (GET /employee is SUPER_ADMIN-only
- * per EMPLOYEE_MANAGEMENT.md, GET /department is SUPER_ADMIN+EXECUTIVE per
- * DEPARTMENT_MANAGEMENT.md) and reading the result off whether they 200 or
- * 403. Best-effort by nature: it can't tell Governance/Department
- * Head/Manager/Team Lead apart from each other, only "Super Admin" vs
+ * Levels that may see the Administration section (see navigation.js's
+ * ADMIN_OR_ABOVE gate). Deliberately just these two, which is exactly what
+ * the previous probe-based check granted — GOVERNANCE sits above EXECUTIVE
+ * in the hierarchy and arguably belongs here, but adding it would hand a
+ * level access it does not have today, and the screens behind the gate are
+ * ACL-checked server-side regardless. Left out until someone confirms it.
+ */
+const ADMIN_OR_ABOVE_LEVELS = new Set(['SUPER_ADMIN', 'EXECUTIVE']);
+
+/**
+ * The login response populates `employeeId` into a full Employee object,
+ * `hierarchyLevel` included. Returns null when that isn't available — a user
+ * restored from storage after a session that predates that backend change
+ * still has the old flat ObjectId string, and would otherwise silently lose
+ * their role on the next launch.
+ */
+function hierarchyLevelOf(user) {
+  const employee = user?.employeeId;
+
+  if (!employee || typeof employee !== 'object') return null;
+
+  return employee.hierarchyLevel ?? null;
+}
+
+/**
+ * `{ isSuperAdmin, isAdminOrAbove }` for a signed-in user, or null when their
+ * record carries no hierarchyLevel to read — meaning the caller has to fall
+ * back to probing. Exported so the rule can be exercised directly; the
+ * provider below is the only production caller.
+ */
+export function deriveAccess(user) {
+  const level = hierarchyLevelOf(user);
+
+  if (!level) return null;
+
+  return {
+    isSuperAdmin: level === 'SUPER_ADMIN',
+    isAdminOrAbove: ADMIN_OR_ABOVE_LEVELS.has(level),
+  };
+}
+
+/**
+ * Access is read straight off `user.employeeId.hierarchyLevel`, which the
+ * login response has carried since the backend started populating the
+ * employee reference.
+ *
+ * It used to be inferred instead, by firing GET /employee and GET /department
+ * and reading the role off whether they returned 200 or 403. That was written
+ * when no role field existed anywhere in the login response or the JWT, and
+ * it has since become actively wrong rather than merely wasteful: both of
+ * those routes are now gated by `accessControl(...)` — the configurable
+ * Permission -> RolePermission -> ACL engine — not by a fixed hierarchy
+ * check. So the probe was reading a runtime permission grant and reporting it
+ * as a role. Grant EMPLOYEE.VIEW to an ordinary employee and they would have
+ * been detected as Super Admin; revoke it from a Super Admin and they would
+ * have been detected as neither.
+ *
+ * Reading the field directly also costs two fewer round trips per session
+ * start, and distinguishes all nine levels rather than only "Super Admin" vs
  * "Super Admin or Executive" vs "neither".
  */
 export function AuthProvider({ children }) {
@@ -64,7 +113,7 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Re-probes whenever `user` changes identity — a fresh sign-in or the
+  // Re-evaluates whenever `user` changes identity — a fresh sign-in or the
   // one-time restore-from-storage above — and resets to "unknown" on
   // sign-out rather than leaving a stale role behind for the next session.
   useEffect(() => {
@@ -73,6 +122,16 @@ export function AuthProvider({ children }) {
       return;
     }
 
+    const derived = deriveAccess(user);
+
+    if (derived) {
+      setAccess(derived);
+      return;
+    }
+
+    // No hierarchyLevel to read — a user restored from storage that predates
+    // the populated-employeeId login response. Fall back to the old probe so
+    // that session keeps working until its next sign-in refreshes the shape.
     let cancelled = false;
 
     (async () => {

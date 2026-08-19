@@ -6,12 +6,16 @@ import { referenceId } from '@utils/format';
 
 /**
  * All documents GET /document says this account can access — see its header
- * comment in @services/document. Live testing showed that response isn't
- * actually ACL-scoped to "documents I own" the way GET /workflow/my-
- * submissions was: a regular account got back other people's documents too.
- * Only Super Admin is supposed to see everyone's; every other role gets the
- * client-side ownership filter below instead of trusting the server to have
- * already narrowed it.
+ * comment in @services/document.
+ *
+ * That response *is* scoped server-side, contrary to an earlier note here
+ * that said it wasn't: `buildDocumentScope` in the backend's
+ * document.service.js returns everything for SUPER_ADMIN, and
+ * `owner OR own department OR own team` for everyone else. So the reason a
+ * regular account saw other people's documents wasn't a missing filter — it
+ * was a deliberately wider one than this app wants. The rule here is "my own
+ * documents, unless I'm Super Admin", which is narrower than anything the
+ * endpoint offers, so it stays a client-side filter.
  */
 export function useDocuments() {
   const { documents } = useAppData();
@@ -24,9 +28,10 @@ export function useDocuments() {
   const ownEmployeeId = referenceId(user?.employeeId);
 
   const scoped = useMemo(() => {
-    // isSuperAdmin is null while the role probe is still in flight — fails
-    // closed to "own documents only" until it resolves true, rather than
-    // briefly showing everyone's documents to every account.
+    // isSuperAdmin is null until AuthContext has resolved the signed-in
+    // employee's hierarchyLevel — fails closed to "own documents only" until
+    // it reads true, rather than briefly showing everyone's documents to
+    // every account.
     if (isSuperAdmin === true) return documents.data;
 
     return documents.data.filter(

@@ -64,8 +64,8 @@ export const NAV_SECTIONS = [
   {
     key: 'administration',
     title: 'Administration',
-    // Whole section: Super Admin or Executive only — see AuthContext.jsx for
-    // how that's determined (there's no role field to read it from directly).
+    // Whole section: Super Admin or Executive only, read from the signed-in
+    // employee's hierarchyLevel — see ADMIN_OR_ABOVE_LEVELS in AuthContext.jsx.
     requiresAccess: 'ADMIN_OR_ABOVE',
     items: [
       {

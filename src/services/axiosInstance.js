@@ -13,12 +13,23 @@ export const axiosInstance = axios.create({
   },
 });
 
+/**
+ * Routes the backend serves without `passport.authenticate` — confirmed
+ * against `auth.routes.js`. A 401 from one of these means the request itself
+ * was rejected, not that a session expired, so the refresh-and-retry below
+ * must not fire for them: it would spend a pointless round trip and then
+ * call onSessionExpired() on a user who was never signed in, swallowing the
+ * real error. `/auth/change-password` is deliberately absent — that one is
+ * JWT-protected, so a 401 there really should refresh.
+ */
 const PUBLIC_PATHS = [
   '/auth/send-email-otp',
   '/auth/verify-email-otp',
   '/auth/register',
   '/auth/login',
   '/auth/refresh',
+  '/auth/forgot-password',
+  '/auth/verify-forgot-password-otp',
 ];
 
 const isPublicPath = (url = '') => PUBLIC_PATHS.some((p) => url.includes(p));
