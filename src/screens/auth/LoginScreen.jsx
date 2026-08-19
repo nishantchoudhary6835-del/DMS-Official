@@ -114,6 +114,15 @@ export function LoginScreen({ navigation }) {
               loading={isSubmitting}
               style={styles.action}
             />
+
+            <Button
+              title="Forgot password?"
+              onPress={() => navigation.navigate(ROUTES.AUTH.FORGOT_PASSWORD)}
+              variant="text"
+              fullWidth={false}
+              disabled={isSubmitting}
+              style={styles.forgotPassword}
+            />
           </View>
 
           <View style={styles.footer}>

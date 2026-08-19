@@ -2,6 +2,7 @@ export const ROUTES = {
   AUTH: {
     LOGIN: 'Login',
     REGISTER: 'Register',
+    FORGOT_PASSWORD: 'ForgotPassword',
   },
 
   MAIN: {
@@ -34,9 +35,11 @@ export const ROUTES = {
     EDIT_ACL: 'EditAcl',
     CREATE_DOCUMENT: 'CreateDocument',
     EDIT_DOCUMENT: 'EditDocument',
+    DOCUMENT_DETAIL: 'DocumentDetail',
     MY_SUBMISSIONS: 'MySubmissions',
     PENDING_APPROVALS: 'PendingApprovals',
     PUBLISHED_DOCUMENTS: 'PublishedDocuments',
     WORKFLOW_DETAIL: 'WorkflowDetail',
+    CHANGE_PASSWORD: 'ChangePassword',
   },
 };

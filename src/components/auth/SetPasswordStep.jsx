@@ -18,6 +18,9 @@ export function SetPasswordStep({
   isSubmitting,
   fieldErrors = {},
   onClearMessages,
+  title = 'Create your password',
+  subtitle,
+  buttonLabel = 'Create account',
 }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -54,11 +57,15 @@ export function SetPasswordStep({
 
   return (
     <View>
-      <Text style={styles.title}>Create your password</Text>
+      <Text style={styles.title}>{title}</Text>
 
       <Text style={styles.subtitle}>
-        Your email is verified. Choose a password to finish setting up{' '}
-        <Text style={styles.email}>{email}</Text>.
+        {subtitle ?? (
+          <>
+            Your email is verified. Choose a password to finish setting up{' '}
+            <Text style={styles.email}>{email}</Text>.
+          </>
+        )}
       </Text>
 
       <TextField
@@ -94,7 +101,7 @@ export function SetPasswordStep({
       />
 
       <Button
-        title="Create account"
+        title={buttonLabel}
         onPress={handleSubmit}
         loading={isSubmitting}
         style={styles.action}

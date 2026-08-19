@@ -48,6 +48,17 @@ export const NAV_SECTIONS = [
         icon: 'checkmark-circle-outline',
         route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
       },
+      {
+        key: 'archived-documents',
+        label: 'Archived Documents',
+        icon: 'archive-outline',
+        route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
+        // Same screen as Published Documents (it already sections Published/
+        // Archived together) — this just lands scrolled to the Archived
+        // section instead of the top. See PublishedDocumentsScreen's
+        // handling of route.params.focus.
+        params: { focus: 'archived' },
+      },
     ],
   },
   {

@@ -12,6 +12,10 @@ export function EmailStep({
   isSubmitting,
   fieldErrors = {},
   onClearMessages,
+  title = 'Set up your account',
+  subtitle = "Enter the work email your organisation registered for you. We'll send a 6-digit verification code to it.",
+  helper = 'This must be the email your administrator added to DMS.',
+  buttonLabel = 'Send verification code',
 }) {
   const [email, setEmail] = useState('');
   const [localError, setLocalError] = useState(null);
@@ -38,12 +42,9 @@ export function EmailStep({
 
   return (
     <View>
-      <Text style={styles.title}>Set up your account</Text>
+      <Text style={styles.title}>{title}</Text>
 
-      <Text style={styles.subtitle}>
-        Enter the work email your organisation registered for you. We&apos;ll send
-        a 6-digit verification code to it.
-      </Text>
+      <Text style={styles.subtitle}>{subtitle}</Text>
 
       <TextField
         label="Work email"
@@ -51,7 +52,7 @@ export function EmailStep({
         onChangeText={handleChange}
         error={errorText}
         placeholder="you@company.com"
-        helper="This must be the email your administrator added to DMS."
+        helper={helper}
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
@@ -63,7 +64,7 @@ export function EmailStep({
       />
 
       <Button
-        title="Send verification code"
+        title={buttonLabel}
         onPress={handleSubmit}
         loading={isSubmitting}
         style={styles.action}

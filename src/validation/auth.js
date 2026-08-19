@@ -73,3 +73,8 @@ export function validateLoginPassword(value) {
   if (!value) return 'Password is required';
   return undefined;
 }
+
+export function validateOldPassword(value) {
+  if (!value) return 'Current password is required';
+  return undefined;
+}

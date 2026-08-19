@@ -73,6 +73,22 @@ export async function createDocument(values) {
   return data;
 }
 
+/**
+ * GET /document — DOCUMENT_MODULE_DOCUMENTATION.md §9. Confirmed to exist
+ * live (401 "No auth token" without a token, not 404) but never called with
+ * real auth — whether "documents accessible to the authenticated user"
+ * actually means every document for an unrestricted role like Super Admin,
+ * or something narrower, is unverified until the first real response is
+ * observed. No query params sent: §9 documents optional filters, but their
+ * actual behaviour is equally unverified, so this fetches everything
+ * accessible and lets the caller filter client-side instead of trusting an
+ * unconfirmed server-side filter.
+ */
+export async function listDocuments() {
+  const { data } = await axiosInstance.get('/document');
+  return data;
+}
+
 /** GET /document/:documentId — DOCUMENT_MODULE_DOCUMENTATION.md §10. */
 export async function getDocumentById(documentId) {
   const { data } = await axiosInstance.get(`/document/${documentId}`);
@@ -114,6 +130,22 @@ export async function updateDocument(documentId, values) {
  * block re-reads that blob as text and reattaches it as parsed JSON so the
  * usual error handling keeps working unchanged.
  */
+/**
+ * PATCH /document/:documentId/archive — DOCUMENT_MODULE_DOCUMENTATION.md
+ * §17. Confirmed to exist live (401 "No auth token" without a token, not
+ * 404) but not yet exercised with real auth/data.
+ */
+export async function archiveDocument(documentId) {
+  const { data } = await axiosInstance.patch(`/document/${documentId}/archive`);
+  return data;
+}
+
+/** PATCH /document/:documentId/restore — DOCUMENT_MODULE_DOCUMENTATION.md §18. Same confirmation status as archiveDocument above. */
+export async function restoreDocument(documentId) {
+  const { data } = await axiosInstance.patch(`/document/${documentId}/restore`);
+  return data;
+}
+
 export async function viewDocument(documentId) {
   try {
     const response = await axiosInstance.get(`/document/${documentId}/view`, {

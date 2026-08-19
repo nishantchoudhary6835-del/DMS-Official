@@ -1,23 +1,25 @@
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { Loader } from '@components/common/Loader';
 import { ApprovalFlowPanel } from '@components/dashboard/ApprovalFlowPanel';
 import { DocumentStatusPanel } from '@components/dashboard/DocumentStatusPanel';
 import { QuickActionsPanel } from '@components/dashboard/QuickActionsPanel';
 import { StatCard } from '@components/dashboard/StatCard';
 import { WorkflowListPanel } from '@components/dashboard/WorkflowListPanel';
+import { AccountMenu } from '@components/shell/AccountMenu';
 import { AppShell } from '@components/shell/AppShell';
 import { useAuth } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import { useBreakpoint } from '@hooks/useBreakpoint';
 import { useDashboard } from '@hooks/useDashboard';
 import { useDepartments } from '@hooks/useDepartments';
+import { useDocuments } from '@hooks/useDocuments';
 import { useMySubmissions } from '@hooks/useMySubmissions';
 import { usePendingWorkflows } from '@hooks/usePendingWorkflows';
 import { useTeams } from '@hooks/useTeams';
 import { ROUTES } from '@navigation/routes';
+import { documentStatusLabel, documentStatusTone } from '@validation/document';
 import {
   documentRefLabel,
   employeeRefLabel,
@@ -174,6 +176,19 @@ function toListItems(workflows, perspective) {
   }));
 }
 
+function toDocumentListItems(documents) {
+  return documents.slice(0, 5).map((document) => ({
+    key: document._id,
+    title: document.title || 'Untitled document',
+    meta: (() => {
+      const owner = employeeRefLabel(document.owner);
+      return owner ? `Owned by ${owner}` : null;
+    })(),
+    stage: documentStatusLabel(document.status),
+    tone: documentStatusTone(document.status),
+  }));
+}
+
 export function HomeScreen({ navigation }) {
   const { user, signOut } = useAuth();
   const toast = useToast();
@@ -184,17 +199,28 @@ export function HomeScreen({ navigation }) {
   const submissions = useMySubmissions();
   const departments = useDepartments();
   const teams = useTeams();
+  const documents = useDocuments();
 
-  const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
+  const publishedDocuments = useMemo(
+    () => documents.documents.filter((document) => document.status !== 'ARCHIVED'),
+    [documents.documents]
+  );
+  const archivedDocuments = useMemo(
+    () => documents.documents.filter((document) => document.status === 'ARCHIVED'),
+    [documents.documents]
+  );
+
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const name = displayNameFor(user);
 
   const handleSignOut = async () => {
+    if (isSigningOut) return;
+
+    setIsAccountMenuOpen(false);
     setIsSigningOut(true);
     await signOut();
-    setIsSigningOut(false);
-    setIsConfirmingSignOut(false);
     toast.success('Signed out.');
   };
 
@@ -332,10 +358,10 @@ export function HomeScreen({ navigation }) {
   return (
     <AppShell
       activeKey="dashboard"
-      onNavigate={(item) => item.route && navigation.navigate(item.route)}
+      onNavigate={(item) => item.route && navigation.navigate(item.route, item.params)}
       email={user?.email}
       name={name}
-      onProfilePress={() => setIsConfirmingSignOut(true)}
+      onProfilePress={() => setIsAccountMenuOpen(true)}
     >
       <View style={styles.greeting}>
         <View style={styles.greetingCopy}>
@@ -409,15 +435,55 @@ export function HomeScreen({ navigation }) {
         ]}
       />
 
-      <ConfirmDialog
-        visible={isConfirmingSignOut}
-        title="Sign out?"
-        message="You will need to sign in again to get back in."
-        confirmLabel="Sign out"
-        confirmVariant="danger"
-        onConfirm={handleSignOut}
-        onCancel={() => setIsConfirmingSignOut(false)}
-        isBusy={isSigningOut}
+      <Grid
+        columns={columns}
+        weights={[1, 1]}
+        items={[
+          <WorkflowListPanel
+            key="published-documents"
+            title="Published Documents"
+            footerLabel="View all published"
+            onFooterPress={goTo(ROUTES.MAIN.PUBLISHED_DOCUMENTS)}
+            items={toDocumentListItems(publishedDocuments)}
+            emptyLabel={
+              documents.isForbidden
+                ? 'Not visible to your role.'
+                : documents.isLoading
+                ? 'Loading…'
+                : 'Nothing published yet.'
+            }
+          />,
+          <WorkflowListPanel
+            key="archived-documents"
+            title="Archived Documents"
+            footerLabel="View all archived"
+            onFooterPress={() =>
+              navigation.navigate(ROUTES.MAIN.PUBLISHED_DOCUMENTS, {
+                focus: 'archived',
+              })
+            }
+            items={toDocumentListItems(archivedDocuments)}
+            emptyLabel={
+              documents.isForbidden
+                ? 'Not visible to your role.'
+                : documents.isLoading
+                ? 'Loading…'
+                : 'Nothing archived yet.'
+            }
+          />,
+        ]}
+      />
+
+      <AccountMenu
+        visible={isAccountMenuOpen}
+        name={name}
+        email={user?.email}
+        onChangePassword={() => {
+          setIsAccountMenuOpen(false);
+          navigation.navigate(ROUTES.MAIN.CHANGE_PASSWORD);
+        }}
+        onSignOut={handleSignOut}
+        onDismiss={() => setIsAccountMenuOpen(false)}
       />
     </AppShell>
   );

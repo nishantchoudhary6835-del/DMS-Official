@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AclDetailScreen } from '@screens/acl/AclDetailScreen';
+import { ChangePasswordScreen } from '@screens/account/ChangePasswordScreen';
 import { AclListScreen } from '@screens/acl/AclListScreen';
 import { CreateAclScreen } from '@screens/acl/CreateAclScreen';
 import { EditAclScreen } from '@screens/acl/EditAclScreen';
@@ -9,6 +10,7 @@ import { DepartmentDetailScreen } from '@screens/departments/DepartmentDetailScr
 import { DepartmentListScreen } from '@screens/departments/DepartmentListScreen';
 import { EditDepartmentScreen } from '@screens/departments/EditDepartmentScreen';
 import { CreateDocumentScreen } from '@screens/documents/CreateDocumentScreen';
+import { DocumentDetailScreen } from '@screens/documents/DocumentDetailScreen';
 import { EditDocumentScreen } from '@screens/documents/EditDocumentScreen';
 import { CreateEmployeeScreen } from '@screens/employees/CreateEmployeeScreen';
 import { CreateTeamScreen } from '@screens/teams/CreateTeamScreen';
@@ -142,6 +144,10 @@ export function MainNavigator() {
         component={EditDocumentScreen}
       />
       <Stack.Screen
+        name={ROUTES.MAIN.DOCUMENT_DETAIL}
+        component={DocumentDetailScreen}
+      />
+      <Stack.Screen
         name={ROUTES.MAIN.MY_SUBMISSIONS}
         component={MySubmissionsScreen}
       />
@@ -156,6 +162,10 @@ export function MainNavigator() {
       <Stack.Screen
         name={ROUTES.MAIN.WORKFLOW_DETAIL}
         component={WorkflowDetailScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.CHANGE_PASSWORD}
+        component={ChangePasswordScreen}
       />
     </Stack.Navigator>
   );

@@ -45,6 +45,29 @@ export const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxl,
   },
 
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xs,
+  },
+  sectionHeaderText: {
+    ...theme.typography.label,
+    color: theme.colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  sectionHeaderCount: {
+    ...theme.typography.small,
+    color: theme.colors.textMuted,
+  },
+  sectionEmpty: {
+    ...theme.typography.caption,
+    color: theme.colors.textMuted,
+    paddingVertical: theme.spacing.sm,
+  },
+
   centred: {
     alignItems: 'center',
     justifyContent: 'center',

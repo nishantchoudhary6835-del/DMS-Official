@@ -291,3 +291,48 @@ POST /api/v1/workflow/:workflowId/resubmit
 > `DELETE /document/:id` are all net-new and unverified live — treat them as
 > "documented" not "confirmed" until each is actually called and its response
 > observed, same standard applied to every other spec in this folder.
+>
+> **Update 2026-08-19:** the backend team re-shared this doc (its own
+> "Current Implementation Status" table now checkmarks everything, including
+> Archive/Restore) — prompting a route-existence check against
+> `https://dms-s32w.onrender.com` without a valid token. All seven of the
+> routes above returned `401 "No auth token"`, not `404`, confirming they're
+> genuinely routed and auth-gated rather than stubs. That's real progress
+> over the previous "documented" status, but it's still not the same as a
+> confirmed *working* call — no authenticated request with real data has
+> been made against any of them yet. `archiveDocument`/`restoreDocument` are
+> now wired up client-side (`src/services/document.js`,
+> `useArchiveDocument`/`useRestoreDocument`).
+>
+> **Update 2026-08-19 (2):** Published Documents was rebuilt around
+> `GET /document` (`listDocuments` in `src/services/document.js`) instead of
+> `GET /workflow/my-submissions`. The reason: my-submissions is inherently
+> owner-scoped — no permission check could make it show more than "documents
+> I personally submitted," so Super Admin only ever saw their own, exactly
+> like every other account. §9's own description of `/document` ("documents
+> accessible to the authenticated user") is the only endpoint that could
+> honestly be org-wide for an unrestricted role. The screen now shows every
+> document `GET /document` returns, split into Published/Archived sections
+> client-side by `document.status`, with a new `DocumentDetailScreen`
+> (title/owner/department/team/version/dates + Archive/Restore) reached by
+> tapping a card — replacing the old dependency on `WorkflowDetailScreen`
+> there, since a raw Document from this endpoint carries no workflow/
+> reviewer data to show. **Still unverified live**: whether Super Admin
+> actually gets every document back (vs. some narrower ACL-scoped set), and
+> whether `document.status` ever actually reads `PUBLISHED`/`ARCHIVED` in
+> practice — every real document.status observed in this app so far has only
+> ever been `DRAFT`/`SUBMITTED`/`REVISION`. First real load of this screen
+> will answer both.
+>
+> **Update 2026-08-19 (3):** first real load answered the open question, and
+> not the way hoped. A regular (non-Super-Admin) account loaded Published/
+> Archived Documents and could see other people's documents — `GET /document`
+> is **not** ACL-scoped to "documents I can access" the way §9 describes it;
+> as far as this app's testing shows, it currently returns the same
+> everything-list regardless of who's asking. Rather than trust the backend
+> to narrow this later, `useDocuments.js` now applies a client-side ownership
+> filter (`document.owner` matched against the logged-in account's own
+> Employee id) for everyone except a confirmed Super Admin, who still sees
+> the full list. This is a workaround, not a fix — flagging back to backend
+> that `/document`'s access control needs to actually restrict by requester,
+> the same way every other module's ACL does.

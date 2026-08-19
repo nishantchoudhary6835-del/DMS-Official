@@ -6,29 +6,55 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
-import { WorkflowCard } from '@components/workflow/WorkflowCard';
-import { useMySubmissions } from '@hooks/useMySubmissions';
+import { DocumentCard } from '@components/document/DocumentCard';
+import { useDocuments } from '@hooks/useDocuments';
 import { ROUTES } from '@navigation/routes';
-import { WORKFLOW_STATUS } from '@validation/workflow';
 
 import { styles } from '@theme/styles/WorkflowListScreen.styles';
 
-/**
- * There's no GET /document (list) or GET /workflow/all route documented
- * anywhere — see DOCUMENT_MANAGEMENT.md's own note on this. The only place
- * a published document can honestly be read from is GET /workflow/my-
- * submissions, filtered to COMPLETED (the terminal, published state — see
- * @validation/workflow's header comment). So this is "documents I submitted
- * that are now published," not an org-wide published library, because no
- * endpoint exists for the latter.
- */
-export function PublishedDocumentsScreen({ navigation }) {
-  const { workflows, isLoading, isRefreshing, error, isForbidden, refresh } =
-    useMySubmissions();
+const MODE_COPY = {
+  published: {
+    title: 'Published Documents',
+    subtitle: 'Documents you can access that are not archived.',
+    empty: 'Nothing published yet.',
+  },
+  archived: {
+    title: 'Archived Documents',
+    subtitle: 'Documents you can access that have been archived.',
+    empty: 'Nothing archived yet.',
+  },
+};
 
-  const published = useMemo(
-    () => workflows.filter((workflow) => workflow.status === WORKFLOW_STATUS.COMPLETED),
-    [workflows]
+/**
+ * Sourced from GET /document (DOCUMENT_MODULE_DOCUMENTATION.md §9) rather
+ * than GET /workflow/my-submissions — that endpoint is inherently
+ * owner-scoped ("my own submissions"), so no permission check could ever
+ * make it show more than the documents this account personally authored.
+ * §9 describes /document as "documents accessible to the authenticated
+ * user," which is the actually-correct, ACL-driven scope this screen wants
+ * — an unrestricted role like Super Admin should see every document here,
+ * not just their own. That's the theory the doc states; whether the
+ * backend's ACL genuinely implements it that broadly for Super Admin is
+ * unverified until the first real response is observed.
+ *
+ * `route.params.focus` picks which single lifecycle bucket to show —
+ * 'archived' or anything else (default 'published') — rather than showing
+ * both together, so the sidebar's Published/Archived links (and the
+ * matching dashboard panels) each land on exactly what they say.
+ */
+export function PublishedDocumentsScreen({ navigation, route }) {
+  const mode = route?.params?.focus === 'archived' ? 'archived' : 'published';
+  const copy = MODE_COPY[mode];
+
+  const { documents, isLoading, isRefreshing, error, isForbidden, refresh } =
+    useDocuments();
+
+  const visibleDocuments = useMemo(
+    () =>
+      documents.filter((document) =>
+        mode === 'archived' ? document.status === 'ARCHIVED' : document.status !== 'ARCHIVED'
+      ),
+    [documents, mode]
   );
 
   const hasFocusedOnce = useRef(false);
@@ -48,11 +74,7 @@ export function PublishedDocumentsScreen({ navigation }) {
 
     return (
       <View style={styles.centred}>
-        <Text style={styles.emptyTitle}>Nothing published yet</Text>
-        <Text style={styles.emptyBody}>
-          Your submissions appear here once they've been approved all the way
-          through and published.
-        </Text>
+        <Text style={styles.emptyTitle}>{copy.empty}</Text>
       </View>
     );
   };
@@ -70,14 +92,12 @@ export function PublishedDocumentsScreen({ navigation }) {
       </View>
 
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Published documents</Text>
+        <Text style={styles.title}>{copy.title}</Text>
         <Text style={styles.count}>
-          {isLoading ? 'Loading…' : `${published.length} shown`}
+          {isLoading ? 'Loading…' : `${visibleDocuments.length} shown`}
         </Text>
       </View>
-      <Text style={styles.subtitle}>
-        Your own submissions that have completed review and been published.
-      </Text>
+      <Text style={styles.subtitle}>{copy.subtitle}</Text>
 
       {error ? (
         <View style={styles.errorBlock}>
@@ -94,18 +114,17 @@ export function PublishedDocumentsScreen({ navigation }) {
       ) : null}
 
       {isLoading ? (
-        <Loader message="Loading published documents…" />
+        <Loader message="Loading documents…" />
       ) : (
         <FlatList
-          data={published}
+          data={visibleDocuments}
           keyExtractor={(item, index) => item._id ?? String(index)}
           renderItem={({ item }) => (
-            <WorkflowCard
-              workflow={item}
+            <DocumentCard
+              document={item}
               onPress={() =>
-                navigation.navigate(ROUTES.MAIN.WORKFLOW_DETAIL, {
-                  workflow: item,
-                  origin: 'published',
+                navigation.navigate(ROUTES.MAIN.DOCUMENT_DETAIL, {
+                  document: item,
                 })
               }
             />

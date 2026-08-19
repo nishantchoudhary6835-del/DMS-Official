@@ -69,6 +69,47 @@ export function validateDocumentEditForm(values) {
 }
 
 /**
+ * DOCUMENT_MODULE_DOCUMENTATION.md §15 lists the full document lifecycle
+ * (separate from Workflow's own PENDING_REVIEW/REVISION/REJECTED/COMPLETED
+ * set) — but every live document.status this app has actually observed so
+ * far has only ever been DRAFT/SUBMITTED/REVISION, never PUBLISHED/ACTIVE/
+ * AMENDMENT/ARCHIVED. This table is written to the full documented set
+ * regardless, since falling back to a title-cased render of whatever the
+ * server actually sends (below) means an unobserved value still displays
+ * reasonably instead of blank.
+ */
+const DOCUMENT_STATUS_TONES = {
+  DRAFT: 'neutral',
+  SUBMITTED: 'info',
+  REVIEW: 'info',
+  REVISION: 'accent',
+  APPROVED: 'success',
+  PUBLISHED: 'success',
+  ACTIVE: 'success',
+  AMENDMENT: 'accent',
+  ARCHIVED: 'neutral',
+};
+
+function titleCase(value) {
+  return String(value)
+    .toLowerCase()
+    .split('_')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+export function documentStatusLabel(status) {
+  if (!status) return '';
+
+  return titleCase(status);
+}
+
+export function documentStatusTone(status) {
+  return DOCUMENT_STATUS_TONES[status] ?? 'neutral';
+}
+
+/**
  * Routes a backend error to the field that caused it, per §13's documented
  * error messages.
  */

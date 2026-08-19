@@ -40,3 +40,34 @@ export async function logout() {
   const { data } = await axiosInstance.post('/auth/logout', {});
   return data;
 }
+
+export async function forgotPassword(email) {
+  const { data } = await axiosInstance.post(
+    '/auth/forgot-password',
+    { email: normalizeEmail(email) },
+    { timeout: EMAIL_TIMEOUT_MS }
+  );
+  return data;
+}
+
+/**
+ * Unlike registration's send-otp/verify-otp split, this single call both
+ * verifies the OTP and sets the new password — AUTH_PASSWORD.md's
+ * verify-forgot-password-otp endpoint takes otp and newPassword together.
+ */
+export async function verifyForgotPasswordOtp(email, otp, newPassword) {
+  const { data } = await axiosInstance.post('/auth/verify-forgot-password-otp', {
+    email: normalizeEmail(email),
+    otp,
+    newPassword,
+  });
+  return data;
+}
+
+export async function changePassword(oldPassword, newPassword) {
+  const { data } = await axiosInstance.post('/auth/change-password', {
+    oldPassword,
+    newPassword,
+  });
+  return data;
+}

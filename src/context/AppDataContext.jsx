@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState } fro
 import { normalizeError } from '@utils/errors';
 import * as aclApi from '@services/acl';
 import * as departmentApi from '@services/department';
+import * as documentApi from '@services/document';
 import * as employeeApi from '@services/employee';
 import * as permissionApi from '@services/permission';
 import * as rolePermissionApi from '@services/rolePermission';
@@ -176,6 +177,10 @@ export function AppDataProvider({ children }) {
     workflowApi.listMySubmissions,
     'You are not authorized to view your submissions.'
   );
+  const documents = useListResource(
+    documentApi.listDocuments,
+    'You are not authorized to view documents.'
+  );
 
   const value = useMemo(
     () => ({
@@ -188,6 +193,7 @@ export function AppDataProvider({ children }) {
       acls,
       pendingWorkflows,
       mySubmissions,
+      documents,
     }),
     [
       departments,
@@ -199,6 +205,7 @@ export function AppDataProvider({ children }) {
       acls,
       pendingWorkflows,
       mySubmissions,
+      documents,
     ]
   );
 

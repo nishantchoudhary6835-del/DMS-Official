@@ -46,6 +46,9 @@ export const styles = StyleSheet.create({
   action: {
     marginTop: theme.spacing.lg,
   },
+  forgotPassword: {
+    marginTop: theme.spacing.xs,
+  },
 
   footer: {
     flexDirection: 'row',
