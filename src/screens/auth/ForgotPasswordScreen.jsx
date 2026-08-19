@@ -127,6 +127,11 @@ export function ForgotPasswordScreen({ navigation }) {
           timer={timer}
           hasError={Boolean(error)}
           onClearMessages={clearMessages}
+          // Advancing here is instant — there's nothing to verify against the
+          // server yet — so auto-submitting on the sixth digit would jump
+          // straight to the password form the moment the code was typed or
+          // pasted. See OtpStep's header comment.
+          autoSubmit={false}
         />
       )}
 
