@@ -56,6 +56,7 @@ export function normalizeError(error) {
 
     return {
       message: isTimeout ? TIMEOUT_MESSAGE : NETWORK_MESSAGE,
+      hasServerMessage: false,
       fieldErrors: {},
       status: null,
       isNetwork: true,
@@ -65,9 +66,15 @@ export function normalizeError(error) {
   }
 
   const body = response.data ?? {};
+  const serverMessage = extractMessage(body);
 
   return {
-    message: extractMessage(body) ?? GENERIC_MESSAGE,
+    message: serverMessage ?? GENERIC_MESSAGE,
+    // Whether `message` is the backend's own words or this file's placeholder.
+    // Callers with a hand-written fallback need to know: several routes refuse
+    // with a reason no client can derive (restore is Super Admin only, for
+    // one), and replacing that with a guess loses the only useful part.
+    hasServerMessage: Boolean(serverMessage),
     fieldErrors: toFieldErrors(body.errors),
     status: response.status ?? null,
     isNetwork: false,

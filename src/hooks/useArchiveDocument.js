@@ -29,7 +29,7 @@ export function useArchiveDocument() {
 
         setError(
           denial ??
-            (normalized.status === 403
+            (normalized.status === 403 && !normalized.hasServerMessage
               ? 'You are not authorized to archive this document.'
               : normalized.message)
         );

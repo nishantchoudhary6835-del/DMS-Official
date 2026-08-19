@@ -39,7 +39,7 @@ export function useDeleteDocument() {
         }
 
         setError(
-          normalized.status === 403
+          normalized.status === 403 && !normalized.hasServerMessage
             ? 'You can only delete your own documents while they are still drafts.'
             : normalized.message
         );

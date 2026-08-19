@@ -27,9 +27,12 @@ export function useRestoreDocument() {
           permission: 'DOCUMENT.RESTORE',
         });
 
+        // Past the permission engine, document.service.js refuses restore for
+        // anyone who is not SUPER_ADMIN, and says so. That sentence is the
+        // whole answer, so never paper over it with a generic one.
         setError(
           denial ??
-            (normalized.status === 403
+            (normalized.status === 403 && !normalized.hasServerMessage
               ? 'You are not authorized to restore this document.'
               : normalized.message)
         );

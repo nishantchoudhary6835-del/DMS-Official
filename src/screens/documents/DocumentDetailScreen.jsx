@@ -6,6 +6,7 @@ import { Button } from '@components/common/Button';
 import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
+import { useAuth } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import { useArchiveDocument } from '@hooks/useArchiveDocument';
 import { useDeleteDocument } from '@hooks/useDeleteDocument';
@@ -47,6 +48,7 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
 export function DocumentDetailScreen({ navigation, route }) {
   const { document } = route.params ?? {};
   const toast = useToast();
+  const { isSuperAdmin } = useAuth();
 
   const {
     view: viewDocument,
@@ -109,6 +111,12 @@ export function DocumentDetailScreen({ navigation, route }) {
   // statuses that count as published — which is also document.service.js's
   // own archive whitelist. Offering it elsewhere is a guaranteed 400.
   const isArchivable = isPublishedStatus(document.status);
+  // Restore is not permission-driven: document.service.js rejects it outright
+  // for any hierarchyLevel other than SUPER_ADMIN, before it even looks at the
+  // document. Offering the button to anyone else guarantees a 403, so gate on
+  // the same rule the backend uses. Fails closed while isSuperAdmin is still
+  // null and the signed-in level is unknown.
+  const canRestore = isSuperAdmin === true;
   const owner = employeeRefLabel(document.owner);
   const department = document.department?.name || null;
   const team = document.team?.name || null;
@@ -247,16 +255,22 @@ export function DocumentDetailScreen({ navigation, route }) {
           </>
         ) : isArchived ? (
           <>
-            <Button
-              title="Restore"
-              icon="refresh-outline"
-              onPress={handleRestore}
-              loading={isRestoring}
-              disabled={!documentId || isRestoring}
-              style={styles.action}
-            />
+            {canRestore ? (
+              <Button
+                title="Restore"
+                icon="refresh-outline"
+                onPress={handleRestore}
+                loading={isRestoring}
+                disabled={!documentId || isRestoring}
+                style={styles.action}
+              />
+            ) : null}
             <Text style={styles.statusHint}>
-              This document is archived. Restoring it makes it active again.
+              {canRestore
+                ? 'This document is archived. Restoring it makes it active again.'
+                : 'This document is archived. Only a Super Admin can restore it — ' +
+                  'the backend reserves that action for them outright, so no ' +
+                  'Role Assignment or Access Rule will grant it to your level.'}
             </Text>
           </>
         ) : isArchivable ? (
@@ -272,7 +286,9 @@ export function DocumentDetailScreen({ navigation, route }) {
             />
             <Text style={styles.statusHint}>
               Archiving keeps this document's history but marks it inactive.
-              You can restore it later from here.
+              {canRestore
+                ? ' You can restore it later from here.'
+                : ' Only a Super Admin can restore it afterwards.'}
             </Text>
           </>
         ) : (
