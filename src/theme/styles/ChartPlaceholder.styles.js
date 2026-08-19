@@ -60,6 +60,34 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: theme.radius.xs,
   },
 
+  // Stands in for the plot when there are fewer than two values to compare.
+  // Deliberately laid out like the DocumentStatusPanel legend — dot, label,
+  // figure — so a panel that drops to one metric still looks like it belongs
+  // beside the panels that kept their charts.
+  readout: {
+    paddingTop: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+  readoutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  readoutDot: {
+    width: 8,
+    height: 8,
+    borderRadius: theme.radius.full,
+    marginRight: theme.spacing.sm,
+  },
+  readoutLabel: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    flex: 1,
+  },
+  readoutValue: {
+    ...theme.typography.h3,
+    color: theme.colors.textPrimary,
+  },
+
   axis: {
     flexDirection: 'row',
     marginTop: theme.spacing.xs,
