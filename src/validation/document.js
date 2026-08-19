@@ -90,6 +90,25 @@ const DOCUMENT_STATUS_TONES = {
   ARCHIVED: 'neutral',
 };
 
+/**
+ * The three statuses that mean "this document is live" — it finished the
+ * approval workflow and is in force. PUBLISHED is set at final Governance
+ * approval, ACTIVE is what a restored document becomes (restore does not go
+ * back to PUBLISHED), and AMENDMENT is a live document being revised.
+ *
+ * Everything before these — SUBMITTED, REVIEW, REVISION, APPROVED — is still
+ * in the approval pipeline and is NOT published, however far along it is.
+ *
+ * This is also exactly the set document.service.js allows archiving, which is
+ * not a coincidence: archiving is retiring a live document, so the two
+ * questions have the same answer. DocumentDetailScreen reuses it for that.
+ */
+export const PUBLISHED_DOCUMENT_STATUSES = ['PUBLISHED', 'ACTIVE', 'AMENDMENT'];
+
+export function isPublishedStatus(status) {
+  return PUBLISHED_DOCUMENT_STATUSES.includes(status);
+}
+
 function titleCase(value) {
   return String(value)
     .toLowerCase()

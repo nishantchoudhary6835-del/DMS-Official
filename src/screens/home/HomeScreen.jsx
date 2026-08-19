@@ -19,7 +19,11 @@ import { useMySubmissions } from '@hooks/useMySubmissions';
 import { usePendingWorkflows } from '@hooks/usePendingWorkflows';
 import { useTeams } from '@hooks/useTeams';
 import { ROUTES } from '@navigation/routes';
-import { documentStatusLabel, documentStatusTone } from '@validation/document';
+import {
+  documentStatusLabel,
+  documentStatusTone,
+  isPublishedStatus,
+} from '@validation/document';
 import {
   documentRefLabel,
   employeeRefLabel,
@@ -201,14 +205,11 @@ export function HomeScreen({ navigation }) {
   const teams = useTeams();
   const documents = useDocuments();
 
-  // Same three-way split PublishedDocumentsScreen uses, so a card and the
-  // screen its footer opens can never disagree about what they contain.
+  // Same split PublishedDocumentsScreen uses, from the same shared status
+  // set, so a card and the screen its footer opens can never disagree about
+  // what they contain.
   const publishedDocuments = useMemo(
-    () =>
-      documents.documents.filter(
-        (document) =>
-          document.status !== 'ARCHIVED' && document.status !== 'DRAFT'
-      ),
+    () => documents.documents.filter((document) => isPublishedStatus(document.status)),
     [documents.documents]
   );
   const archivedDocuments = useMemo(

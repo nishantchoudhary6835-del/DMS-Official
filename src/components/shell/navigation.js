@@ -44,6 +44,18 @@ export const NAV_SECTIONS = [
         params: { focus: 'drafts' },
       },
       {
+        key: 'in-review',
+        label: 'In Review',
+        icon: 'hourglass-outline',
+        route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
+        params: { focus: 'review' },
+        // Distinct from "Submitted Documents" below, which is the workflow
+        // view: owner-scoped to what *you* submitted, with reviewer and level
+        // detail and the Resubmit action. This one is the document view —
+        // everything in your access scope that is mid-approval, including
+        // other people's for an account that can see them.
+      },
+      {
         key: 'pending-approvals',
         label: 'Pending Approvals',
         icon: 'time-outline',
