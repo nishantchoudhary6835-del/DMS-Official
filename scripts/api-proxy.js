@@ -4,14 +4,29 @@ const { URL } = require('url');
 
 const SENSITIVE = /token|password|secret|hash|authorization|otp/i;
 
+/**
+ * How many elements of an array to log before summarising the rest. Was 1,
+ * which hid the exact thing a list endpoint is usually being inspected for —
+ * whether it contains duplicates, and how many rows came back. Diagnosing
+ * "one create produced three copies" was impossible from a log showing only
+ * the first element.
+ */
+const ARRAY_SAMPLE = 8;
+
 function shape(value, key) {
   if (value === null) return null;
   if (typeof value === 'boolean') return value;
+  // Numbers were rendered as `<number>`, which erased pagination totals and
+  // counts — the figures most worth seeing. They carry nothing sensitive.
+  if (typeof value === 'number') return value;
   if (Array.isArray(value)) {
     if (!value.length) return [];
-    return value.length > 1
-      ? [shape(value[0], key), `<+${value.length - 1} more, ${value.length} total>`]
-      : [shape(value[0], key)];
+
+    const sample = value.slice(0, ARRAY_SAMPLE).map((item) => shape(item, key));
+
+    return value.length > ARRAY_SAMPLE
+      ? [...sample, `<+${value.length - ARRAY_SAMPLE} more, ${value.length} total>`]
+      : sample;
   }
   if (typeof value === 'object') {
     const out = {};
