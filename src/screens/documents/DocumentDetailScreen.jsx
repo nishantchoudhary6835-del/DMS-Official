@@ -1,16 +1,23 @@
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
 import { Button } from '@components/common/Button';
+import { ConfirmDialog } from '@components/common/ConfirmDialog';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { useToast } from '@context/ToastContext';
 import { useArchiveDocument } from '@hooks/useArchiveDocument';
+import { useDeleteDocument } from '@hooks/useDeleteDocument';
 import { useRestoreDocument } from '@hooks/useRestoreDocument';
 import { useSubmitDocument } from '@hooks/useSubmitDocument';
 import { useViewDocument } from '@hooks/useViewDocument';
 import { formatDate } from '@utils/format';
-import { documentStatusLabel, documentStatusTone } from '@validation/document';
+import {
+  documentStatusLabel,
+  documentStatusTone,
+  isPublishedStatus,
+} from '@validation/document';
 import { employeeRefLabel } from '@validation/workflow';
 
 import { styles } from '@theme/styles/DocumentDetailScreen.styles';
@@ -25,15 +32,6 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
     </View>
   );
 }
-
-/**
- * Which statuses may be archived, straight from document.service.js's own
- * whitelist. Offering Archive on anything else produces a guaranteed 400
- * ("Only Published, Active, or Amendment documents can be archived."), which
- * is what this screen used to do for every non-archived document — including
- * drafts.
- */
-const ARCHIVABLE_STATUSES = new Set(['PUBLISHED', 'ACTIVE', 'AMENDMENT']);
 
 /**
  * Reached from the Drafts / Published / Archived lists (GET /document, not a
@@ -74,6 +72,14 @@ export function DocumentDetailScreen({ navigation, route }) {
     error: submitError,
   } = useSubmitDocument();
 
+  const {
+    submit: deleteDocument,
+    isSubmitting: isDeleting,
+    error: deleteError,
+  } = useDeleteDocument();
+
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
   if (!document) {
     return (
       <Screen padded={false} style={styles.page}>
@@ -99,7 +105,10 @@ export function DocumentDetailScreen({ navigation, route }) {
   const documentId = document._id || null;
   const isDraft = document.status === 'DRAFT';
   const isArchived = document.status === 'ARCHIVED';
-  const isArchivable = ARCHIVABLE_STATUSES.has(document.status);
+  // Archiving is retiring a live document, so it is offered on exactly the
+  // statuses that count as published — which is also document.service.js's
+  // own archive whitelist. Offering it elsewhere is a guaranteed 400.
+  const isArchivable = isPublishedStatus(document.status);
   const owner = employeeRefLabel(document.owner);
   const department = document.department?.name || null;
   const team = document.team?.name || null;
@@ -137,6 +146,19 @@ export function DocumentDetailScreen({ navigation, route }) {
 
     if (workflow) {
       toast.success('Document submitted for review.');
+      navigation.goBack();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!documentId) return;
+
+    const deleted = await deleteDocument(documentId);
+
+    setIsConfirmingDelete(false);
+
+    if (deleted) {
+      toast.success('Draft deleted.');
       navigation.goBack();
     }
   };
@@ -195,7 +217,9 @@ export function DocumentDetailScreen({ navigation, route }) {
       </View>
 
       <View style={styles.actionBlock}>
-        <ErrorBanner message={submitError || restoreError || archiveError} />
+        <ErrorBanner
+          message={submitError || deleteError || restoreError || archiveError}
+        />
 
         {isDraft ? (
           <>
@@ -207,9 +231,18 @@ export function DocumentDetailScreen({ navigation, route }) {
               disabled={!documentId || isSubmittingForReview}
               style={styles.action}
             />
+            <Button
+              title="Delete draft"
+              icon="trash-outline"
+              onPress={() => setIsConfirmingDelete(true)}
+              disabled={!documentId || isSubmittingForReview || isDeleting}
+              variant="danger"
+              style={styles.action}
+            />
             <Text style={styles.statusHint}>
-              This sends the document to the next approver above you. Only the
-              document's owner can submit it.
+              Submitting sends this to the next approver above you. Deleting is
+              permanent and only possible while the document is still a draft —
+              once submitted, it can no longer be removed.
             </Text>
           </>
         ) : isArchived ? (
@@ -249,6 +282,17 @@ export function DocumentDetailScreen({ navigation, route }) {
           </Text>
         )}
       </View>
+
+      <ConfirmDialog
+        visible={isConfirmingDelete}
+        title="Delete this draft?"
+        message="The document and its version history are removed permanently. This cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setIsConfirmingDelete(false)}
+        isBusy={isDeleting}
+      />
     </Screen>
   );
 }

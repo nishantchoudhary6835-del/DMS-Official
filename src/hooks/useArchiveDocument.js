@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { normalizeError } from '@utils/errors';
+import { normalizeError, permissionDenialMessage } from '@utils/errors';
 import * as documentApi from '@services/document';
 
 export function useArchiveDocument() {
@@ -22,10 +22,16 @@ export function useArchiveDocument() {
       } catch (caught) {
         const normalized = normalizeError(caught);
 
+        const denial = permissionDenialMessage(normalized, {
+          action: 'archive',
+          permission: 'DOCUMENT.ARCHIVE',
+        });
+
         setError(
-          normalized.status === 403
-            ? 'You are not authorized to archive this document.'
-            : normalized.message
+          denial ??
+            (normalized.status === 403
+              ? 'You are not authorized to archive this document.'
+              : normalized.message)
         );
         return null;
       } finally {

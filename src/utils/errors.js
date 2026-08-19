@@ -79,6 +79,62 @@ export function isRateLimited(normalized) {
   return normalized.status === 429;
 }
 
+/**
+ * Which layer of the Permission -> RolePermission -> ACL engine refused a
+ * request, or null when the 403 came from the route's own business rule
+ * instead.
+ *
+ * The distinction decides which screen fixes the problem, and getting it
+ * wrong wastes real time. The two layers are edited in two different places:
+ *
+ *   RolePermission  "Role Assignments"  may this level hold the permission?
+ *   ACL             "Access Rules"      where does an already-held one apply?
+ *
+ * They are checked in that order, so an Access Rule cannot substitute for a
+ * missing Role Assignment — the request is rejected before ACL is consulted.
+ * Confirmed the hard way on this project more than once: an INTERN was given
+ * a global ALLOW Access Rule for a permission their level had never been
+ * assigned, and kept getting the identical 403.
+ */
+const ROLE_PERMISSION_DENIAL = /permission is not assigned/i;
+const ACL_DENIAL = /no active acl rule|access denied/i;
+
+export function permissionDenialLayer(normalized) {
+  if (normalized.status !== 403) return null;
+
+  const message = normalized.message ?? '';
+
+  if (ROLE_PERMISSION_DENIAL.test(message)) return 'ROLE_PERMISSION';
+  if (ACL_DENIAL.test(message)) return 'ACL';
+
+  return null;
+}
+
+/**
+ * Advice naming the screen that actually fixes the denial, or null when the
+ * 403 was not the engine's doing and the caller should explain it themselves.
+ */
+export function permissionDenialMessage(normalized, { action, permission }) {
+  switch (permissionDenialLayer(normalized)) {
+    case 'ROLE_PERMISSION':
+      return (
+        `Your role is not allowed to ${action} documents. A Super Admin has to ` +
+        `assign ${permission} to your hierarchy level under Role Assignments. ` +
+        `An Access Rule will not do it — that layer only narrows a permission ` +
+        `Role Assignments has already granted.`
+      );
+
+    case 'ACL':
+      return (
+        `Your role has ${permission}, but no active access rule allows it here. ` +
+        `A Super Admin can add one under Access Rules.`
+      );
+
+    default:
+      return null;
+  }
+}
+
 export function isUnauthorized(normalized) {
   return normalized.status === 401;
 }

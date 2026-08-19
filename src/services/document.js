@@ -194,6 +194,20 @@ export async function restoreDocument(documentId) {
   return data;
 }
 
+/**
+ * DELETE /document/:documentId — DOCUMENT_MODULE_DOCUMENTATION.md §19.
+ *
+ * `canDeleteDocument` in document.service.js allows this in exactly two
+ * cases: a SUPER_ADMIN deleting anything, or the owner deleting their own
+ * document while it is still DRAFT. Everything under review, approved,
+ * published, active or archived is protected. It is also permanent — the
+ * document and all its DocumentVersion rows are removed, not soft-deleted.
+ */
+export async function deleteDocument(documentId) {
+  const { data } = await axiosInstance.delete(`/document/${documentId}`);
+  return data;
+}
+
 export async function viewDocument(documentId) {
   try {
     const response = await axiosInstance.get(`/document/${documentId}/view`, {
