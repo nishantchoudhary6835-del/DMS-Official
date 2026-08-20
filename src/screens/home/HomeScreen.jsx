@@ -34,21 +34,8 @@ import {
 
 import { styles } from '@theme/styles/HomeScreen.styles';
 
-/**
- * Every stat/panel below is sourced from an endpoint this app has already
- * confirmed live (workflow pending/my-submissions, employee, department,
- * team). Nothing here is a placeholder number — a slot with no backing
- * endpoint (an org-wide approval-stage breakdown, a strategic-ideas
- * pipeline, an audit-log feed) was removed rather than filled with a
- * fabricated one. See docs/backend-specs/README.md's "Client-side state".
- *
- * `requires` marks the ones only some roles can actually use — GET /employee
- * is SUPER_ADMIN-only and GET /department is SUPER_ADMIN/EXECUTIVE-only, so
- * an Employee/Intern account 403s on both. There's no client-visible role
- * field to gate on directly (see AuthContext's header comment), so this is
- * gated on the real per-request `isForbidden` each list hook already surfaces
- * — the same signal that already exists, not a new guess.
- */
+// `requires` marks the actions only some roles can use, gated on the real
+// per-request `isForbidden` each list hook surfaces rather than a guessed role.
 const QUICK_ACTIONS = [
   {
     key: 'create-document',
@@ -92,11 +79,9 @@ const QUICK_ACTIONS = [
   },
 ];
 
-/**
- * Percentage bases rather than flex weights, because only a real width can
- * wrap: a `flexBasis: 0` column always fits and so never breaks to a new line.
- */
-function basisFor(index, count, columns, weights) {
+// Percentage bases rather than flex weights, because only a real width can
+// wrap: a `flexBasis: 0` column always fits and so never breaks to a new line.
+function basisFor(index, count, columns, weights, totalWeight) {
   if (columns === 1) return '100%';
 
   if (columns === 2) {
@@ -105,11 +90,14 @@ function basisFor(index, count, columns, weights) {
     return isTrailingOdd ? '100%' : '50%';
   }
 
-  const total = weights.reduce((sum, weight) => sum + weight, 0);
-  return `${(weights[index] / total) * 100}%`;
+  return `${(weights[index] / totalWeight) * 100}%`;
 }
 
 function Grid({ items, columns, weights }) {
+  // Summed once here, not inside basisFor: the map calls that per item, so
+  // re-reducing the weights there walked the array n times over.
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+
   return (
     <View style={styles.grid}>
       {items.map((node, index) => (
@@ -117,7 +105,15 @@ function Grid({ items, columns, weights }) {
           key={node.key ?? index}
           style={[
             styles.cell,
-            { flexBasis: basisFor(index, items.length, columns, weights) },
+            {
+              flexBasis: basisFor(
+                index,
+                items.length,
+                columns,
+                weights,
+                totalWeight
+              ),
+            },
           ]}
         >
           {node}
@@ -127,12 +123,8 @@ function Grid({ items, columns, weights }) {
   );
 }
 
-/**
- * Prefers the real name from the populated Employee reference — every login
- * response includes `user.employeeId.firstName`/`.lastName` — over guessing
- * one from the email's local part, which was the only thing this could fall
- * back on before (there's no top-level `name` field on the User model).
- */
+// Prefers the real name from the populated Employee reference over guessing one
+// from the email's local part — there is no top-level `name` on the User model.
 function displayNameFor(user) {
   const employee =
     user?.employeeId && typeof user.employeeId === 'object'
@@ -154,10 +146,8 @@ function displayNameFor(user) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-/** Mirrors WorkflowCard's own field logic: the pending-approvals list is
- * scoped to workflows where you're the reviewer, so the useful line is who
- * submitted it; my-submissions is scoped to workflows you own, so the
- * useful line is who's holding it now. */
+// Mirrors WorkflowCard: pending-approvals is scoped to you as reviewer, so the
+// useful line is who submitted; my-submissions, so it is who holds it now.
 function metaFor(workflow, perspective) {
   const level = workflowLevelLabel(workflow.currentLevel);
 
@@ -205,17 +195,19 @@ export function HomeScreen({ navigation }) {
   const teams = useTeams();
   const documents = useDocuments();
 
-  // Same split PublishedDocumentsScreen uses, from the same shared status
-  // set, so a card and the screen its footer opens can never disagree about
-  // what they contain.
-  const publishedDocuments = useMemo(
-    () => documents.documents.filter((document) => isPublishedStatus(document.status)),
-    [documents.documents]
-  );
-  const archivedDocuments = useMemo(
-    () => documents.documents.filter((document) => document.status === 'ARCHIVED'),
-    [documents.documents]
-  );
+  // Same split PublishedDocumentsScreen uses, from the same shared status set,
+  // so a card and the screen its footer opens can never disagree. One pass.
+  const { publishedDocuments, archivedDocuments } = useMemo(() => {
+    const published = [];
+    const archived = [];
+
+    for (const document of documents.documents) {
+      if (isPublishedStatus(document.status)) published.push(document);
+      if (document.status === 'ARCHIVED') archived.push(document);
+    }
+
+    return { publishedDocuments: published, archivedDocuments: archived };
+  }, [documents.documents]);
 
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -233,23 +225,16 @@ export function HomeScreen({ navigation }) {
 
   const goTo = (route) => () => navigation.navigate(route);
 
-  // Fails closed while a probe is still in flight, same reasoning as the
-  // Sidebar's role gating: a card that appears and then vanishes once the
-  // 403 lands reads worse than one that simply appears a beat later.
-  // Reviewing is supervisory — a workflow is never routed below Team Lead, so
-  // for anyone under it this panel is guaranteed empty. Fails closed while
-  // the role is unresolved (null), same as every other gate here.
+  // Reviewing is supervisory — nothing is routed below Team Lead, so this panel
+  // is guaranteed empty for anyone under it. Fails closed while unresolved.
   const canReview = isTeamLeadOrAbove === true;
 
   const canSeeEmployees = !dashboard.isLoading && !dashboard.isForbidden;
   const canSeeDepartments = !departments.isLoading && !departments.isForbidden;
   const canSeeTeams = !teams.isLoading && !teams.isForbidden;
 
-  // While any of these three are still in flight, statCards/middlePanels
-  // below would render whatever's resolved so far — on an account switch
-  // that's a real (if very brief) window where the layout reflects "nothing
-  // confirmed yet" rather than either account's actual access. A generic
-  // loader in that window reads as "checking", not as a wrong-sized layout.
+  // Until all three resolve, the layout below would reflect "nothing confirmed
+  // yet" rather than either account's real access. A loader reads as checking.
   const isCheckingAccess =
     dashboard.isLoading || departments.isLoading || teams.isLoading;
 
@@ -340,8 +325,7 @@ export function HomeScreen({ navigation }) {
   ].filter(Boolean);
 
   // Built together so the weight array always matches the panels actually
-  // rendered — Employee Overview and Organization Snapshot each depend on
-  // data this account may not be authorized to see at all.
+  // rendered — each depends on data this account may not be allowed to see.
   const middlePanels = [
     canSeeEmployees && {
       weight: 1.1,
@@ -412,9 +396,8 @@ export function HomeScreen({ navigation }) {
         </>
       )}
 
-      {/* My Submissions is everyone's; the approvals panel joins it only for
-          Team Lead and above, and the row collapses to a single full-width
-          panel rather than leaving a gap where it would have been. */}
+      {/* My Submissions is everyone's; approvals joins it only for Team Lead
+          and above, and the row collapses rather than leaving a gap. */}
       <Grid
         columns={columns}
         weights={canReview ? [1, 1] : [1]}
