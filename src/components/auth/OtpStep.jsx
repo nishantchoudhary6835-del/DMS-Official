@@ -10,17 +10,11 @@ import { styles } from '@theme/styles/OtpStep.styles';
 import { OtpInput } from './OtpInput';
 
 /**
- * `autoSubmit` fires the code the moment the sixth digit lands. That reads
- * well where submitting means an actual verification request — registration
- * posts to /auth/verify-email-otp, so there's a spinner and a real answer,
- * and the step visibly does something.
- *
- * It reads badly where submitting is only a format check. Password reset has
- * no verify-OTP endpoint (the code and the new password go to the backend
- * together), so its `onSubmit` just advances the step synchronously — the OTP
- * screen would disappear in the same frame as the keystroke, and a pasted
- * code would never render in the boxes at all. Pass `autoSubmit={false}`
- * there so the code has to be confirmed deliberately.
+ * Registration only. Submitting here fires a real verification request
+ * (POST /auth/verify-email-otp), so auto-firing on the sixth digit reads as
+ * the step doing something and answering. Password reset uses
+ * ResetPasswordForm instead — see its header for why it cannot have a
+ * standalone OTP step at all.
  */
 export function OtpStep({
   email,
@@ -30,7 +24,6 @@ export function OtpStep({
   timer,
   hasError,
   onClearMessages,
-  autoSubmit = true,
 }) {
   const [otp, setOtp] = useState('');
   const [localError, setLocalError] = useState(null);
@@ -39,7 +32,6 @@ export function OtpStep({
 
   useEffect(() => {
     if (
-      autoSubmit &&
       otp.length === OTP_LENGTH &&
       !isSubmitting &&
       !timer.isExpired &&
@@ -49,7 +41,7 @@ export function OtpStep({
       onSubmit(otp);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoSubmit, otp, isSubmitting, timer.isExpired]);
+  }, [otp, isSubmitting, timer.isExpired]);
 
   const handleChange = (value) => {
     setOtp(value);

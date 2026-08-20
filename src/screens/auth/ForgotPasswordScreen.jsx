@@ -1,67 +1,34 @@
-import { useCallback } from 'react';
-import { BackHandler, Text, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { Text, View } from 'react-native';
 
 import { BrandMark } from '@components/common/BrandMark';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
-import { EmailStep } from '@components/auth/EmailStep';
-import { OtpStep } from '@components/auth/OtpStep';
-import { SetPasswordStep } from '@components/auth/SetPasswordStep';
-import {
-  FORGOT_PASSWORD_STEPS,
-  useForgotPassword,
-} from '@hooks/useForgotPassword';
+import { ResetPasswordForm } from '@components/auth/ResetPasswordForm';
+import { useForgotPassword } from '@hooks/useForgotPassword';
 
 import { styles } from '@theme/styles/ForgotPasswordScreen.styles';
 
-const STEP_ORDER = [
-  FORGOT_PASSWORD_STEPS.EMAIL,
-  FORGOT_PASSWORD_STEPS.OTP,
-  FORGOT_PASSWORD_STEPS.PASSWORD,
-];
-
+/**
+ * A single screen rather than a wizard — see useForgotPassword's header for
+ * why the backend leaves no step boundary to put one on. With no steps there
+ * is no in-screen back navigation either, so Back simply leaves, and the
+ * hardware back button needs no interception.
+ */
 export function ForgotPasswordScreen({ navigation }) {
   const {
-    step,
-    email,
+    sentEmail,
+    isSending,
     isSubmitting,
     error,
     notice,
     fieldErrors,
     timer,
     isDone,
-    submitEmail,
-    submitOtp,
-    submitPassword,
-    resendOtp,
-    goBack,
+    sendCode,
+    submitReset,
     clearMessages,
   } = useForgotPassword();
-
-  const handleBack = useCallback(() => {
-    const consumed = goBack();
-
-    if (!consumed) {
-      navigation.goBack();
-    }
-
-    return true;
-  }, [goBack, navigation]);
-
-  useFocusEffect(
-    useCallback(() => {
-      const subscription = BackHandler.addEventListener(
-        'hardwareBackPress',
-        handleBack
-      );
-
-      return () => subscription.remove();
-    }, [handleBack])
-  );
-
-  const stepIndex = STEP_ORDER.indexOf(step);
 
   if (isDone) {
     return (
@@ -90,14 +57,11 @@ export function ForgotPasswordScreen({ navigation }) {
         <Button
           title="Back"
           icon="chevron-back"
-          onPress={handleBack}
+          onPress={() => navigation.goBack()}
           variant="text"
           fullWidth={false}
-          disabled={isSubmitting}
+          disabled={isSending || isSubmitting}
         />
-        <Text style={styles.progress}>
-          Step {stepIndex + 1} of {STEP_ORDER.length}
-        </Text>
       </View>
 
       <BrandMark size="small" style={styles.brand} />
@@ -105,48 +69,16 @@ export function ForgotPasswordScreen({ navigation }) {
       <ErrorBanner message={error} />
       <ErrorBanner message={notice} variant="success" />
 
-      {step === FORGOT_PASSWORD_STEPS.EMAIL && (
-        <EmailStep
-          onSubmit={submitEmail}
-          isSubmitting={isSubmitting}
-          fieldErrors={fieldErrors}
-          onClearMessages={clearMessages}
-          title="Reset your password"
-          subtitle="Enter the email on your account. We'll send a 6-digit code to reset your password."
-          helper="This must be the email your administrator added to DMS."
-          buttonLabel="Send reset code"
-        />
-      )}
-
-      {step === FORGOT_PASSWORD_STEPS.OTP && (
-        <OtpStep
-          email={email}
-          onSubmit={submitOtp}
-          onResend={resendOtp}
-          isSubmitting={isSubmitting}
-          timer={timer}
-          hasError={Boolean(error)}
-          onClearMessages={clearMessages}
-          // Advancing here is instant — there's nothing to verify against the
-          // server yet — so auto-submitting on the sixth digit would jump
-          // straight to the password form the moment the code was typed or
-          // pasted. See OtpStep's header comment.
-          autoSubmit={false}
-        />
-      )}
-
-      {step === FORGOT_PASSWORD_STEPS.PASSWORD && (
-        <SetPasswordStep
-          email={email}
-          onSubmit={submitPassword}
-          isSubmitting={isSubmitting}
-          fieldErrors={fieldErrors}
-          onClearMessages={clearMessages}
-          title="Choose a new password"
-          subtitle="We'll verify your code and update your password when you continue."
-          buttonLabel="Reset password"
-        />
-      )}
+      <ResetPasswordForm
+        sentEmail={sentEmail}
+        onSendCode={sendCode}
+        onSubmit={submitReset}
+        isSending={isSending}
+        isSubmitting={isSubmitting}
+        timer={timer}
+        fieldErrors={fieldErrors}
+        onClearMessages={clearMessages}
+      />
     </Screen>
   );
 }

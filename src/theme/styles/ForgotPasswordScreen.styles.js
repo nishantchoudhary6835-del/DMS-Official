@@ -3,12 +3,11 @@ import { StyleSheet } from 'react-native';
 import { theme } from '@theme';
 
 export const styles = StyleSheet.create({
-  progress: theme.patterns.mutedCaption,
-
+  // No step counter to sit opposite the Back button any more, so this is a
+  // single-item row rather than a space-between pair.
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: theme.spacing.lg,
   },
   brand: {
