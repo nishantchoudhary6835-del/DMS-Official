@@ -29,13 +29,8 @@ function toFormValues(documentRecord) {
   };
 }
 
-/**
- * Reached from WorkflowDetailScreen's Resubmit block once a reviewer has
- * RETURNed a document for revision — DOCUMENT_MODULE_DOCUMENTATION.md §13's
- * loop is PATCH Document (here) then a separate Resubmit call back on that
- * screen, so this always ends with `navigation.goBack()` rather than
- * resubmitting itself.
- */
+// Reached from WorkflowDetailScreen's Resubmit block. §13's loop is PATCH here
+// then a separate Resubmit there, so this always ends with `goBack()`.
 export function EditDocumentScreen({ navigation, route }) {
   const { documentId } = route.params ?? {};
   const toast = useToast();
@@ -64,16 +59,10 @@ export function EditDocumentScreen({ navigation, route }) {
     user?.employeeId && typeof user.employeeId === 'object'
       ? user.employeeId
       : null;
-  // The whole populated object, not just its id: the login response carries
-  // `name` on both, which is what lets the fallback options below show the
-  // real department and team to an account that cannot list either. The
-  // document being edited carries them populated too, which covers a record
-  // assigned somewhere other than this account's own department.
+  // The whole populated object, not just its id: both the login response and
+  // the document carry `name`, which is what lets the fallbacks show real names.
   const ownDepartment = ownEmployee?.department ?? null;
   const ownTeam = ownEmployee?.team ?? null;
-  const ownDepartmentId = referenceId(ownDepartment);
-  const ownTeamId = referenceId(ownTeam);
-
   const departmentOptions = useMemo(
     () =>
       ownReferenceOptions(

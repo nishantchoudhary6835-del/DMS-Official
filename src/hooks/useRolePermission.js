@@ -6,7 +6,6 @@ import * as rolePermissionApi from '@services/rolePermission';
 export function useRolePermission(rolePermissionId) {
   const [rolePermission, setRolePermission] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [isForbidden, setIsForbidden] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
@@ -17,8 +16,9 @@ export function useRolePermission(rolePermissionId) {
     const requestId = requestRef.current + 1;
     requestRef.current = requestId;
 
-    if (refresh) setIsRefreshing(true);
-    else setIsLoading(true);
+    // A refresh deliberately leaves isLoading alone: no detail screen shows
+    // a background indicator, and flipping it would flash the full-page loader.
+    if (!refresh) setIsLoading(true);
 
     setError(null);
     setIsForbidden(false);
@@ -29,7 +29,6 @@ export function useRolePermission(rolePermissionId) {
       setIsNotFound(true);
       setError('Role assignment not found.');
       setIsLoading(false);
-      setIsRefreshing(false);
       return;
     }
 
@@ -58,7 +57,6 @@ export function useRolePermission(rolePermissionId) {
     } finally {
       if (requestRef.current === requestId) {
         setIsLoading(false);
-        setIsRefreshing(false);
       }
     }
   }, []);
@@ -75,7 +73,6 @@ export function useRolePermission(rolePermissionId) {
   return {
     rolePermission,
     isLoading,
-    isRefreshing,
     error,
     isForbidden,
     isNotFound,

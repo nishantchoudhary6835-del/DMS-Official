@@ -3,17 +3,14 @@ export const TEAM_STATUS = {
   INACTIVE: 'INACTIVE',
 };
 
-export const TEAM_NAME_MIN = 2;
-export const TEAM_NAME_MAX = 100;
+const TEAM_NAME_MIN = 2;
+const TEAM_NAME_MAX = 100;
 
-/**
- * The hierarchy level the backend requires of a team lead. Anyone else is
- * rejected on save, so the picker filters to this rather than offering
- * choices that cannot work.
- */
+// The level the backend requires of a team lead; anyone else is rejected on
+// save, so the picker filters to this rather than offering dead choices.
 export const TEAM_LEAD_LEVEL = 'TEAM_LEAD';
 
-export function validateTeamName(value) {
+function validateTeamName(value) {
   const trimmed = String(value ?? '').trim();
 
   if (!trimmed) return 'Team name is required';
@@ -25,7 +22,7 @@ export function validateTeamName(value) {
   return undefined;
 }
 
-export function validateTeamDepartment(value) {
+function validateTeamDepartment(value) {
   if (!value) return 'Department is required';
 
   return undefined;
@@ -42,27 +39,16 @@ export function validateTeamForm(values) {
   return { errors, hasError };
 }
 
-/**
- * True when a delete was refused because employees still belong to the team.
- * A refusal, not a failure — the caller keeps the row on screen either way,
- * but this one deserves an explanation rather than a generic error.
- */
+// A delete refused because employees still belong to the team. A refusal, not
+// a failure — but one that deserves an explanation.
 export function isDeleteBlocked(normalized) {
   return /cannot be deleted|employees are assigned/i.test(
     String(normalized.message ?? '')
   );
 }
 
-/**
- * Routes a backend error to the field that caused it.
- *
- * Order matters for the same reason it did for departments: the delete
- * refusal mentions "employees", which the team-lead branch would otherwise
- * claim and pin to the wrong field.
- *
- * Team names are unique *within a department*, so a duplicate is a property
- * of the pair — the message belongs on the name field, where the fix is.
- */
+// Order matters, as for departments: the delete refusal mentions "employees".
+// Names are unique per department, so a duplicate belongs on the name field.
 export function mapTeamError(normalized) {
   const message = String(normalized.message ?? '');
   const lower = message.toLowerCase();
@@ -86,15 +72,8 @@ export function mapTeamError(normalized) {
   return { fieldErrors: {}, formError: message };
 }
 
-/**
- * Select options that can always render `currentId`, recovering the real name
- * from the unfiltered list when the team has since been deactivated — or when
- * it belongs to a department other than the one now selected.
- *
- * Same rule the department dropdown needed: without it the Select falls back
- * to its placeholder and an unrelated edit reads as though it had cleared the
- * team.
- */
+// Select options that can always render `currentId`, recovering the real name
+// when the team was deactivated or belongs to another department.
 export function teamOptionsWith(options, allTeams, currentId) {
   const list = Array.isArray(options) ? options : [];
 

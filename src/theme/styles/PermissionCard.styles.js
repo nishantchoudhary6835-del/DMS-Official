@@ -63,11 +63,6 @@ export const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     marginTop: 3,
   },
-  metaEmpty: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
-    marginTop: 3,
-  },
   note: {
     ...theme.typography.caption,
     color: theme.colors.textMuted,

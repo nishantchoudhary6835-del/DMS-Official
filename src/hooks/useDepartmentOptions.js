@@ -4,21 +4,8 @@ import { normalizeError } from '@utils/errors';
 import { DEPARTMENT_STATUS } from '@validation/department';
 import * as departmentApi from '@services/department';
 
-/**
- * Departments shaped for a Select.
- *
- * Deliberately not cached, unlike useHierarchy. Hierarchy levels are seeded
- * configuration that nothing in this app can change, so caching them for the
- * life of the bundle is free. Departments are created, renamed and deactivated
- * from inside this same app — a bundle-lifetime cache would mean a department
- * you just created is missing from the next form you open. One fetch per mount
- * is the same trade useEmployeeOptions already makes.
- *
- * There is also no fallback list. A hierarchy level has a known seed to fall
- * back to; a department does not, and inventing one would be fabricating data.
- * If the fetch fails the dropdown is empty, which is exactly where the employee
- * form stood before this module existed.
- */
+// Departments shaped for a Select. Deliberately not cached, unlike
+// useHierarchy: they are created and renamed from inside this same app.
 export function useDepartmentOptions({ includeInactive = false } = {}) {
   const [departments, setDepartments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,9 +29,8 @@ export function useDepartmentOptions({ includeInactive = false } = {}) {
     } catch (caught) {
       if (requestRef.current !== requestId) return;
 
-      // A 403 is expected for anyone below EXECUTIVE. It is not an error worth
-      // shouting about on an employee form — the field simply has nothing to
-      // offer, which the empty dropdown already communicates.
+      // A 403 is expected below EXECUTIVE. Not worth shouting about on an
+      // employee form — the empty dropdown already says there is nothing.
       const normalized = normalizeError(caught);
 
       setError(normalized.status === 403 ? null : normalized.message);
@@ -84,12 +70,5 @@ export function useDepartmentOptions({ includeInactive = false } = {}) {
     [selectable]
   );
 
-  // The ids a form may select, for grandfathering an already-assigned
-  // department that has since been deactivated.
-  const activeIds = useMemo(
-    () => selectable.map((department) => department._id),
-    [selectable]
-  );
-
-  return { options, activeIds, departments, isLoading, error, refresh: load };
+  return { options, departments, isLoading, error, refresh: load };
 }

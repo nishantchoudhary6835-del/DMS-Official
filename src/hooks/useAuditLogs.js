@@ -4,7 +4,7 @@ import { normalizeError } from '@utils/errors';
 import { isCompleteDateInput, mapAuditError } from '@validation/audit';
 import * as auditApi from '@services/audit';
 
-export const AUDIT_PAGE_SIZE = 20;
+const AUDIT_PAGE_SIZE = 20;
 
 const EMPTY_FILTERS = {
   module: null,
@@ -13,18 +13,8 @@ const EMPTY_FILTERS = {
   to: '',
 };
 
-/**
- * Deliberately not an AppDataContext resource. `useListResource` caches one
- * unparameterised list per session, which is right for departments or teams —
- * small, stable, read by several screens. Audit logs are the opposite:
- * filtered and paged server-side, unbounded, and read by exactly one screen.
- * Caching them would mean either ignoring the filters or keying the cache by
- * every combination of them.
- *
- * Filtering is server-side because the API supports it and the table is
- * append-only and unbounded — narrowing a 20-row page client-side would just
- * hide rows that the next page still contains.
- */
+// Deliberately not an AppDataContext resource: that caches one unparameterised
+// list per session, while these are filtered, paged and unbounded server-side.
 export function useAuditLogs() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [page, setPage] = useState(1);
@@ -39,13 +29,11 @@ export function useAuditLogs() {
   });
 
   // Guards against a slow early request landing after a faster later one and
-  // repainting the table with stale rows — easy to trigger by changing the
-  // module filter twice in quick succession against a cold-starting backend.
+  // repainting the table with stale rows.
   const requestRef = useRef(0);
 
-  // Dates are only sent once they parse. The backend feeds them straight to
-  // `new Date(...)`, where a half-typed "2026-08" becomes an Invalid Date and
-  // silently matches nothing.
+  // Dates are only sent once they parse: the backend feeds them straight to
+  // `new Date(...)`, where a half-typed "2026-08" silently matches nothing.
   const query = useMemo(
     () => ({
       module: filters.module,
@@ -107,20 +95,16 @@ export function useAuditLogs() {
     load();
   }, [load]);
 
-  /**
-   * Any filter change resets to page 1. Staying on page 4 while narrowing
-   * the filter usually lands past the end of the new result set, which reads
-   * as "no matches" when there are plenty on page 1.
-   */
+  // Any filter change resets to page 1 — staying on page 4 while narrowing
+  // usually lands past the end of the new result set and reads as "no matches".
   const setFilter = useCallback((key, value) => {
     setFilters((prev) => {
       if (prev[key] === value) return prev;
 
       const next = { ...prev, [key]: value };
 
-      // An action belongs to exactly one module, so an action picked under
-      // the previous module cannot survive the change — same rule the
-      // department/team pairing follows elsewhere in this app.
+      // An action belongs to exactly one module, so one picked under the
+      // previous module cannot survive the change.
       if (key === 'module') next.action = null;
 
       return next;

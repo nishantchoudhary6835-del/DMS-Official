@@ -9,20 +9,12 @@ import {
 } from '@validation/permission';
 import * as permissionApi from '@services/permission';
 
-/**
- * The Resource/Action vocabulary for the Permission create/edit form —
- * GET /permission/options. Same reasoning as useHierarchy: this is
- * configuration, not user data, so the resolved lists are cached for the
- * life of the bundle and concurrent callers share one in-flight request.
- *
- * Not to be confused with usePermissionOptions, which fetches existing
- * Permission *records* for a RolePermission/ACL "pick a permission" Select —
- * this one fetches the closed vocabulary used to *create* a Permission.
- */
+// The Resource/Action vocabulary for the Permission form, cached like
+// useHierarchy. Not usePermissionOptions, which fetches existing records.
 let cachedVocabulary = null;
 let inFlight = null;
 
-export function clearPermissionVocabularyCache() {
+function clearPermissionVocabularyCache() {
   cachedVocabulary = null;
   inFlight = null;
 }
@@ -58,11 +50,8 @@ function loadVocabulary() {
   return inFlight;
 }
 
-/**
- * Resource and action options for the Permission form. Always returns usable
- * lists — see `isFallback` for whether they came from the server or the
- * seeded constants.
- */
+// Resource and action options for the Permission form. Always usable — see
+// `isFallback` for whether they came from the server or the seeded constants.
 export function usePermissionVocabulary() {
   const [vocabulary, setVocabulary] = useState(cachedVocabulary);
   const [isLoading, setIsLoading] = useState(!cachedVocabulary);

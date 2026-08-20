@@ -28,16 +28,8 @@ const EMPTY_VALUES = {
   file: null,
 };
 
-/**
- * `screenMode` walks: 'create' -> 'created' -> optionally 'edit' -> back to
- * 'created'. Editing loops back in-place, right after create, rather than
- * navigating to the standalone EditDocumentScreen — the just-created
- * response already has every field this form needs, so there's no reason to
- * round-trip through GET /document/:id a second time in the same flow.
- * EditDocumentScreen exists for the other entry point: editing a document
- * from outside this screen (e.g. WorkflowDetailScreen's Resubmit block,
- * after a reviewer RETURNs it), where the id is all that's carried over.
- */
+// `screenMode` walks create -> created -> optionally edit -> created, looping in
+// place because the create response already has every field this form needs.
 export function CreateDocumentScreen({ navigation }) {
   const toast = useToast();
   const { user } = useAuth();
@@ -58,11 +50,8 @@ export function CreateDocumentScreen({ navigation }) {
     error: submitForReviewError,
   } = useSubmitDocument();
 
-  // This screen is reached from the sidebar and the dashboard, not from the
-  // document lists, so those lists are not mounted beneath it and get no
-  // focus-refresh when it closes. Without invalidating, opening Drafts after
-  // creating a document shows the cache from before it existed — and makes
-  // no request at all, so nothing corrects it.
+  // Reached from the sidebar and dashboard, so the document lists are not mounted
+  // beneath and get no focus-refresh — Drafts would show a pre-creation cache.
   const { invalidate: invalidateDocuments } = useDocuments();
 
   const [screenMode, setScreenMode] = useState('create');
@@ -82,12 +71,10 @@ export function CreateDocumentScreen({ navigation }) {
       ? user.employeeId
       : null;
   // The whole populated object, not just its id: the login response carries
-  // `name` on both, which is what lets the fallback options below show the
-  // real department and team to an account that cannot list either.
+  // `name` on both, which is what lets the fallbacks below show real names.
   const ownDepartment = ownEmployee?.department ?? null;
   const ownTeam = ownEmployee?.team ?? null;
   const ownDepartmentId = referenceId(ownDepartment);
-  const ownTeamId = referenceId(ownTeam);
 
   const departmentOptions = useMemo(
     () =>
@@ -112,9 +99,7 @@ export function CreateDocumentScreen({ navigation }) {
   );
 
   // Department is required and, for most employees, the directory is
-  // unbrowsable — so once it's clear the real list has nothing to offer,
-  // default to the one department this account is actually authorized to
-  // know about instead of leaving a required field impossible to fill.
+  // unbrowsable — so default to the one this account is authorized to know.
   useEffect(() => {
     if (screenMode !== 'create') return;
     if (values.department) return;
@@ -132,9 +117,8 @@ export function CreateDocumentScreen({ navigation }) {
 
   const setField = (key, value) => {
     setValues((prev) => {
-      // A team belongs to exactly one department, so a team chosen under the
-      // old one cannot survive the change — same rule CreateAclScreen and
-      // CreateEmployeeScreen enforce for the same reason.
+      // A team belongs to exactly one department, so one chosen under the old
+      // department cannot survive the change.
       if (key === 'department' && prev.department !== value) {
         return { ...prev, department: value, team: null };
       }

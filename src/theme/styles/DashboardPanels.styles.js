@@ -2,11 +2,8 @@ import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
-/**
- * Bodies for the six dashboard panels. The chrome around them lives in
- * Panel.styles.js — these are only the contents, which is why they share a
- * file: they are variations on one pattern rather than six components.
- */
+// Panel bodies only — the chrome lives in Panel.styles.js. They share a file
+// because they are variations on one pattern rather than separate components.
 export const styles = StyleSheet.create({
   // --- Document status ---------------------------------------------------
   statusRow: {
@@ -70,44 +67,6 @@ export const styles = StyleSheet.create({
     marginRight: theme.spacing.sm,
   },
 
-  // --- Recent documents table --------------------------------------------
-  tableRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.cardBorder,
-  },
-  tableHead: {
-    paddingTop: 0,
-    paddingBottom: theme.spacing.sm,
-  },
-  headCell: {
-    ...theme.typography.overline,
-    color: theme.colors.textMuted,
-  },
-  cell: {
-    ...theme.typography.small,
-    color: theme.colors.textSecondary,
-  },
-  cellTitle: {
-    ...theme.typography.label,
-    color: theme.colors.textPrimary,
-  },
-  cellMeta: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
-    marginTop: 1,
-  },
-
-  colTitle: { flex: 1, minWidth: 0, paddingRight: theme.spacing.sm },
-  colType: { width: 68, paddingRight: theme.spacing.xs },
-  colStage: { width: 106, paddingRight: theme.spacing.xs },
-  colUpdated: { width: 80, paddingRight: theme.spacing.xs },
-  // alignItems governs the icon cell, textAlign the header above it — the two
-  // have to agree or the column reads as misaligned.
-  colAction: { width: 50, alignItems: 'flex-end', textAlign: 'right' },
-
   // --- Ideas pipeline ----------------------------------------------------
   idea: {
     flexDirection: 'row',
@@ -133,39 +92,5 @@ export const styles = StyleSheet.create({
   },
   ideaBadge: {
     marginTop: theme.spacing.xs,
-  },
-
-  // --- Activity feed -----------------------------------------------------
-  activity: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: theme.spacing.sm,
-  },
-  activityGlyph: {
-    width: 24,
-    height: 24,
-    borderRadius: theme.radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: theme.spacing.md,
-    marginTop: 1,
-  },
-  activityCopy: {
-    flex: 1,
-    minWidth: 0,
-    marginRight: theme.spacing.sm,
-  },
-  activityTitle: {
-    ...theme.typography.label,
-    color: theme.colors.textPrimary,
-  },
-  activityDetail: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
-    marginTop: 1,
-  },
-  activityAt: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
   },
 });

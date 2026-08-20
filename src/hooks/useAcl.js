@@ -6,7 +6,6 @@ import * as aclApi from '@services/acl';
 export function useAcl(aclId) {
   const [acl, setAcl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [isForbidden, setIsForbidden] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
@@ -17,8 +16,9 @@ export function useAcl(aclId) {
     const requestId = requestRef.current + 1;
     requestRef.current = requestId;
 
-    if (refresh) setIsRefreshing(true);
-    else setIsLoading(true);
+    // A refresh deliberately leaves isLoading alone: no detail screen shows
+    // a background indicator, and flipping it would flash the full-page loader.
+    if (!refresh) setIsLoading(true);
 
     setError(null);
     setIsForbidden(false);
@@ -29,7 +29,6 @@ export function useAcl(aclId) {
       setIsNotFound(true);
       setError('Access rule not found.');
       setIsLoading(false);
-      setIsRefreshing(false);
       return;
     }
 
@@ -58,7 +57,6 @@ export function useAcl(aclId) {
     } finally {
       if (requestRef.current === requestId) {
         setIsLoading(false);
-        setIsRefreshing(false);
       }
     }
   }, []);
@@ -72,5 +70,5 @@ export function useAcl(aclId) {
     [aclId, load]
   );
 
-  return { acl, isLoading, isRefreshing, error, isForbidden, isNotFound, refresh };
+  return { acl, isLoading, error, isForbidden, isNotFound, refresh };
 }

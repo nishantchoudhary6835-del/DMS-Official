@@ -6,7 +6,6 @@ import * as permissionApi from '@services/permission';
 export function usePermission(permissionId) {
   const [permission, setPermission] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [isForbidden, setIsForbidden] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
@@ -17,8 +16,9 @@ export function usePermission(permissionId) {
     const requestId = requestRef.current + 1;
     requestRef.current = requestId;
 
-    if (refresh) setIsRefreshing(true);
-    else setIsLoading(true);
+    // A refresh deliberately leaves isLoading alone: no detail screen shows
+    // a background indicator, and flipping it would flash the full-page loader.
+    if (!refresh) setIsLoading(true);
 
     setError(null);
     setIsForbidden(false);
@@ -29,7 +29,6 @@ export function usePermission(permissionId) {
       setIsNotFound(true);
       setError('Permission not found.');
       setIsLoading(false);
-      setIsRefreshing(false);
       return;
     }
 
@@ -58,7 +57,6 @@ export function usePermission(permissionId) {
     } finally {
       if (requestRef.current === requestId) {
         setIsLoading(false);
-        setIsRefreshing(false);
       }
     }
   }, []);
@@ -75,7 +73,6 @@ export function usePermission(permissionId) {
   return {
     permission,
     isLoading,
-    isRefreshing,
     error,
     isForbidden,
     isNotFound,

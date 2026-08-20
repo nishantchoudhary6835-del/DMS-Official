@@ -35,17 +35,14 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
 
-  // --- Document filters ----------------------------------------------------
-  // Only PublishedDocumentsScreen renders these; the other screens sharing
-  // this file simply never reference them.
+  // --- Document filters --------------------------------------------------
+  // Only PublishedDocumentsScreen renders these.
   searchRow: {
     paddingHorizontal: theme.spacing.lg,
   },
 
-  // react-native-web gives ScrollView a base `flexGrow: 1`. Filter to an
-  // empty result and the list below collapses, freeing height this row grows
-  // into — stretching every chip into a full-height bar. Pinning flexGrow
-  // stops it, same as UserListScreen.
+  // react-native-web gives ScrollView `flexGrow: 1`; when the list below
+  // collapses this row grows and stretches every chip. Pinning it stops that.
   filterScroll: {
     flexGrow: 0,
     flexShrink: 0,
@@ -57,11 +54,8 @@ export const styles = StyleSheet.create({
     paddingBottom: theme.spacing.sm,
   },
 
-  // The status chips and the three Selects together ran to most of a screen
-  // on a narrow window, pushing the documents themselves below the fold on
-  // the very screens whose job is to list them. They now sit behind this bar,
-  // which is one line whether or not anything is filtered — the same
-  // disclosure EmployeeListScreen and UserListScreen use.
+  // The chips and three Selects ran to most of a narrow screen, pushing the
+  // documents below the fold. Now one line, filtered or not.
   filterBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -118,29 +112,6 @@ export const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.xxl,
-  },
-
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xs,
-  },
-  sectionHeaderText: {
-    ...theme.typography.label,
-    color: theme.colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  sectionHeaderCount: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
-  },
-  sectionEmpty: {
-    ...theme.typography.caption,
-    color: theme.colors.textMuted,
-    paddingVertical: theme.spacing.sm,
   },
 
   centred: {

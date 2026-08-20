@@ -3,25 +3,11 @@ import { Platform } from 'react-native';
 import { axiosInstance } from '@services/axiosInstance';
 import { referenceId } from '@utils/format';
 
-/**
- * Confirmed live and auth-gated: POST /document -> 401 "No auth token"
- * without a token, the same contract every other module's create route has.
- * `createDocument`/`updateDocument` are both confirmed working live (see
- * WORKFLOW_SUBMIT_MISSING_TEAM.md's 2026-08-16 log and DOCUMENT_MANAGEMENT.md
- * §19's frontend note). `getDocumentById` is written to
- * DOCUMENT_MODULE_DOCUMENTATION.md §10 (added 2026-08-18, which is also the
- * first time a document detail route was documented at all) but has not yet
- * been exercised against the live backend — treat it as documented, not
- * confirmed, until it's actually been called and its response observed.
- */
+// Confirmed live and auth-gated; create/update are exercised against the live
+// backend. `getDocumentById` is written to §10 but not yet called for real.
 
-/**
- * Web: expo-document-picker attaches the real browser File object as
- * `asset.file`, which already carries name/type — appended directly rather
- * than rebuilt.
- * Native: there is no File API, so React Native's FormData polyfill instead
- * wants this `{ uri, name, type }` shape.
- */
+// Web: expo-document-picker hands back the real File as `asset.file`, already
+// carrying name/type. Native has no File API and wants `{ uri, name, type }`.
 function toFilePart(asset) {
   if (!asset) return null;
 
@@ -34,10 +20,8 @@ function toFilePart(asset) {
   };
 }
 
-/**
- * Shared by create and update — §9's update example sends the same fields
- * as §3's create table, file included, just optionally on update.
- */
+// Shared by create and update — §9's update example sends the same fields as
+// §3's create table, file included, just optionally on update.
 function buildDocumentFormData({ title, description = '', documentType, department, team = null, file = null }) {
   const formData = new FormData();
 
@@ -55,17 +39,8 @@ function buildDocumentFormData({ title, description = '', documentType, departme
   return formData;
 }
 
-/**
- * §9 warns against setting Content-Type by hand for a FormData body, but
- * that only holds for a bare axios instance. `axiosInstance` sets
- * `Content-Type: application/json` as an instance-level default
- * (axiosInstance.js), and axios's transformRequest only clears that for
- * FormData when no Content-Type is already present — here one always is, so
- * without this override axios silently JSON.stringifies the FormData and
- * sends it as `application/json` instead of multipart, dropping the file
- * entirely. Setting it to `undefined` per-request removes the instance
- * default so axios/the browser can attach the real multipart boundary.
- */
+// axiosInstance defaults Content-Type to application/json, and axios only clears
+// that for FormData when unset — without `undefined` here the file is dropped.
 export async function createDocument(values) {
   const { data } = await axiosInstance.post('/document', buildDocumentFormData(values), {
     headers: { 'Content-Type': undefined },
@@ -76,34 +51,12 @@ export async function createDocument(values) {
 /** The backend clamps `limit` to 100 (`document.service.js`'s getDocuments). */
 const DOCUMENT_PAGE_LIMIT = 100;
 
-/**
- * Stops a malformed `totalPages` from turning this into an endless request
- * loop. 20 pages at 100 each is 2000 documents — far past anything this
- * screen is useful for, and a sane place to give up rather than hang.
- */
+// Stops a malformed `totalPages` from looping forever. 20 pages at 100 each is
+// far past what this screen is useful for, and a sane place to give up.
 const MAX_DOCUMENT_PAGES = 20;
 
-/**
- * GET /document — DOCUMENT_MODULE_DOCUMENTATION.md §9.
- *
- * This endpoint IS paginated, which the spec doesn't mention: the backend
- * defaults to `limit: 20` and sorts by `updatedAt` descending. Requesting it
- * bare therefore returned only the 20 most recently touched documents in
- * scope — and since callers narrow that to "documents I own" client-side
- * (see useDocuments.js), someone in a busy department could own fifteen
- * documents and see two, with nothing to indicate the list was truncated.
- * So every page is fetched and concatenated here.
- *
- * The response is already scoped server-side (`buildDocumentScope`): owner,
- * own department, or own team — everything, for SUPER_ADMIN. That's wider
- * than "mine", which is why the client-side ownership filter still exists on
- * top of it.
- *
- * Paging while another user is editing can in principle repeat or skip a
- * document as rows shift between pages under the `updatedAt` sort. There's
- * no cursor/snapshot option on this endpoint to avoid it, and the window is
- * a few hundred milliseconds, so it's accepted rather than worked around.
- */
+// GET /document is paginated (limit 20) though the spec omits it, so a bare
+// request truncated silently. Every page is fetched and concatenated here.
 export async function listDocuments() {
   const params = { page: 1, limit: DOCUMENT_PAGE_LIMIT };
 
@@ -134,14 +87,8 @@ export async function getDocumentById(documentId) {
   return data;
 }
 
-/**
- * PATCH /document/:documentId — DOCUMENT_MANAGEMENT.md §8-9. `file` is the
- * only field that's genuinely optional here (§14's example only appends it
- * "if (selectedFile)"); title/documentType/department are re-sent every
- * time rather than treated as a partial update, since §9's own example
- * always includes them and nothing documents partial-update support the
- * way Department/Employee's PATCH explicitly does.
- */
+// PATCH /document/:documentId. `file` is the only genuinely optional field —
+// title/documentType/department are re-sent every time, as §9's example does.
 export async function updateDocument(documentId, values) {
   const { data } = await axiosInstance.patch(
     `/document/${documentId}`,
@@ -151,38 +98,8 @@ export async function updateDocument(documentId, values) {
   return data;
 }
 
-/**
- * GET /document/:documentId/view — DOCUMENT_VIEW_API.md. Replaces the old
- * fileUrl-from-Cloudinary approach: that spec states fileUrl/filePublicId
- * are no longer sent in any document response, and this is now the only way
- * to view a document's file at all.
- *
- * The spec writes this path as plural (`/documents/:id/view`) everywhere it
- * appears. The route is singular — confirmed in the backend source, where
- * `routes/index.js` mounts the document router at `/document` and
- * `document.routes.js` declares `/:documentId/view` beneath it. Singular is
- * correct and the spec is wrong, the same documented-vs-actual mismatch
- * ROLE_PERMISSION_MODULE.md turned out to have with its own base path.
- *
- * The backend does still return `fileUrl`/`filePublicId` in the *create*
- * response, despite §4/§7 saying they are never sent: both are
- * `select: false` on the model, so reads honour the spec, but create returns
- * the in-memory document it just built. Nothing in this app reads either
- * field, so that's a backend-side gap rather than something to handle here.
- *
- * Returns raw PDF bytes on success, so `responseType: 'blob'` is required —
- * but that setting applies to error responses too, and the backend's own
- * error body is JSON (400/401/403/404/500), not PDF. Without recovering it,
- * axios hands back a Blob where callers expect `{ message }`, and
- * normalizeError silently falls through to a generic message. The catch
- * block re-reads that blob as text and reattaches it as parsed JSON so the
- * usual error handling keeps working unchanged.
- */
-/**
- * PATCH /document/:documentId/archive — DOCUMENT_MODULE_DOCUMENTATION.md
- * §17. Confirmed to exist live (401 "No auth token" without a token, not
- * 404) but not yet exercised with real auth/data.
- */
+// PATCH /document/:documentId/archive — §17. Confirmed to exist live (401
+// without a token, not 404) but not yet exercised with real auth/data.
 export async function archiveDocument(documentId) {
   const { data } = await axiosInstance.patch(`/document/${documentId}/archive`);
   return data;
@@ -194,20 +111,15 @@ export async function restoreDocument(documentId) {
   return data;
 }
 
-/**
- * DELETE /document/:documentId — DOCUMENT_MODULE_DOCUMENTATION.md §19.
- *
- * `canDeleteDocument` in document.service.js allows this in exactly two
- * cases: a SUPER_ADMIN deleting anything, or the owner deleting their own
- * document while it is still DRAFT. Everything under review, approved,
- * published, active or archived is protected. It is also permanent — the
- * document and all its DocumentVersion rows are removed, not soft-deleted.
- */
+// DELETE /document/:documentId. `canDeleteDocument` allows exactly two cases:
+// SUPER_ADMIN, or the owner while still DRAFT. Permanent, not soft-deleted.
 export async function deleteDocument(documentId) {
   const { data } = await axiosInstance.delete(`/document/${documentId}`);
   return data;
 }
 
+// The only way to read a file now fileUrl is gone; route is singular despite the
+// spec. `responseType: 'blob'` hits errors too, so the catch re-reads them as JSON.
 export async function viewDocument(documentId) {
   try {
     const response = await axiosInstance.get(`/document/${documentId}/view`, {

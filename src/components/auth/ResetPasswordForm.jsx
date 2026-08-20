@@ -17,22 +17,8 @@ import { styles } from '@theme/styles/ResetPasswordForm.styles';
 import { OtpInput } from './OtpInput';
 import { PasswordRules } from './PasswordRules';
 
-/**
- * The whole reset on one screen: address, code, new password.
- *
- * It is one screen because the backend gives it one decision point. POST
- * /auth/verify-forgot-password-otp requires the code and the new password
- * together and resets the password the instant the code proves correct, so
- * there is no request that could gate an intermediate step. Splitting it up
- * anyway meant advancing on an unchecked code and reporting "invalid OTP" a
- * screen later, against a password the user had already typed twice and was
- * about to lose.
- *
- * Everything is visible from the start rather than revealed in sequence: the
- * shape of the task is three fields and two buttons, and hiding two thirds of
- * it until a code arrives makes it look longer than it is. The lower half is
- * disabled instead, with the reason stated.
- */
+// The whole reset on one screen: verify-forgot-password-otp takes the code and
+// the new password together and resets on the spot, so no step can gate it.
 export function ResetPasswordForm({
   sentEmail,
   onSendCode,
@@ -51,18 +37,13 @@ export function ResetPasswordForm({
 
   const isBusy = isSending || isSubmitting;
 
-  // A code belongs to the address it was sent to. Editing the box afterwards
-  // does not move it, so the lower half goes back to waiting rather than
-  // letting someone spend a code against an address that never received one.
+  // A code belongs to the address it was sent to, so editing the box re-locks
+  // rather than letting someone spend it against an address that never got one.
   const hasCodeForThisEmail =
     Boolean(sentEmail) && normalizeEmail(email) === sentEmail;
 
-  // The three sections unlock in order, each one gated on the section above
-  // being finished: no code boxes until a code has been sent, no password
-  // until all six digits are in. Nothing here checks whether the digits are
-  // *correct* — only the backend can say that, and only on submit — so this
-  // is about not presenting a field before it can be usefully filled, not
-  // about verification.
+  // The sections unlock in order. Nothing here checks whether the digits are
+  // *correct* — only the backend can, and only on submit.
   const isCodeComplete = otp.length === OTP_LENGTH;
   const canEnterCode = hasCodeForThisEmail && !isBusy && !timer.isExpired;
   const canEnterPassword = canEnterCode && isCodeComplete;
@@ -193,10 +174,8 @@ export function ResetPasswordForm({
 
       {otpError ? <Text style={styles.error}>{otpError}</Text> : null}
 
-      {/* Nothing is said in the untouched state: empty boxes under a Send
-          button explain themselves. The two cases below are not obvious from
-          looking — a countdown nobody can infer, and a re-lock caused by an
-          edit several fields away. */}
+      {/* Silent in the untouched state — empty boxes under a Send button explain
+          themselves. A countdown and a re-lock cannot be inferred by looking. */}
       {hasCodeForThisEmail || sentEmail ? (
         <View style={styles.statusRow}>
           {!hasCodeForThisEmail ? (
@@ -217,9 +196,8 @@ export function ResetPasswordForm({
 
       <View style={styles.divider} />
 
-      {/* Only once a code is in hand. Before that the greyed fields follow
-          obviously from the greyed boxes above them and need no caption; the
-          "all six" rule is the part that cannot be seen. */}
+      {/* Only once a code is in hand: before that the greyed fields follow from
+          the greyed boxes, but the "all six" rule cannot be seen. */}
       {hasCodeForThisEmail && !canEnterPassword ? (
         <Text style={styles.lockNote}>
           Enter all {OTP_LENGTH} digits to choose a new password.

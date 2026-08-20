@@ -23,18 +23,8 @@ import {
 
 import { styles } from '@theme/styles/AuditLogsScreen.styles';
 
-/**
- * Read-only by design — AUDIT_MODULE.md §28. There is no create/update/delete
- * route for audit logs; every record is written by the backend as a
- * side-effect of a business operation, so this screen never offers an action
- * beyond filtering and reading.
- *
- * Deliberately not refreshed on focus the way the other list screens are.
- * They cache through AppDataContext and can go stale while you are elsewhere;
- * this one refetches on every filter or page change already, and an audit
- * table quietly reordering itself underneath a reader is worse than a
- * slightly old one. There is an explicit Refresh instead.
- */
+// Read-only by design (§28). Not refreshed on focus either: it refetches on every
+// filter change, and a table reordering under a reader is worse than a stale one.
 export function AuditLogsScreen({ navigation }) {
   const {
     logs,
@@ -55,9 +45,8 @@ export function AuditLogsScreen({ navigation }) {
 
   const [selectedLog, setSelectedLog] = useState(null);
 
-  // With no module chosen the action list is every documented action; once
-  // one is chosen it narrows, because an action only ever belongs to one
-  // module and offering the rest would produce guaranteed-empty results.
+  // With no module chosen the action list is every documented action; once one
+  // is chosen it narrows, since an action belongs to exactly one module.
   const actionOptions = useMemo(() => {
     const actions = filters.module
       ? (AUDIT_ACTIONS_BY_MODULE[filters.module] ?? [])
@@ -152,11 +141,8 @@ export function AuditLogsScreen({ navigation }) {
           />
         </View>
 
-        {/* Not `compact`. That prop drops the label *and* the message row, so
-            these two would render as bare boxes sitting 22px above the
-            Action select beside them, and would jump when a date error
-            appeared. Full height keeps all three fields on one baseline and
-            reserves the space an error will occupy. */}
+        {/* Not `compact`: that drops the label *and* the message row, leaving
+            these two as bare boxes that jump when a date error appears. */}
         <View style={styles.filterField}>
           <TextField
             label="From"

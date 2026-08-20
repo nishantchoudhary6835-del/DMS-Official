@@ -20,38 +20,19 @@ import * as employeeApi from '@services/employee';
 
 const AuthContext = createContext(null);
 
-/**
- * Levels that may see the Administration section (see navigation.js's
- * ADMIN_OR_ABOVE gate). Deliberately just these two, which is exactly what
- * the previous probe-based check granted — GOVERNANCE sits above EXECUTIVE
- * in the hierarchy and arguably belongs here, but adding it would hand a
- * level access it does not have today, and the screens behind the gate are
- * ACL-checked server-side regardless. Left out until someone confirms it.
- */
+// Levels that may see the Administration section. GOVERNANCE arguably belongs
+// too, but adding it would grant access it does not have today.
 const ADMIN_OR_ABOVE_LEVELS = new Set(['SUPER_ADMIN', 'EXECUTIVE']);
 
-/**
- * Rank by position in the seeded hierarchy — index 0 is SUPER_ADMIN, 8 is
- * INTERN, so a *lower* number means more authority. Derived from
- * FALLBACK_HIERARCHY_LEVELS rather than a second hand-written list, so
- * inserting a level in one place cannot silently desync the two.
- *
- * GET /hierarchy returns the authoritative list with real `level` numbers,
- * but this gate has to answer before any request completes and for a role
- * the user cannot change, so the static order is the right source here.
- */
+// Rank by position in the seeded hierarchy — lower means more authority.
+// Derived from FALLBACK_HIERARCHY_LEVELS so the two lists cannot desync.
 const HIERARCHY_RANK = FALLBACK_HIERARCHY_LEVELS.reduce(
   (ranks, level, index) => ({ ...ranks, [level]: index }),
   {}
 );
 
-/**
- * Reviewing is a supervisory act: Team Lead is the first level anything is
- * ever routed to (submitDocument sends Employee/Intern work to TEAM_LEAD),
- * so nobody below it can ever have a pending approval. Note TEAM sits
- * *below* TEAM_LEAD in the hierarchy despite the similar name, and is
- * correctly excluded.
- */
+// Reviewing is supervisory: nothing is ever routed below TEAM_LEAD. Note TEAM
+// sits *below* TEAM_LEAD despite the similar name, and is correctly excluded.
 function isAtOrAbove(level, floor) {
   const rank = HIERARCHY_RANK[level];
   const floorRank = HIERARCHY_RANK[floor];
@@ -61,13 +42,8 @@ function isAtOrAbove(level, floor) {
   return rank <= floorRank;
 }
 
-/**
- * The login response populates `employeeId` into a full Employee object,
- * `hierarchyLevel` included. Returns null when that isn't available — a user
- * restored from storage after a session that predates that backend change
- * still has the old flat ObjectId string, and would otherwise silently lose
- * their role on the next launch.
- */
+// Null when `employeeId` is not a populated object — a session restored from
+// storage predating that backend change would otherwise lose its role.
 function hierarchyLevelOf(user) {
   const employee = user?.employeeId;
 
@@ -76,13 +52,9 @@ function hierarchyLevelOf(user) {
   return employee.hierarchyLevel ?? null;
 }
 
-/**
- * `{ isSuperAdmin, isAdminOrAbove }` for a signed-in user, or null when their
- * record carries no hierarchyLevel to read — meaning the caller has to fall
- * back to probing. Exported so the rule can be exercised directly; the
- * provider below is the only production caller.
- */
-export function deriveAccess(user) {
+// `{ isSuperAdmin, isAdminOrAbove }`, or null when the record carries no
+// hierarchyLevel to read and the caller has to fall back to probing.
+function deriveAccess(user) {
   const level = hierarchyLevelOf(user);
 
   if (!level) return null;
@@ -94,26 +66,8 @@ export function deriveAccess(user) {
   };
 }
 
-/**
- * Access is read straight off `user.employeeId.hierarchyLevel`, which the
- * login response has carried since the backend started populating the
- * employee reference.
- *
- * It used to be inferred instead, by firing GET /employee and GET /department
- * and reading the role off whether they returned 200 or 403. That was written
- * when no role field existed anywhere in the login response or the JWT, and
- * it has since become actively wrong rather than merely wasteful: both of
- * those routes are now gated by `accessControl(...)` — the configurable
- * Permission -> RolePermission -> ACL engine — not by a fixed hierarchy
- * check. So the probe was reading a runtime permission grant and reporting it
- * as a role. Grant EMPLOYEE.VIEW to an ordinary employee and they would have
- * been detected as Super Admin; revoke it from a Super Admin and they would
- * have been detected as neither.
- *
- * Reading the field directly also costs two fewer round trips per session
- * start, and distinguishes all nine levels rather than only "Super Admin" vs
- * "Super Admin or Executive" vs "neither".
- */
+// Read straight off `user.employeeId.hierarchyLevel`. Inferring it from whether
+// /employee and /department 403'd reported a runtime grant as a role.
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -146,9 +100,8 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Re-evaluates whenever `user` changes identity — a fresh sign-in or the
-  // one-time restore-from-storage above — and resets to "unknown" on
-  // sign-out rather than leaving a stale role behind for the next session.
+  // Re-evaluates whenever `user` changes identity, and resets to "unknown" on
+  // sign-out rather than leaving a stale role behind.
   useEffect(() => {
     if (!user) {
       setAccess({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null });
@@ -162,9 +115,8 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    // No hierarchyLevel to read — a user restored from storage that predates
-    // the populated-employeeId login response. Fall back to the old probe so
-    // that session keeps working until its next sign-in refreshes the shape.
+    // No hierarchyLevel to read — a stored session predating the populated
+    // login response. Fall back to the probe until its next sign-in.
     let cancelled = false;
 
     (async () => {
@@ -184,12 +136,8 @@ export function AuthProvider({ children }) {
       setAccess({
         isSuperAdmin,
         isAdminOrAbove,
-        // The probe cannot see the difference between a Team Lead and an
-        // Intern — neither passes either request — so this deliberately
-        // under-reports rather than guessing. A genuine Team Lead on a
-        // pre-populate stored session loses the Pending Approvals entry
-        // until their next sign-in, which is the safe direction to be wrong
-        // in and self-heals on one login.
+        // The probe cannot tell a Team Lead from an Intern, so it under-reports
+        // rather than guessing. Self-heals on the next sign-in.
         isTeamLeadOrAbove: isAdminOrAbove,
       });
     })();
@@ -227,9 +175,8 @@ export function AuthProvider({ children }) {
       user,
       isRestoring,
       isAuthenticated: Boolean(user),
-      // null while the access probe hasn't resolved yet (or there's no user) —
-      // treat as "not yet proven", not as "no access", when deciding whether
-      // to render something briefly.
+      // null while the probe hasn't resolved (or there's no user) — "not yet
+      // proven", not "no access", when deciding whether to render.
       isSuperAdmin: access.isSuperAdmin,
       isAdminOrAbove: access.isAdminOrAbove,
       isTeamLeadOrAbove: access.isTeamLeadOrAbove,

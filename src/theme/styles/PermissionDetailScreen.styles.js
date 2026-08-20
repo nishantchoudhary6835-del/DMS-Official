@@ -104,6 +104,12 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
 
+  note: {
+    ...theme.typography.small,
+    color: theme.colors.textMuted,
+    marginTop: theme.spacing.sm,
+  },
+
   centred: {
     alignItems: 'center',
     justifyContent: 'center',

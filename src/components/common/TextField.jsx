@@ -54,9 +54,8 @@ export const TextField = forwardRef(function TextField(
     <View style={styles.container}>
       {compact ? null : <Text style={styles.label}>{label}</Text>}
 
-      {/* The icon variant is opt-in and additive — every existing caller
-          that doesn't pass `icon` renders the plain bordered input exactly
-          as before, unchanged. */}
+      {/* The icon variant is opt-in and additive — a caller that passes no
+          `icon` renders exactly the plain bordered input it always did. */}
       {icon ? (
         <View
           style={[

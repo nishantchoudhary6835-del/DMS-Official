@@ -70,10 +70,8 @@ export function normalizeError(error) {
 
   return {
     message: serverMessage ?? GENERIC_MESSAGE,
-    // Whether `message` is the backend's own words or this file's placeholder.
-    // Callers with a hand-written fallback need to know: several routes refuse
-    // with a reason no client can derive (restore is Super Admin only, for
-    // one), and replacing that with a guess loses the only useful part.
+    // Whether `message` is the backend's words or this file's placeholder.
+    // Several routes refuse with a reason no client could derive.
     hasServerMessage: Boolean(serverMessage),
     fieldErrors: toFieldErrors(body.errors),
     status: response.status ?? null,
@@ -86,27 +84,12 @@ export function isRateLimited(normalized) {
   return normalized.status === 429;
 }
 
-/**
- * Which layer of the Permission -> RolePermission -> ACL engine refused a
- * request, or null when the 403 came from the route's own business rule
- * instead.
- *
- * The distinction decides which screen fixes the problem, and getting it
- * wrong wastes real time. The two layers are edited in two different places:
- *
- *   RolePermission  "Role Assignments"  may this level hold the permission?
- *   ACL             "Access Rules"      where does an already-held one apply?
- *
- * They are checked in that order, so an Access Rule cannot substitute for a
- * missing Role Assignment — the request is rejected before ACL is consulted.
- * Confirmed the hard way on this project more than once: an INTERN was given
- * a global ALLOW Access Rule for a permission their level had never been
- * assigned, and kept getting the identical 403.
- */
+// Which layer of Permission -> RolePermission -> ACL refused, or null for the
+// route's own rule. Checked in that order, so an ACL cannot stand in for the first.
 const ROLE_PERMISSION_DENIAL = /permission is not assigned/i;
 const ACL_DENIAL = /no active acl rule|access denied/i;
 
-export function permissionDenialLayer(normalized) {
+function permissionDenialLayer(normalized) {
   if (normalized.status !== 403) return null;
 
   const message = normalized.message ?? '';
@@ -117,10 +100,8 @@ export function permissionDenialLayer(normalized) {
   return null;
 }
 
-/**
- * Advice naming the screen that actually fixes the denial, or null when the
- * 403 was not the engine's doing and the caller should explain it themselves.
- */
+// Advice naming the screen that actually fixes the denial, or null when the 403
+// was not the engine's doing and the caller should explain it themselves.
 export function permissionDenialMessage(normalized, { action, permission }) {
   switch (permissionDenialLayer(normalized)) {
     case 'ROLE_PERMISSION':
@@ -140,8 +121,4 @@ export function permissionDenialMessage(normalized, { action, permission }) {
     default:
       return null;
   }
-}
-
-export function isUnauthorized(normalized) {
-  return normalized.status === 401;
 }

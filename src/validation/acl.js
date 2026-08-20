@@ -12,19 +12,15 @@ export const ACL_EFFECT = {
   DENY: 'DENY',
 };
 
-export function validateEffect(value) {
+function validateEffect(value) {
   if (!value) return 'Effect is required';
   if (!Object.values(ACL_EFFECT).includes(value)) return 'Select a valid effect';
 
   return undefined;
 }
 
-/**
- * department, team, and employee are all optional per ACL_MODULE.md §3 — the
- * absence of all three is what makes a rule "Global Hierarchy" rather than
- * scoped. Nothing to validate on any of them beyond referential integrity,
- * which the backend already owns.
- */
+// department/team/employee are all optional (§3) — the absence of all three
+// is what makes a rule "Global Hierarchy". Referential integrity is backend's.
 export function validateAclForm(values, allowedLevels) {
   const errors = {
     hierarchyLevel: validateHierarchyLevel(values.hierarchyLevel, allowedLevels),
@@ -37,10 +33,8 @@ export function validateAclForm(values, allowedLevels) {
   return { errors, hasError };
 }
 
-/**
- * Only shown when the backend handed back a populated object — a write
- * response may return the reference bare.
- */
+// Only when the backend handed back a populated object — a write response
+// may return the reference bare.
 export function permissionRefLabel(permissionRef) {
   if (!permissionRef || typeof permissionRef !== 'object') return null;
 
@@ -71,12 +65,8 @@ export function employeeRefLabel(employee) {
   );
 }
 
-/**
- * The scope label a rule reads as, per the priority order ACL_MODULE.md §4
- * and ACCESS_CONTROL.md §8 both give: Employee > Team > Department > Global.
- * A rule naming all three still only ever matches on the most specific one
- * present — this just names which tier that is.
- */
+// The tier a rule matches on, per §4's priority order: Employee > Team >
+// Department > Global. Naming all three still matches only the narrowest.
 export function aclScopeLabel(acl) {
   if (acl?.employee) return 'Employee-specific';
   if (acl?.team) return 'Team-specific';
@@ -85,12 +75,8 @@ export function aclScopeLabel(acl) {
   return 'Global';
 }
 
-/**
- * A plain-English reading of who a rule narrows down to, for the card where
- * there's no room for separate Department/Team/Employee rows the way the
- * detail screen has. Falls back to the tier name when the reference hasn't
- * come back populated yet.
- */
+// Plain-English reading of who a rule narrows to, for the card with no room
+// for separate rows. Falls back to the tier name if not yet populated.
 export function aclScopeDetail(acl) {
   if (acl?.employee) {
     const name = employeeRefLabel(acl.employee);
@@ -110,11 +96,8 @@ export function aclScopeDetail(acl) {
   return 'Everyone at this level';
 }
 
-/**
- * Unlike Permission and RolePermission, neither ACL doc names a specific
- * duplicate rule — so, deliberately, no 409 guess is pinned to a field here.
- * A conflict just surfaces as the backend's own message.
- */
+// Neither ACL doc names a specific duplicate rule, so no 409 guess is pinned
+// to a field here — a conflict surfaces as the backend's own message.
 export function mapAclError(normalized) {
   const message = String(normalized.message ?? '');
   const lower = message.toLowerCase();

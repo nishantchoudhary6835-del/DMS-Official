@@ -29,9 +29,8 @@ export const styles = StyleSheet.create({
   iconTrailing: {
     marginLeft: 7,
   },
-  // Opt-in — reserved for one-off hero actions (Login) rather than the
-  // app's default control shape, the same way `radius.hero` is reserved for
-  // the gradient Signal blocks and not used on ordinary cards.
+  // Opt-in, for one-off hero actions (Login) rather than the default control
+  // shape — the same way `radius.hero` is reserved for the Signal blocks.
   pill: {
     borderRadius: theme.radius.full,
   },
@@ -87,8 +86,5 @@ export const styles = StyleSheet.create({
   disabled: {
     backgroundColor: theme.colors.disabled,
     borderColor: theme.colors.disabled,
-  },
-  disabledLabel: {
-    color: theme.colors.textMuted,
   },
 });

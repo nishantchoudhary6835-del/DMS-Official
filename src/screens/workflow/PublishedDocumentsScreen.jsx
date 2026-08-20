@@ -50,21 +50,8 @@ const MODE_COPY = {
   },
 };
 
-/**
- * Four mutually exclusive buckets over `document.status`, so a document
- * appears in exactly one place and none can go missing:
- *
- *   drafts     DRAFT
- *   archived   ARCHIVED
- *   published  PUBLISHED / ACTIVE / AMENDMENT  (finished approval, in force)
- *   review     everything else                  (still in the pipeline)
- *
- * "Published" used to be the catch-all, which put SUBMITTED and REVIEW
- * documents under a heading claiming they were published. It is now the
- * strict set, and `review` took over as the catch-all — deliberately, so a
- * status the backend adds later shows up as in-flight rather than silently
- * belonging to no bucket and disappearing from every screen.
- */
+// Four mutually exclusive buckets over `document.status`. `review` is the
+// catch-all, so a status added later shows as in-flight rather than nowhere.
 const MODE_FILTERS = {
   drafts: (document) => document.status === 'DRAFT',
   archived: (document) => document.status === 'ARCHIVED',
@@ -75,23 +62,8 @@ const MODE_FILTERS = {
     !isPublishedStatus(document.status),
 };
 
-/**
- * Sourced from GET /document (DOCUMENT_MODULE_DOCUMENTATION.md §9) rather
- * than GET /workflow/my-submissions — that endpoint is inherently
- * owner-scoped ("my own submissions"), so no permission check could ever
- * make it show more than the documents this account personally authored.
- * §9 describes /document as "documents accessible to the authenticated
- * user," which is the actually-correct, ACL-driven scope this screen wants
- * — an unrestricted role like Super Admin should see every document here,
- * not just their own. That's the theory the doc states; whether the
- * backend's ACL genuinely implements it that broadly for Super Admin is
- * unverified until the first real response is observed.
- *
- * `route.params.focus` picks which single lifecycle bucket to show —
- * 'drafts', 'archived', or anything else (default 'published') — rather than
- * showing several together, so each sidebar link lands on exactly what it
- * says.
- */
+// GET /document, not /workflow/my-submissions: that one is inherently owner-
+// scoped, while §9's ACL-driven scope is what this wants. `focus` picks a bucket.
 export function PublishedDocumentsScreen({ navigation, route }) {
   const focus = route?.params?.focus;
   const mode = MODE_FILTERS[focus] ? focus : 'published';
@@ -118,13 +90,8 @@ export function PublishedDocumentsScreen({ navigation, route }) {
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  /**
-   * A control that can only offer one value cannot narrow anything, so it is
-   * hidden rather than shown inert. In practice that means Drafts and
-   * Archived never render a status filter (every document in them shares one
-   * status), and an account that only ever sees its own documents never
-   * renders the owner filter.
-   */
+  // A control that can offer only one value cannot narrow anything, so it is
+  // hidden rather than shown inert.
   const showStatus = options.statuses.length > 1;
   const showType = options.documentTypes.length > 1;
   const showDepartment = options.departments.length > 1;
@@ -132,9 +99,8 @@ export function PublishedDocumentsScreen({ navigation, route }) {
   const showSelects = showType || showDepartment || showOwner;
   const showFilterBar = showStatus || showSelects;
 
-  // Names what the collapsed controls are currently doing, so the bar is
-  // still informative closed. Falls back to the raw value only if an option
-  // list has not resolved yet.
+  // Names what the collapsed controls are doing, so the bar is informative
+  // closed. Falls back to the raw value only if an option list has not resolved.
   const activeLabels = useMemo(() => {
     const labelFrom = (list, value) =>
       list.find((option) => option.value === value)?.label ?? value;
@@ -207,10 +173,8 @@ export function PublishedDocumentsScreen({ navigation, route }) {
 
       {isLoading ? null : (
         <>
-          {/* `compact` is right here and wrong on a field sitting beside a
-              Select: it drops the label and the reserved message row. A
-              search box with a magnifier and a descriptive placeholder needs
-              neither, and it owns its row so there is nothing to align to. */}
+          {/* `compact` is right here and wrong beside a Select: it drops the
+              label and message row, which a search box needs neither of. */}
           <View style={styles.searchRow}>
             <TextField
               label="Search"

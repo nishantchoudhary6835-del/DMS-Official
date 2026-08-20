@@ -1,15 +1,12 @@
-/**
- * §3's field table names PDF/DOCX explicitly; the picker is restricted to
- * these so a rejected file type is caught before upload rather than as a
- * server error after one.
- */
+// §3's field table names PDF/DOCX explicitly, so the picker is restricted to
+// these — a rejected type is caught before upload rather than after it.
 export const ACCEPTED_FILE_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-export function validateTitle(value) {
+function validateTitle(value) {
   const trimmed = String(value ?? '').trim();
 
   if (!trimmed) return 'Title is required';
@@ -17,7 +14,7 @@ export function validateTitle(value) {
   return undefined;
 }
 
-export function validateDocumentType(value) {
+function validateDocumentType(value) {
   const trimmed = String(value ?? '').trim();
 
   if (!trimmed) return 'Document type is required';
@@ -26,13 +23,13 @@ export function validateDocumentType(value) {
 }
 
 /** §6: Department must exist and be ACTIVE. Team has no such requirement — §3 explicitly allows it blank. */
-export function validateDocumentDepartment(value) {
+function validateDocumentDepartment(value) {
   if (!value) return 'Department is required';
 
   return undefined;
 }
 
-export function validateFile(file) {
+function validateFile(file) {
   if (!file) return 'A file is required';
 
   return undefined;
@@ -51,11 +48,8 @@ export function validateDocumentForm(values) {
   return { errors, hasError };
 }
 
-/**
- * Same as create except the file — §14's update example only appends a
- * file when one was actually picked, so keeping the existing file by
- * leaving the picker untouched has to be a valid submission.
- */
+// Same as create except the file: §14's update example only appends one when
+// actually picked, so leaving the picker untouched has to be valid.
 export function validateDocumentEditForm(values) {
   const errors = {
     title: validateTitle(values.title),
@@ -68,16 +62,8 @@ export function validateDocumentEditForm(values) {
   return { errors, hasError };
 }
 
-/**
- * DOCUMENT_MODULE_DOCUMENTATION.md §15 lists the full document lifecycle
- * (separate from Workflow's own PENDING_REVIEW/REVISION/REJECTED/COMPLETED
- * set) — but every live document.status this app has actually observed so
- * far has only ever been DRAFT/SUBMITTED/REVISION, never PUBLISHED/ACTIVE/
- * AMENDMENT/ARCHIVED. This table is written to the full documented set
- * regardless, since falling back to a title-cased render of whatever the
- * server actually sends (below) means an unobserved value still displays
- * reasonably instead of blank.
- */
+// Written to §15's full documented lifecycle even though only DRAFT/SUBMITTED/
+// REVISION have been seen live; anything unknown title-cases below.
 const DOCUMENT_STATUS_TONES = {
   DRAFT: 'neutral',
   SUBMITTED: 'info',
@@ -90,20 +76,9 @@ const DOCUMENT_STATUS_TONES = {
   ARCHIVED: 'neutral',
 };
 
-/**
- * The three statuses that mean "this document is live" — it finished the
- * approval workflow and is in force. PUBLISHED is set at final Governance
- * approval, ACTIVE is what a restored document becomes (restore does not go
- * back to PUBLISHED), and AMENDMENT is a live document being revised.
- *
- * Everything before these — SUBMITTED, REVIEW, REVISION, APPROVED — is still
- * in the approval pipeline and is NOT published, however far along it is.
- *
- * This is also exactly the set document.service.js allows archiving, which is
- * not a coincidence: archiving is retiring a live document, so the two
- * questions have the same answer. DocumentDetailScreen reuses it for that.
- */
-export const PUBLISHED_DOCUMENT_STATUSES = ['PUBLISHED', 'ACTIVE', 'AMENDMENT'];
+// The three statuses meaning "live": PUBLISHED (final approval), ACTIVE (what
+// a restore produces) and AMENDMENT. Also exactly what may be archived.
+const PUBLISHED_DOCUMENT_STATUSES = ['PUBLISHED', 'ACTIVE', 'AMENDMENT'];
 
 export function isPublishedStatus(status) {
   return PUBLISHED_DOCUMENT_STATUSES.includes(status);
@@ -128,10 +103,8 @@ export function documentStatusTone(status) {
   return DOCUMENT_STATUS_TONES[status] ?? 'neutral';
 }
 
-/**
- * Routes a backend error to the field that caused it, per §13's documented
- * error messages.
- */
+// Routes a backend error to the field that caused it, per §13's documented
+// error messages.
 export function mapDocumentError(normalized) {
   const message = String(normalized.message ?? '');
   const lower = message.toLowerCase();

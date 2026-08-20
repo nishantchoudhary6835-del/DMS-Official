@@ -55,7 +55,6 @@ export function useOtpTimer({
     secondsLeft,
     isExpired,
     canResend: isExpired,
-    isRunning,
     start,
     reset,
   };

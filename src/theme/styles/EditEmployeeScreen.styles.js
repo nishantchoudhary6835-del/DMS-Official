@@ -32,10 +32,6 @@ export const styles = StyleSheet.create({
   action: {
     marginTop: theme.spacing.sm,
   },
-  cancel: {
-    marginTop: theme.spacing.sm,
-  },
-
   errorBlock: {
     marginTop: theme.spacing.lg,
   },

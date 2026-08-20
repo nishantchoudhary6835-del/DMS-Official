@@ -1,10 +1,5 @@
-/**
- * The nine actions PERMISSION_MODULE.md documents as currently supported.
- * GET /permission/options now returns the live list (see usePermissionVocabulary)
- * and wins whenever it's reachable — this stays as the fallback for the same
- * reason FALLBACK_HIERARCHY_LEVELS does: an unreachable endpoint shouldn't
- * leave the create form with nothing to pick from.
- */
+// Fallback for GET /permission/options (see usePermissionVocabulary), which
+// wins whenever reachable — as FALLBACK_HIERARCHY_LEVELS is to GET /hierarchy.
 export const PERMISSION_ACTIONS = [
   'VIEW',
   'CREATE',
@@ -17,11 +12,8 @@ export const PERMISSION_ACTIONS = [
   'RESTORE',
 ];
 
-/**
- * The resource vocabulary from PERMISSION_MODULE.md's example response.
- * Same fallback relationship to GET /permission/options as PERMISSION_ACTIONS
- * has to the same endpoint's `actions`.
- */
+// The resource vocabulary from PERMISSION_MODULE.md's example response, with
+// the same fallback relationship to GET /permission/options.
 export const FALLBACK_PERMISSION_RESOURCES = [
   'USER',
   'EMPLOYEE',
@@ -38,11 +30,8 @@ export const PERMISSION_STATUS = {
   INACTIVE: 'INACTIVE',
 };
 
-/**
- * Every action is a single word, so a title-cased transform covers all nine
- * with no exceptions — unlike HIERARCHY_LABELS this needs no override table.
- * Never returns null: callers interpolate this into badges and strings.
- */
+// Every action is a single word, so title-casing covers all nine with no
+// override table. Never returns null — callers interpolate it.
 export function actionLabel(action) {
   if (!action) return '';
 
@@ -50,11 +39,9 @@ export function actionLabel(action) {
   return word.charAt(0) + word.slice(1).toLowerCase();
 }
 
-/**
- * Resource is now a closed vocabulary (GET /permission/options), not free
- * text — mirrors validateHierarchyLevel's relationship to its allowed list.
- */
-export function validateResource(value, allowedResources) {
+// Resource is a closed vocabulary (GET /permission/options), not free text —
+// mirrors validateHierarchyLevel's relationship to its allowed list.
+function validateResource(value, allowedResources) {
   const allowed =
     Array.isArray(allowedResources) && allowedResources.length
       ? allowedResources
@@ -66,7 +53,7 @@ export function validateResource(value, allowedResources) {
   return undefined;
 }
 
-export function validateAction(value, allowedActions) {
+function validateAction(value, allowedActions) {
   const allowed =
     Array.isArray(allowedActions) && allowedActions.length
       ? allowedActions
@@ -89,13 +76,8 @@ export function validatePermissionForm(values, allowedResources, allowedActions)
   return { errors, hasError };
 }
 
-/**
- * `RESOURCE.ACTION`, the identity format PERMISSION_MODULE.md §8 uses
- * ("TEAM.CREATE"). Guards against either half being absent rather than
- * rendering a broken string while a record is still loading. Kept around as
- * the compact technical identifier shown alongside — not the primary label,
- * see permissionSentence for that.
- */
+// `RESOURCE.ACTION`, §8's identity format ("TEAM.CREATE"). The compact
+// technical identifier shown alongside — permissionSentence is the label.
 export function permissionCode(permission) {
   if (!permission) return '';
 
@@ -107,11 +89,8 @@ export function permissionCode(permission) {
   return `${resource}.${action}`;
 }
 
-/**
- * Resource is free text (whatever the creator typed — "team", "Team",
- * "team documents"), so this defensively title-cases every word rather than
- * trusting the stored casing.
- */
+// Resource is free text (whatever the creator typed), so this title-cases
+// every word rather than trusting the stored casing.
 export function resourceLabel(resource) {
   return String(resource ?? '')
     .trim()
@@ -121,12 +100,8 @@ export function resourceLabel(resource) {
     .join(' ');
 }
 
-/**
- * The plain-English reading of a permission — "Create Team", "Approve Idea"
- * — used as the primary label everywhere a permission is shown, instead of
- * the RESOURCE.ACTION code. Answers "what does this actually let someone do"
- * at a glance, which the bare code does not.
- */
+// The plain-English reading — "Create Team" — used as the primary label
+// everywhere, since the bare RESOURCE.ACTION code never says what it allows.
 export function permissionSentence(permission) {
   if (!permission) return '';
 
@@ -138,14 +113,8 @@ export function permissionSentence(permission) {
   return `${action} ${resource}`;
 }
 
-/**
- * The verb phrase for each action with the resource dropped in — e.g.
- * "add a new team record". Subject-less on purpose: actionExplainer wraps it
- * as "Lets someone {phrase}" for a Permission on its own, while RolePermission
- * and ACL wrap the same phrase around their own subject ("Department Head is
- * eligible to {phrase}", "Can {phrase}") so the concrete effect — not just
- * the permission's name — shows up everywhere a permission is referenced.
- */
+// Subject-less on purpose: actionExplainer wraps it as "Lets someone {phrase}",
+// while RolePermission and ACL wrap it around their own subject.
 const ACTION_VERB_PHRASES = {
   VIEW: (resource) => `see ${resource} records`,
   CREATE: (resource) => `add a new ${resource} record`,
@@ -158,13 +127,8 @@ const ACTION_VERB_PHRASES = {
   RESTORE: (resource) => `bring an archived or deleted ${resource} record back`,
 };
 
-/**
- * The verb phrase for a permission's action + resource, e.g.
- * "add a new team record". Only meaningful once `permission` has come back
- * populated (resource/action present) — a bare reference (just an id) has
- * nothing to build a phrase from, so this returns '' and callers fall back
- * to the permission's name instead.
- */
+// Only meaningful once `permission` is populated — a bare id reference has
+// nothing to build a phrase from, so this returns '' and callers use the name.
 export function permissionEffectPhrase(permission) {
   if (!permission) return '';
 
@@ -176,11 +140,8 @@ export function permissionEffectPhrase(permission) {
   return build(resource);
 }
 
-/**
- * Plain-language explanation of what a permission actually does, e.g.
- * "Lets someone permanently remove a team record." Falls back to nothing if
- * the action isn't one of the nine known ones.
- */
+// Plain-language explanation, e.g. "Lets someone permanently remove a team
+// record." Empty when the action isn't one of the nine known ones.
 export function actionExplainer(permission) {
   const phrase = permissionEffectPhrase(permission);
   if (!phrase) return '';
@@ -207,15 +168,8 @@ export function actionIcon(action) {
   return ACTION_ICONS[action] || 'ellipse-outline';
 }
 
-/**
- * Routes a backend error to the field that caused it.
- *
- * The doc never states whether the (resource, action) pair or resource alone
- * must be unique — only that a duplicate should be rejected somehow. Since
- * action is a closed dropdown that cannot itself be "wrong" in a way worth
- * pointing at, any conflict is pinned to resource, where a fix is actually
- * possible.
- */
+// Routes a backend error to its field. Any conflict is pinned to resource:
+// action is a closed dropdown that cannot itself be "wrong".
 export function mapPermissionError(normalized) {
   const message = String(normalized.message ?? '');
   const lower = message.toLowerCase();

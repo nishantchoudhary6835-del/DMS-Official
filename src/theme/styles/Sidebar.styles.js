@@ -2,8 +2,8 @@ import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
-export const SIDEBAR_WIDTH = 260;
-export const SIDEBAR_WIDTH_COLLAPSED = 68;
+const SIDEBAR_WIDTH = 260;
+const SIDEBAR_WIDTH_COLLAPSED = 68;
 
 export const styles = StyleSheet.create({
   // Opaque, so the rail reads as chrome against the painted canvas rather
