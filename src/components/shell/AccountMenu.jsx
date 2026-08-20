@@ -31,13 +31,8 @@ function MenuRow({ icon, label, tone = 'default', onPress }) {
   );
 }
 
-/**
- * Anchored under the name/avatar in TopBar (top-right, every screen), rather
- * than a centred confirm-style dialog — this is a dropdown menu, not a
- * decision prompt. Positioned with fixed offsets matching TopBar's own
- * height/padding instead of measuring the trigger, since the trigger is
- * always in the same place (top bar, right-aligned).
- */
+// Anchored under TopBar's name/avatar rather than centred: this is a dropdown,
+// not a decision prompt. Fixed offsets, since the trigger never moves.
 export function AccountMenu({
   visible,
   name,

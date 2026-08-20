@@ -4,10 +4,8 @@ import { normalizeError } from '@utils/errors';
 import { mapTeamError } from '@validation/team';
 import * as teamApi from '@services/team';
 
-/**
- * Also the path for assigning and clearing the Team Lead — there is no
- * dedicated endpoint, so both are a PATCH carrying `teamLead`.
- */
+// Also the path for assigning and clearing the Team Lead — there is no
+// dedicated endpoint, so both are a PATCH carrying `teamLead`.
 export function useUpdateTeam() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);

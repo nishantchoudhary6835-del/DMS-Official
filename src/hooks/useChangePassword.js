@@ -26,12 +26,8 @@ export function useChangePassword() {
       try {
         await authApi.changePassword(oldPassword, newPassword);
 
-        // AUTH_PASSWORD.md §3: this invalidates the refresh token for every
-        // session, including this one — without a fresh login the current
-        // tab would silently die at its next access-token refresh (~15 min,
-        // per AUTH_FLOW.md). Re-authenticate immediately with the new
-        // password so the device the user is actually on stays signed in,
-        // same as useRegistration's submitPassword does after register.
+        // §3: this invalidates every session's refresh token, including this
+        // one. Re-authenticate now so the device the user is on stays signed in.
         try {
           const loginResponse = await authApi.login(user?.email, newPassword);
           const loggedInUser = loginResponse?.data?.user ?? null;

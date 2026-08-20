@@ -13,12 +13,8 @@ export function DepartmentFormFields({
   headOptions,
   disabled = false,
 }) {
-  /**
-   * The current head has to stay selectable even if they have since been
-   * deactivated and dropped out of the active employee list — otherwise the
-   * Select shows its placeholder and an edit to the name alone would read as
-   * though it had removed the head.
-   */
+  // The current head stays selectable even once deactivated — otherwise the
+  // Select falls to its placeholder and a name edit reads as removing them.
   const options = useMemo(() => {
     const current = values.head;
 

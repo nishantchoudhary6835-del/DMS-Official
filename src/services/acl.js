@@ -1,11 +1,8 @@
 import { axiosInstance } from '@services/axiosInstance';
 import { referenceId } from '@utils/format';
 
-/**
- * Confirmed live and auth-gated (401 "No auth token" without a token, same
- * shape as /hierarchy, /department, /team, /permission) — unlike
- * /rolePermission, this path matches ACL_MODULE.md §7 exactly.
- */
+// Confirmed live and auth-gated. Unlike /rolePermission, this path matches
+// ACL_MODULE.md §7 exactly.
 
 const SERVER_OWNED = ['createdBy', 'createdAt', 'updatedAt', '__v', '_id'];
 
@@ -28,10 +25,8 @@ export async function createAcl({
   return data;
 }
 
-/**
- * No query parameters are documented, so filtering happens client-side
- * against the full list, same as /permission, /department, /rolePermission.
- */
+// No query parameters are documented, so filtering happens client-side
+// against the full list, same as /permission, /department, /rolePermission.
 export async function listAcls() {
   const { data } = await axiosInstance.get('/acl');
   return data;
@@ -53,9 +48,8 @@ export async function updateAcl(id, changes) {
 
   if ('permission' in payload) payload.permission = referenceId(payload.permission);
 
-  // Each is nullable and clearing it is a real operation — e.g. turning a
-  // Department-specific rule back into a Global one — so an explicit null has
-  // to survive. Only an absent key means "leave alone".
+  // Each is nullable and clearing it is a real operation (a Department rule
+  // back to Global), so an explicit null must survive. Absent means "leave".
   if ('department' in payload) payload.department = referenceId(payload.department);
   if ('team' in payload) payload.team = referenceId(payload.team);
   if ('employee' in payload) payload.employee = referenceId(payload.employee);

@@ -18,11 +18,8 @@ const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 export function PermissionCard({ permission, onPress }) {
   const isActive = permission.status === PERMISSION_STATUS.ACTIVE;
 
-  // The generated explanation always shows — it's the one guaranteed to
-  // actually say what the action does. A custom description often just
-  // restates the title ("Create teams" under "Create Team"), which answers
-  // nothing new, so it's shown as a secondary note rather than replacing
-  // the real explanation.
+  // The generated explanation always shows — it is the one guaranteed to say
+  // what the action does. A custom description often just restates the title.
   const explanation = actionExplainer(permission);
   const hasCustomNote =
     permission.description && permission.description.trim() !== explanation;

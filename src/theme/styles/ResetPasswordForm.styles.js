@@ -44,9 +44,8 @@ export const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     textAlign: 'center',
   },
-  // Fixed slot under the code boxes: countdown, expiry, or the reason the
-  // boxes are inert. Keeping one row for all three stops the password fields
-  // shifting up and down as the state changes.
+  // Fixed slot for the countdown, the expiry, or why the boxes are inert —
+  // one row for all three, so the password fields never shift.
   statusRow: {
     marginTop: theme.spacing.md,
     alignItems: 'center',

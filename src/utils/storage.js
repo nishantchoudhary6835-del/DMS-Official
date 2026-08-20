@@ -7,18 +7,8 @@ const STORAGE_KEYS = {
   USER: 'dms.user',
 };
 
-/**
- * expo-secure-store has no real web implementation — its web build
- * (node_modules/expo-secure-store/build/ExpoSecureStore.web.js) is a bare
- * `{}`, so every call throws on web and was being silently swallowed below,
- * meaning nothing ever actually persisted in a browser. That's what made
- * the session look logged out after every refresh even though the real
- * session cookie was often still valid. There's no OS keychain to back
- * SecureStore on the web platform anyway, so this stores the same
- * non-sensitive profile object (the login response's `user`, no token) in
- * localStorage there instead — same function signatures either way, so
- * nothing above this file needs to know which one is in use.
- */
+// expo-secure-store's web build is a bare `{}`, so nothing ever persisted in a
+// browser. No keychain backs it on web anyway, so localStorage there instead.
 const isWeb = Platform.OS === 'web';
 
 async function getItem(key) {

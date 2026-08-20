@@ -4,14 +4,8 @@ import { normalizeError } from '@utils/errors';
 import { permissionCode, PERMISSION_STATUS } from '@validation/permission';
 import * as permissionApi from '@services/permission';
 
-/**
- * Active permissions shaped for a Select — used by RolePermission and ACL
- * forms, both of which need to pick "which permission does this rule cover".
- *
- * Not cached, for the same reason useDepartmentOptions and useTeamOptions
- * aren't: permissions are created and deactivated from inside this app, and
- * a bundle-lifetime cache would hide one just created.
- */
+// Active permissions shaped for a Select, for the RolePermission and ACL
+// forms. Not cached: permissions are created from inside this app.
 export function usePermissionOptions() {
   const [permissions, setPermissions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

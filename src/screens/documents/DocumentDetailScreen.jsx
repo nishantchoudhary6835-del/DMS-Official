@@ -34,17 +34,8 @@ function Row({ label, value, fallback = 'Not set', divider = false }) {
   );
 }
 
-/**
- * Reached from the Drafts / Published / Archived lists (GET /document, not a
- * workflow) — this has no reviewer/level/reminder history to show because
- * there's no Workflow object behind it here, just the document itself plus
- * whichever lifecycle action its current status actually allows.
- *
- * Exactly one action is offered at a time, chosen by status rather than by
- * "is it archived": a draft gets Submit, a published document gets Archive,
- * an archived one gets Restore, and a document mid-review gets none, because
- * the backend would reject every one of them.
- */
+// Reached from the document lists, not a workflow, so there is no reviewer history.
+// Exactly one action is offered, chosen by status — the backend rejects the rest.
 export function DocumentDetailScreen({ navigation, route }) {
   const { document } = route.params ?? {};
   const toast = useToast();
@@ -107,15 +98,11 @@ export function DocumentDetailScreen({ navigation, route }) {
   const documentId = document._id || null;
   const isDraft = document.status === 'DRAFT';
   const isArchived = document.status === 'ARCHIVED';
-  // Archiving is retiring a live document, so it is offered on exactly the
-  // statuses that count as published — which is also document.service.js's
-  // own archive whitelist. Offering it elsewhere is a guaranteed 400.
+  // Archiving retires a live document, so it is offered on exactly the
+  // published statuses — document.service.js's own whitelist.
   const isArchivable = isPublishedStatus(document.status);
-  // Restore is not permission-driven: document.service.js rejects it outright
-  // for any hierarchyLevel other than SUPER_ADMIN, before it even looks at the
-  // document. Offering the button to anyone else guarantees a 403, so gate on
-  // the same rule the backend uses. Fails closed while isSuperAdmin is still
-  // null and the signed-in level is unknown.
+  // Restore is not permission-driven: document.service.js rejects any level
+  // but SUPER_ADMIN outright. Fails closed while isSuperAdmin is still null.
   const canRestore = isSuperAdmin === true;
   const owner = employeeRefLabel(document.owner);
   const department = document.department?.name || null;

@@ -21,9 +21,8 @@ export function EmployeeFormFields({
   managerHelper = 'Optional. Can be assigned later.',
   disabled = false,
 }) {
-  // Applied here rather than in the edit screen because it is a property of
-  // the field — a Select must always be able to display its own value — not a
-  // rule about editing.
+  // Here rather than in the edit screen because it is a property of the field
+  // — a Select must always display its own value — not a rule about editing.
   const levelOptions = useMemo(
     () => optionsWithCurrentLevel(hierarchyOptions, values.hierarchyLevel),
     [hierarchyOptions, values.hierarchyLevel]
@@ -40,8 +39,7 @@ export function EmployeeFormFields({
   );
 
   // A team is defined by its department, so there is nothing to offer until
-  // one is chosen — and saying which of the two reasons the field is empty is
-  // the difference between a dead control and an obvious next step.
+  // one is chosen — and which of the two reasons it is empty matters.
   const hasDepartment = Boolean(values.department);
   const teamPlaceholder = !hasDepartment
     ? 'Select a department first'
@@ -49,9 +47,8 @@ export function EmployeeFormFields({
       ? 'Optional'
       : 'No teams in this department';
 
-  // An empty manager list means two different things, and saying "none
-  // available" when the real reason is that everyone was filtered out would
-  // send someone hunting for a data problem that isn't there.
+  // An empty manager list means two different things; "none available" when
+  // everyone was filtered out sends someone hunting a data problem.
   const managerPlaceholder = managerOptions.length
     ? 'Optional'
     : managerHiddenCount

@@ -24,18 +24,8 @@ function Row({ label, value }) {
   );
 }
 
-/**
- * §24: metadata is dynamic — a document event carries title/documentType/
- * version, a user event carries field/from/to, an ACL event carries
- * hierarchyLevel/permission/effect/status. Nothing guarantees a shape, and
- * new event types will add new keys, so this renders whatever keys are
- * present rather than reading named fields.
- *
- * Nested objects and arrays are stringified rather than rendered recursively.
- * No documented metadata example nests, and a generic tree view would be a
- * lot of machinery for a case that may never arrive — this at least shows the
- * content honestly instead of printing "[object Object]".
- */
+// §24: metadata is dynamic and new event types add new keys, so this renders
+// whatever is present. Nested values are stringified, not rendered recursively.
 function metadataEntries(metadata) {
   if (!metadata || typeof metadata !== 'object') return [];
 

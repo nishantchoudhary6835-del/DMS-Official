@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
 
-/**
- * All role-permission assignments, status/hierarchyLevel-filtered
- * client-side (the endpoint takes no query parameters).
- */
+// All role-permission assignments, status/hierarchyLevel-filtered client-side
+// (the endpoint takes no query parameters).
 export function useRolePermissions() {
   const { rolePermissions } = useAppData();
   const [filters, setFilters] = useState({});

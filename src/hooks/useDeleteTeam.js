@@ -34,9 +34,8 @@ export function useDeleteTeam() {
             'This team cannot be deleted because employees are assigned to it.'
           );
         } else if (normalized.status === 403) {
-          // Deleting is SUPER_ADMIN only, while a TEAM_LEAD may do everything
-          // else here — so this is the expected answer for a whole class of
-          // user, not a rare edge. Worth saying why rather than "forbidden".
+          // Deleting is SUPER_ADMIN only while a TEAM_LEAD may do everything
+          // else here — the expected answer for a whole class of user.
           setError('Only a Super Admin can delete a team.');
         } else if (normalized.status === 404) {
           setError('Team not found. It may already have been deleted.');

@@ -10,16 +10,8 @@ import {
 
 import { styles } from '@theme/styles/AuditLogCard.styles';
 
-/**
- * `actorEmail` is denormalised onto the log itself, which matters: it is the
- * only actor detail that survives if the User record is later deleted. The
- * populated `actor.email` is preferred when present because it reflects the
- * account's current address, but this falls back rather than showing nothing.
- *
- * Note `actor.employeeId` is the Employee's ObjectId, not the readable
- * "EMP-001" code — audit.service.js populates the User, whose `employeeId` is
- * a reference. There is no human-readable employee code on an audit log.
- */
+// `actorEmail` is denormalised onto the log and survives the User being
+// deleted; the populated `actor.email` is preferred as the current address.
 function actorLabel(log) {
   return log?.actor?.email || log?.actorEmail || 'Unknown';
 }

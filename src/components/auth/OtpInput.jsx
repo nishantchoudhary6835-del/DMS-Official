@@ -6,12 +6,8 @@ import { OTP_LENGTH } from '@validation/auth';
 
 import { styles } from '@theme/styles/OtpInput.styles';
 
-/**
- * How long a freshly typed digit stays legible before it turns into a dot —
- * the same reveal-then-mask a phone keyboard uses for passwords. Long enough
- * to confirm you hit the key you meant, short enough that a finished code is
- * not left sitting on screen.
- */
+// How long a freshly typed digit stays legible before it becomes a dot — the
+// same reveal-then-mask a phone keyboard uses for passwords.
 const REVEAL_MS = 800;
 
 export function OtpInput({
@@ -23,9 +19,8 @@ export function OtpInput({
 }) {
   const inputRef = useRef(null);
 
-  // A non-editable input can still take focus on web, which puts a caret in a
-  // field that will not accept a keystroke. Refusing the tap outright is what
-  // "disabled" should look like.
+  // A non-editable input can still take focus on web, putting a caret in a
+  // field that accepts no keystroke. Refusing the tap is what disabled means.
   const focusInput = () => {
     if (!editable) return;
     inputRef.current?.focus();
@@ -38,10 +33,8 @@ export function OtpInput({
   const [revealedIndex, setRevealedIndex] = useState(-1);
   const previousLengthRef = useRef(value.length);
 
-  // Reveals only the digit that just arrived, and only briefly. Shortening
-  // the value (backspace, clearing on resend) reveals nothing — there is no
-  // new keystroke to confirm, and re-showing an earlier digit would undo the
-  // masking that already happened.
+  // Only the digit that just arrived, and only briefly. Shortening the value
+  // reveals nothing — re-showing an earlier digit would undo its masking.
   useEffect(() => {
     const previousLength = previousLengthRef.current;
     previousLengthRef.current = value.length;

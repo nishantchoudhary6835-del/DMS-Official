@@ -2,11 +2,8 @@ import { Platform, StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
-// react-native-web renders TextInput as a real <input>, which the browser
-// gives its own default focus ring — a second, black outline drawn on top
-// of the crimson border `inputFocused`/`fieldRowFocused` already provide.
-// `outlineStyle` is a react-native-web-only style property with no native
-// counterpart, so it's scoped to web rather than passed on every platform.
+// react-native-web renders TextInput as a real <input>, whose default focus ring
+// would draw a second outline over the crimson border. Web-only property.
 const noOutline = Platform.select({ web: { outlineStyle: 'none' }, default: {} });
 
 export const styles = StyleSheet.create({
@@ -43,10 +40,8 @@ export const styles = StyleSheet.create({
     color: theme.colors.textMuted,
   },
 
-  // --- Icon variant --------------------------------------------------------
-  // Same box the plain `input` draws, moved onto the wrapping row so an icon
-  // can sit inside the border with the input; the border itself never
-  // shows up on both at once.
+  // --- Icon variant ------------------------------------------------------
+  // The same box `input` draws, moved onto the row so an icon sits inside it.
   fieldRow: {
     height: 44,
     flexDirection: 'row',

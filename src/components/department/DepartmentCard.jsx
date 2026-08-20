@@ -10,10 +10,8 @@ import { styles } from '@theme/styles/DepartmentCard.styles';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
-/**
- * `head` arrives populated from update responses and bare (or null) from the
- * list, so a card can only name a head when it was given the object.
- */
+// `head` arrives populated from update responses and bare (or null) from the
+// list, so a card can only name a head when it was given the object.
 function headName(head) {
   if (!head || typeof head !== 'object') return null;
 

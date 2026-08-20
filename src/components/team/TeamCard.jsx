@@ -10,11 +10,8 @@ import { styles } from '@theme/styles/TeamCard.styles';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
-/**
- * Both references arrive populated from list and detail responses, but a
- * write response may return them bare — so a card can only name them when it
- * was handed the object.
- */
+// Both references arrive populated from reads but may come back bare from a
+// write, so a card can only name them when it was handed the object.
 function departmentLabel(department) {
   if (!department || typeof department !== 'object') return null;
   if (!department.name) return null;

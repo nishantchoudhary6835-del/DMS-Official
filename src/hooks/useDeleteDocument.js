@@ -22,12 +22,8 @@ export function useDeleteDocument() {
       } catch (caught) {
         const normalized = normalizeError(caught);
 
-        // Two very different 403s reach here. The permission engine refuses
-        // when the caller's hierarchy level was never granted DOCUMENT.DELETE
-        // — nothing about this document will change that. Only past that does
-        // canDeleteDocument refuse on ownership/draft grounds. Reporting the
-        // second reason for the first sends the reader to inspect the wrong
-        // thing entirely.
+        // Two different 403s reach here — the permission engine refusing
+        // DOCUMENT.DELETE, and canDeleteDocument refusing on ownership grounds.
         const denial = permissionDenialMessage(normalized, {
           action: 'delete',
           permission: 'DOCUMENT.DELETE',

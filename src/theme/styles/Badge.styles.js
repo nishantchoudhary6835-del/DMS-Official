@@ -2,11 +2,8 @@ import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
-/**
- * Bureau badges carry meaning by tint alone — no border, squared corners.
- * The uppercase tracking is what makes them read as status rather than
- * as a word someone typed.
- */
+// Bureau badges carry meaning by tint alone — no border, squared corners. The
+// uppercase tracking is what makes them read as status, not as a typed word.
 export const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',

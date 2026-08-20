@@ -60,10 +60,8 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: theme.radius.xs,
   },
 
-  // Stands in for the plot when there are fewer than two values to compare.
-  // Deliberately laid out like the DocumentStatusPanel legend — dot, label,
-  // figure — so a panel that drops to one metric still looks like it belongs
-  // beside the panels that kept their charts.
+  // Stands in for the plot below two values. Laid out like the
+  // DocumentStatusPanel legend so it still belongs beside the real charts.
   readout: {
     paddingTop: theme.spacing.sm,
     gap: theme.spacing.sm,

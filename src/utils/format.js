@@ -14,15 +14,8 @@ export function digitsOnly(value) {
   return String(value ?? '').replace(/\D/g, '');
 }
 
-/**
- * Pulls the ObjectId out of a Mongo reference that may or may not be
- * populated. The same field comes back three ways depending on the endpoint —
- * `null`, a bare id string, or a populated object — so anything sending a
- * reference back to the server has to normalise it first.
- *
- * Department.head is the clearest case: create and list return it unpopulated,
- * update returns it populated.
- */
+// Pulls the ObjectId out of a Mongo reference that may arrive null, as a bare
+// id, or populated — so anything sending one back has to normalise it first.
 export function referenceId(reference) {
   if (!reference) return null;
   if (typeof reference === 'string') return reference;
@@ -30,10 +23,8 @@ export function referenceId(reference) {
   return reference._id ?? null;
 }
 
-/**
- * Two-letter monogram for avatars. Falls back to the email's first letter
- * when an employee record has no name yet, and to '—' when it has neither.
- */
+// Two-letter monogram for avatars. Falls back to the email's first letter when
+// an employee record has no name yet, and to '—' when it has neither.
 export function initialsOf(first, last, email) {
   const a = String(first ?? '').trim().charAt(0);
   const b = String(last ?? '').trim().charAt(0);
@@ -58,11 +49,8 @@ export function formatDate(value) {
   });
 }
 
-/**
- * Date plus time. Audit logs need the clock as well as the day — several
- * entries per second are normal during a burst of activity, and a date-only
- * column makes their order look arbitrary.
- */
+// Date plus time: audit logs need the clock as well as the day, since several
+// entries per second are normal and a date-only column hides their order.
 export function formatDateTime(value) {
   if (!value) return null;
 

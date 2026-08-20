@@ -7,13 +7,8 @@ import * as documentApi from '@services/document';
 const NOT_SUPPORTED_MESSAGE =
   "Viewing documents in-app isn't available on this platform yet.";
 
-/**
- * Web-only: `URL.createObjectURL`/`window.open` are DOM APIs with no React
- * Native equivalent, and viewing PDFs on native would need a bundled PDF
- * renderer or file-system + sharing plumbing this app doesn't have — no
- * package for either is installed, so native gets an honest "not supported"
- * message instead of a half-built attempt.
- */
+// Web-only: createObjectURL/window.open are DOM APIs, and native would need a
+// bundled PDF renderer this app has not installed. Native gets a clear refusal.
 export function useViewDocument() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);

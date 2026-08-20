@@ -2,9 +2,8 @@ import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
-// TopBar.styles.js: minHeight 56 + paddingVertical sm on each side is the
-// bar's own footprint; this anchors just below it rather than measuring the
-// trigger, since the trigger is always in that same top-right spot.
+// TopBar's own footprint (minHeight 56 + paddingVertical both sides). Anchored
+// below it rather than measured, since the trigger is always top-right.
 const TOP_OFFSET = 56 + theme.spacing.sm * 2 + theme.spacing.xs;
 
 export const styles = StyleSheet.create({

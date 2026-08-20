@@ -3,13 +3,8 @@ import { useCallback, useState } from 'react';
 import { normalizeError } from '@utils/errors';
 import * as permissionApi from '@services/permission';
 
-/**
- * Unlike department/team, PERMISSION_MODULE.md documents no delete-blocking
- * behavior (e.g. "still referenced by a RolePermission"), so — unlike
- * useDeleteDepartment / useDeleteTeam — this does not guess at one. If the
- * live backend turns out to refuse deletes for a reason, it will surface as
- * `normalized.message` below rather than a dedicated `isBlocked` state.
- */
+// PERMISSION_MODULE.md documents no delete-blocking behaviour, so unlike
+// useDeleteDepartment/useDeleteTeam this does not guess at one.
 export function useDeletePermission() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState(null);

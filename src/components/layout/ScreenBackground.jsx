@@ -4,11 +4,8 @@ import { StyleSheet } from 'react-native';
 
 import { theme } from '@theme';
 
-/**
- * The app's canvas: the brand gradient dimmed to a wash, painted once at
- * the root behind every screen. Screens are transparent and slide over it,
- * so it stays put during navigation.
- */
+// The app's canvas: the brand gradient dimmed to a wash, painted once at the
+// root. Screens are transparent and slide over it, so it stays put.
 export const ScreenBackground = memo(function ScreenBackground() {
   return (
     <LinearGradient

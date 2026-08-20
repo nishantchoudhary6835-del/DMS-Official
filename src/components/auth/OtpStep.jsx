@@ -9,13 +9,8 @@ import { styles } from '@theme/styles/OtpStep.styles';
 
 import { OtpInput } from './OtpInput';
 
-/**
- * Registration only. Submitting here fires a real verification request
- * (POST /auth/verify-email-otp), so auto-firing on the sixth digit reads as
- * the step doing something and answering. Password reset uses
- * ResetPasswordForm instead — see its header for why it cannot have a
- * standalone OTP step at all.
- */
+// Registration only: submitting here fires a real POST /auth/verify-email-otp.
+// Password reset uses ResetPasswordForm — see its header for why.
 export function OtpStep({
   email,
   onSubmit,

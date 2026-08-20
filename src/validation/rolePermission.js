@@ -12,15 +12,8 @@ export function validatePermissionRef(value) {
   return undefined;
 }
 
-/**
- * Hierarchy validity is delegated to @validation/employee rather than
- * duplicated here — ROLE_PERMISSION_MODULE.md's hierarchy list matches
- * FALLBACK_HIERARCHY_LEVELS exactly, and this app already sources the live
- * list from GET /hierarchy (useHierarchy) instead of keeping a second copy.
- * (ACCESS_CONTROL.md gives a differing list — DEPARTMENT_HEAD instead of
- * DEPARTMENT, no TEAM — which conflicts with ROLE_PERMISSION_MODULE.md's own
- * list; the live, tested endpoint wins over either doc.)
- */
+// Hierarchy validity is delegated to @validation/employee rather than copied —
+// the live GET /hierarchy list wins over either doc's differing enumeration.
 export function validateRolePermissionForm(values, allowedLevels) {
   const errors = {
     hierarchyLevel: validateHierarchyLevel(values.hierarchyLevel, allowedLevels),
@@ -32,24 +25,16 @@ export function validateRolePermissionForm(values, allowedLevels) {
   return { errors, hasError };
 }
 
-/**
- * Only shown when the backend handed back a populated object — the same
- * caveat as Team's departmentLabel/leadName: create/list may return the
- * reference bare, so a card can only name it when given the object.
- */
+// Only shown when the backend handed back a populated object — create/list
+// may return the reference bare.
 export function permissionRefLabel(permissionRef) {
   if (!permissionRef || typeof permissionRef !== 'object') return null;
 
   return permissionSentence(permissionRef) || null;
 }
 
-/**
- * Routes a backend error to the field most likely responsible.
- *
- * ROLE_PERMISSION_MODULE.md §5 documents one duplicate rule: the same
- * permission cannot be assigned twice to the same hierarchy. Pinned to
- * `permission` since hierarchyLevel is a closed dropdown with nothing to fix.
- */
+// §5 documents one duplicate rule: the same permission twice on one hierarchy.
+// Pinned to `permission`; hierarchyLevel is a dropdown with nothing to fix.
 export function mapRolePermissionError(normalized) {
   const message = String(normalized.message ?? '');
   const lower = message.toLowerCase();

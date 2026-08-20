@@ -4,19 +4,8 @@ import { useAuth } from '@context/AuthContext';
 import { useAppData } from '@context/AppDataContext';
 import { referenceId } from '@utils/format';
 
-/**
- * All documents GET /document says this account can access — see its header
- * comment in @services/document.
- *
- * That response *is* scoped server-side, contrary to an earlier note here
- * that said it wasn't: `buildDocumentScope` in the backend's
- * document.service.js returns everything for SUPER_ADMIN, and
- * `owner OR own department OR own team` for everyone else. So the reason a
- * regular account saw other people's documents wasn't a missing filter — it
- * was a deliberately wider one than this app wants. The rule here is "my own
- * documents, unless I'm Super Admin", which is narrower than anything the
- * endpoint offers, so it stays a client-side filter.
- */
+// GET /document is already scoped server-side (owner OR own department OR own
+// team, everything for SUPER_ADMIN). This narrows it further to "mine only".
 export function useDocuments() {
   const { documents } = useAppData();
   const { user, isSuperAdmin } = useAuth();
@@ -28,10 +17,8 @@ export function useDocuments() {
   const ownEmployeeId = referenceId(user?.employeeId);
 
   const scoped = useMemo(() => {
-    // isSuperAdmin is null until AuthContext has resolved the signed-in
-    // employee's hierarchyLevel — fails closed to "own documents only" until
-    // it reads true, rather than briefly showing everyone's documents to
-    // every account.
+    // isSuperAdmin is null until AuthContext resolves the level — fail closed
+    // to own-documents rather than briefly showing everyone's to everyone.
     if (isSuperAdmin === true) return documents.data;
 
     return documents.data.filter(

@@ -31,9 +31,8 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
   },
 
-  // Same tint-plus-spine language as ErrorBanner and Badge, just louder —
-  // a filled colour reads at a glance from the bottom edge, where a plain
-  // card would get lost against the canvas.
+  // Same tint-plus-spine language as ErrorBanner and Badge, just louder — a
+  // filled colour reads at a glance from the bottom edge.
   success: {
     backgroundColor: theme.colors.successLight,
     borderLeftColor: theme.colors.success,

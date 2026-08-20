@@ -1,15 +1,5 @@
-/**
- * Bureau palette.
- *
- * Crimson is structural, not decorative — it appears as spines, underlines
- * and focus rings, and as a fill only on the primary button. Semantic
- * colour (success / warning / danger) is kept separate from the brand
- * accent so status never competes with navigation.
- *
- * Amber is deepened from the logo's #E8A020 to #B87A0C for anything
- * bearing text; #E8A020 itself only survives on dark or gradient grounds,
- * where it lives as accentBright.
- */
+// Bureau palette. Crimson is structural — spines, underlines, focus rings — and
+// semantic colour stays separate so status never competes with navigation.
 export const colors = {
   primary: '#A81E24',
   primaryDark: '#8A181D',
@@ -61,20 +51,15 @@ export const colors = {
   },
 
   gradient: {
-    /**
-     * Signal treatment — Login and Dashboard headers only. Full strength;
-     * every other surface stays flat.
-     */
+    // Signal treatment — Login and Dashboard headers only. Full strength;
+    // every other surface stays flat.
     brand: ['#A81E24', '#C4571F', '#E8A020'],
     onGradient: '#FFFFFF',
     onGradientMuted: 'rgba(255, 255, 255, 0.78)',
     hairline: 'rgba(255, 255, 255, 0.22)',
 
-    /**
-     * The same gradient at roughly a tenth of its saturation, painted once
-     * at the app root behind every screen. Body text (#1A1A18) clears 15:1
-     * against every stop, so nothing on top of it loses legibility.
-     */
+    // The same gradient at a tenth of its saturation, painted once at the app
+    // root. Body text clears 15:1 against every stop.
     wash: ['#F9EAE7', '#FBF1E6', '#FDF8EA'],
   },
 };

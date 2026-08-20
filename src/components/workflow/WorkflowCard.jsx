@@ -16,12 +16,8 @@ import { styles } from '@theme/styles/WorkflowCard.styles';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
-/**
- * Shared between Pending Approvals and My Submissions — the two endpoints
- * populate different sides of the same record (pending gives the submitter,
- * my-submissions gives the reviewer), so the secondary line renders whichever
- * one actually arrived rather than assuming a fixed shape.
- */
+// Shared by Pending Approvals and My Submissions, which populate opposite
+// sides of the record — so the secondary line renders whichever arrived.
 export function WorkflowCard({ workflow, onPress }) {
   const title = documentRefLabel(workflow.document) ?? 'Untitled document';
   const level = workflowLevelLabel(workflow.currentLevel);

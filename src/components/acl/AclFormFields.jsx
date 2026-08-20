@@ -22,8 +22,7 @@ export function AclFormFields({
   disabled = false,
 }) {
   // A team belongs to one department, so there is nothing to scope to until
-  // one is chosen — matching EmployeeFormFields' identical rule for the same
-  // reason.
+  // one is chosen — EmployeeFormFields has the identical rule.
   const hasDepartment = Boolean(values.department);
   const teamPlaceholder = !hasDepartment
     ? 'Select a department first'

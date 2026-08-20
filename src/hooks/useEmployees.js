@@ -3,12 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppData } from '@context/AppDataContext';
 import { referenceId } from '@utils/format';
 
-/**
- * All employees, filtered client-side. Previously sent hierarchyLevel/
- * department/team/status to the server as query params — now the full list
- * is shared via AppDataContext, so filtering happens here instead, the same
- * way useDepartments already worked.
- */
+// All employees, filtered client-side. The full list is shared via
+// AppDataContext rather than sent back as query params per filter change.
 export function useEmployees() {
   const { employees } = useAppData();
   const [filters, setFilters] = useState({});
@@ -48,9 +44,8 @@ export function useEmployees() {
         [key]: prev[key] === value ? undefined : value,
       };
 
-      // Teams are listed per department, so changing or clearing the
-      // department leaves a team filter with no chip to switch it off — it
-      // would keep filtering invisibly. Drop it with its parent.
+      // Teams are listed per department, so a team filter left behind by a
+      // department change would keep filtering invisibly. Drop it with its parent.
       if (key === 'department' && next.department !== prev.department) {
         next.team = undefined;
       }

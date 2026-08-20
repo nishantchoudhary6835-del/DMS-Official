@@ -14,12 +14,8 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-/**
- * A single-file picker matching TextField/Select's visual language — this
- * app had no file input anywhere before Document Management needed one.
- * `value` is the asset expo-document-picker returned (or null); `onChange`
- * receives the same shape back, or null when cleared.
- */
+// A single-file picker matching TextField/Select's language. `value` is the
+// asset expo-document-picker returned (or null); `onChange` gets the same back.
 export function FilePicker({ label, value, onChange, error, helper, disabled = false }) {
   const hasError = Boolean(error);
   const message = error || helper || '';

@@ -13,50 +13,11 @@ import * as workflowApi from '@services/workflow';
 
 const AppDataContext = createContext(null);
 
-/**
- * One shared place to hold each entity's full list, instead of every screen
- * that needs one firing its own independent GET. The per-entity hooks
- * (useDepartments, useEmployees, useTeams, useUsers, usePermissions,
- * useRolePermissions, useAcls, usePendingWorkflows, useMySubmissions) read
- * from here and layer their own local filtering/derivation on top exactly as
- * before — this only changes where the raw list comes from, not any
- * screen's filtering behaviour.
- *
- * Fetched lazily, once, on whichever screen asks for a resource first
- * (`ensure`), then shared — a later screen asking for the same resource
- * gets the cached result instantly instead of re-fetching. `refresh` forces
- * a real reload; every list screen still calls this on focus (via
- * useFocusEffect, unchanged), so the freshness behaviour a user sees is the
- * same as before — the only thing that's gone is two screens/hooks wanting
- * the same list firing two separate requests for it.
- *
- * Deliberately NOT included: detail-by-id fetches and parameter-scoped
- * dropdown queries (team options scoped to one department, manager options
- * excluding one employee, etc.). Forcing those through a single shared list
- * would mean re-deriving each one's exact filtering rule by hand with every
- * edge case re-verified — safer to leave those as their own direct,
- * already-deduped requests (see dedupedGet in axiosInstance.js) than risk a
- * subtly wrong derived result.
- *
- * Employees and Teams are the one real behaviour change: their list hooks
- * used to send filters to the server (GET /employee?status=..., GET
- * /team?department=...) so each filter combination was its own request.
- * Now the full unfiltered list is fetched once and filtered client-side,
- * matching how useDepartments/usePermissions/useRolePermissions/useAcls
- * already worked (their endpoints take no query params at all). Safe at
- * this app's current data volumes, and it makes changing a filter chip
- * instant instead of a network round trip.
- */
+// One shared copy of each entity's full list, fetched lazily on first `ensure()`
+// and reused, so two screens wanting the same list make one request, not two.
 function useListResource(fetcher, forbiddenMessage) {
-  // isLoading starts true, not false: every consumer calls ensure() from a
-  // useEffect, which only fires after the first render commits. Starting
-  // false left a one-render gap — right after AppDataProvider remounts on
-  // account switch (see ScopedAppData in AppProviders.jsx) — where
-  // isLoading/isForbidden both read as false before ensure() has even run,
-  // which looks identical to "confirmed, nothing to hide" to any consumer
-  // gating on `!isLoading && !isForbidden`. That flashed the full,
-  // unrestricted card layout for one frame on every account switch,
-  // regardless of the new account's real access.
+  // isLoading starts true: ensure() only runs after the first commit, and a
+  // frame of isLoading=false flashed the unrestricted layout on account switch.
   const [state, setState] = useState({
     data: [],
     isLoading: true,
@@ -134,21 +95,8 @@ function useListResource(fetcher, forbiddenMessage) {
 
   const refresh = useCallback(() => load({ refresh: true }), [load]);
 
-  /**
-   * Marks the cache stale so the next `ensure()` genuinely refetches.
-   *
-   * Needed because `ensure()` is a no-op once loaded and the list screens
-   * skip their first focus-refresh (that focus fires on mount, where
-   * `ensure()` is already responsible for loading). Both behaviours are
-   * right on their own, but together they mean a resource mutated from a
-   * screen the list is *not* mounted beneath — creating a document from the
-   * sidebar, say — leaves the list showing pre-mutation data the next time
-   * it opens, with no request made at all.
-   *
-   * Deliberately lazy rather than calling `refresh()`: a caller that mutates
-   * data may never visit the list, and this way nothing is fetched until
-   * something actually needs it.
-   */
+  // Marks the cache stale so the next `ensure()` really refetches — a mutation
+  // made from a screen the list is not mounted under would otherwise be missed.
   const invalidate = useCallback(() => {
     hasLoadedRef.current = false;
     setState((prev) => ({ ...prev, hasLoaded: false }));

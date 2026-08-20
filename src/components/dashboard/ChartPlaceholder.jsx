@@ -6,26 +6,12 @@ import { styles } from '@theme/styles/ChartPlaceholder.styles';
 
 const PLOT_HEIGHT = 140;
 
-/**
- * A chart earns its space by letting you compare things. With one value there
- * is nothing to compare: a lone bar is always full height, and a proportion
- * bar with one segment is always a solid block — both encode exactly zero
- * information beyond the number printed beside them, while taking a chart's
- * worth of room and implying a comparison that isn't there.
- *
- * So both components below fall back to reading the figures out plainly
- * whenever fewer than two of them are actually plottable. The data never
- * disappears; only the graphic does.
- */
+// A lone bar is always full height and a one-segment proportion bar is always
+// a solid block, so below two values both fall back to reading the figures out.
 const MIN_PLOTTABLE = 2;
 
-/**
- * A proportional stacked bar rather than a literal ring — React Native has
- * no built-in way to draw a circular arc without an SVG dependency this
- * project doesn't have. Segment widths are still proportional to real
- * `count` values, so the color is accurate, just laid out straight instead
- * of curved.
- */
+// A proportional stacked bar, not a literal ring: drawing an arc would need an
+// SVG dependency this project does not have. Widths stay true to `count`.
 export function DonutPlaceholder({ total, segments = [], caption = 'Total' }) {
   // Zero-count segments contribute no width, so they are not what decides
   // whether the bar is worth drawing — the non-zero ones are.

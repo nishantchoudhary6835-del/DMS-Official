@@ -28,9 +28,8 @@ export function useDeleteDepartment() {
       } catch (caught) {
         const normalized = normalizeError(caught);
 
-        // Not a failure so much as a refusal: employees still point at this
-        // department. The caller has to keep the row on screen either way, but
-        // this one deserves an explanation rather than a generic error.
+        // A refusal, not a failure: employees still point at this department,
+        // and that deserves an explanation rather than a generic error.
         if (isDeleteBlocked(normalized)) {
           setIsBlocked(true);
           setError(

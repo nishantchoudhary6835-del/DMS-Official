@@ -10,13 +10,8 @@ import { NAV_SECTIONS } from './navigation';
 
 import { styles } from '@theme/styles/Sidebar.styles';
 
-/**
- * `requiresAccess` is missing entirely for anything with no restriction —
- * that reads as "everyone" rather than as a third access level to track.
- * Unresolved (null) fails closed: an item stays hidden until its tier is
- * confirmed, not the reverse, since the alternative is briefly showing
- * Administration to someone who turns out not to have it.
- */
+// No `requiresAccess` reads as "everyone" rather than a third tier to track.
+// Unresolved (null) fails closed, since the alternative flashes Administration.
 function isVisible(
   requiresAccess,
   { isSuperAdmin, isAdminOrAbove, isTeamLeadOrAbove }
@@ -27,11 +22,8 @@ function isVisible(
   return true;
 }
 
-/**
- * Entries without a `route` are structural placeholders — they hover and read
- * as live so the rail can be reviewed at full length, but pressing one does
- * nothing because the screen behind it does not exist yet.
- */
+// Entries without a `route` are structural placeholders — they hover and read
+// as live, but pressing one does nothing because the screen does not exist.
 function NavItem({ item, isActive, isCollapsed, onPress }) {
   return (
     <Pressable

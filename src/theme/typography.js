@@ -1,11 +1,7 @@
 import { fonts } from './fonts';
 
-/**
- * Bureau type scale.
- *
- * fontFamily carries the weight (see fonts.js) — do not add fontWeight to
- * these, it is ignored on native and double-bolds on web.
- */
+// Bureau type scale. fontFamily carries the weight (see fonts.js) — do not add
+// fontWeight, it is ignored on native and double-bolds on web.
 export const typography = {
   // Instrument Serif. Dashboard figures and the Login hero. Nothing else.
   display: {

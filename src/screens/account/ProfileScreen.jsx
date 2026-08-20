@@ -32,20 +32,8 @@ function personLabel(reference) {
     : name;
 }
 
-/**
- * Everything here comes from the sign-in response, which populates
- * `user.employeeId` with the employee record and, since a recent backend
- * change, its `department` and `team` as full objects with their head and
- * team lead attached. No request is made — and none could be, for most
- * accounts: GET /department and GET /team are permission-gated and answer 403
- * to anyone below Executive, so the login payload is the only place a regular
- * employee can learn their own department's name.
- *
- * The flip side is that it is a snapshot, cached in storage for the session.
- * A transfer made by an administrator will not show here until the next sign
- * in, which the footnote says outright rather than letting a stale team read
- * as current.
- */
+// All from the sign-in response — no request is made, and for most accounts none
+// could be: /department and /team 403 below Executive. A session snapshot.
 export function ProfileScreen({ navigation }) {
   const { user } = useAuth();
 
@@ -66,9 +54,8 @@ export function ProfileScreen({ navigation }) {
     </View>
   );
 
-  // A session restored from storage that predates the populated login
-  // response has a bare ObjectId here and nothing to show. It self-heals on
-  // the next sign-in, so say that rather than rendering a page of blanks.
+  // A stored session predating the populated login response has a bare
+  // ObjectId here. It self-heals on the next sign-in, so say so.
   if (!employee) {
     return (
       <Screen padded={false} style={styles.page}>

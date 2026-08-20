@@ -1,11 +1,8 @@
 import { axiosInstance, dedupedGet } from '@services/axiosInstance';
 import { referenceId } from '@utils/format';
 
-/**
- * Fields the backend owns. They come back on every response, and echoing any
- * of them on a write is documented as wrong — so they are stripped rather
- * than trusted not to be there.
- */
+// Fields the backend owns. They come back on every response and echoing any of
+// them on a write is documented as wrong, so they are stripped, not trusted.
 const SERVER_OWNED = ['createdBy', 'createdAt', 'updatedAt', '__v', '_id'];
 
 function normalizeCode(code) {

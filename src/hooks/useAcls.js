@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
 
-/**
- * All ACL rules, status/effect-filtered client-side (the endpoint takes no
- * query parameters).
- */
+// All ACL rules, status/effect-filtered client-side (the endpoint takes no
+// query parameters).
 export function useAcls() {
   const { acls } = useAppData();
   const [filters, setFilters] = useState({});

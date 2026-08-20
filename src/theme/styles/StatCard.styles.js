@@ -3,9 +3,8 @@ import { StyleSheet } from 'react-native';
 import { theme } from '@theme';
 
 export const styles = StyleSheet.create({
-  // The reference tints the whole card; Bureau states the same thing with a
-  // spine and keeps the surface white, so four of these in a row do not turn
-  // the top of the screen into a paint chart.
+  // The reference tints the whole card; Bureau states it with a spine and keeps
+  // the surface white, so four in a row do not read as a paint chart.
   card: {
     flex: 1,
     backgroundColor: theme.colors.card,

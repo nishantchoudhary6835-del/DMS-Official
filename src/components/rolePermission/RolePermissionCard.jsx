@@ -15,10 +15,8 @@ const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 export function RolePermissionCard({ rolePermission, onPress }) {
   const isActive = rolePermission.status === ROLE_PERMISSION_STATUS.ACTIVE;
 
-  // `permission` arrives populated from list/detail responses but may come
-  // back bare from a write — same caveat as Team's department/teamLead. When
-  // populated, the concrete effect phrase reads far more clearly than the
-  // permission's bare name ("Create Team"), so it's preferred when available.
+  // `permission` arrives populated from reads but may come back bare from a
+  // write. Populated, the effect phrase reads better than the bare name.
   const permissionName = permissionRefLabel(rolePermission.permission);
   const effectPhrase = permissionEffectPhrase(rolePermission.permission);
 

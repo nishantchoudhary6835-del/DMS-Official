@@ -4,10 +4,8 @@ import { normalizeError } from '@utils/errors';
 import { mapDepartmentError } from '@validation/department';
 import * as departmentApi from '@services/department';
 
-/**
- * Also the path for assigning and removing the Department Head — the backend
- * has no dedicated endpoint for it, so both are a PATCH carrying `head`.
- */
+// Also the path for assigning and removing the Department Head — there is no
+// dedicated endpoint, so both are a PATCH carrying `head`.
 export function useUpdateDepartment() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);

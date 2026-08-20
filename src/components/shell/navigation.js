@@ -1,13 +1,7 @@
 import { ROUTES } from '@navigation/routes';
 
-/**
- * The navigation tree.
- *
- * Only the handful of entries carrying a `route` lead anywhere — those are
- * the screens that actually exist. The rest are structural placeholders and
- * render inert, so the shell can be reviewed at full size without implying
- * destinations that have not been built.
- */
+// The navigation tree. Only entries carrying a `route` lead anywhere; the rest
+// are structural placeholders and render inert.
 export const NAV_SECTIONS = [
   {
     key: 'root',
@@ -49,21 +43,16 @@ export const NAV_SECTIONS = [
         icon: 'hourglass-outline',
         route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
         params: { focus: 'review' },
-        // Distinct from "Submitted Documents" below, which is the workflow
-        // view: owner-scoped to what *you* submitted, with reviewer and level
-        // detail and the Resubmit action. This one is the document view —
-        // everything in your access scope that is mid-approval, including
-        // other people's for an account that can see them.
+        // The document view: everything mid-approval in your access scope.
+        // "Submitted Documents" is the workflow view, scoped to what you sent.
       },
       {
         key: 'pending-approvals',
         label: 'Pending Approvals',
         icon: 'time-outline',
         route: ROUTES.MAIN.PENDING_APPROVALS,
-        // Reviewing is supervisory. submitDocument routes an Employee's or
-        // Intern's work up to TEAM_LEAD, so Team Lead is the first level a
-        // workflow is ever assigned to — nobody below it can have a pending
-        // approval, and the list would always be empty for them.
+        // Reviewing is supervisory — submitDocument routes work up to TEAM_LEAD,
+        // so for anyone below it this list is guaranteed empty.
         requiresAccess: 'TEAM_LEAD_OR_ABOVE',
       },
       {
@@ -77,9 +66,8 @@ export const NAV_SECTIONS = [
         label: 'Archived Documents',
         icon: 'archive-outline',
         route: ROUTES.MAIN.PUBLISHED_DOCUMENTS,
-        // One screen serves all three document buckets — Drafts, Published
-        // and Archived — selected by route.params.focus. See
-        // PublishedDocumentsScreen's MODE_COPY.
+        // One screen serves Drafts, Published and Archived, selected by
+        // route.params.focus. See PublishedDocumentsScreen's MODE_COPY.
         params: { focus: 'archived' },
       },
     ],
@@ -143,9 +131,8 @@ export const NAV_SECTIONS = [
         label: 'Audit Log',
         icon: 'receipt-outline',
         route: ROUTES.MAIN.AUDIT_LOGS,
-        // GET /audit is gated by authorize("SUPER_ADMIN") on the backend — a
-        // fixed hierarchy check, not the configurable accessControl engine —
-        // so no permission grant can open this to a lower level.
+        // GET /audit is gated by a fixed authorize("SUPER_ADMIN"), not the
+        // configurable engine, so no grant can open it to a lower level.
         requiresAccess: 'SUPER_ADMIN',
       },
     ],

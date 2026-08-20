@@ -1,10 +1,7 @@
 import { labelFor } from '@validation/employee';
 
-/**
- * WORKFLOW_MODULE.md §31 marks the full lifecycle as implemented now, so
- * this covers every workflow.status value §3/§24 name (COMPLETED is the
- * terminal published state, not a level).
- */
+// §31 marks the full lifecycle implemented, so this covers every
+// workflow.status §3/§24 name (COMPLETED is terminal, not a level).
 export const WORKFLOW_STATUS = {
   PENDING_REVIEW: 'PENDING_REVIEW',
   REVISION: 'REVISION',
@@ -40,31 +37,22 @@ function titleCase(value) {
     .join(' ');
 }
 
-/** Never returns an empty string for a real status — falls through to a
- * title-cased render of whatever the server sends, the same rule
- * @validation/employee's labelFor follows for hierarchy levels. */
+// Never empty for a real status — falls through to a title-cased render, the
+// same rule @validation/employee's labelFor follows.
 export function workflowStatusLabel(status) {
   if (!status) return '';
 
   return STATUS_LABELS[status] ?? titleCase(status);
 }
 
-/**
- * currentLevel is drawn from the same hierarchy enum Employee.hierarchyLevel
- * uses (WORKFLOW_MODULE.md §5's example shows TEAM_LEAD explicitly), so this
- * delegates to the existing hierarchy label table instead of keeping a
- * second one — same reasoning validateRolePermissionForm already documents.
- */
+// currentLevel draws on the same hierarchy enum as Employee.hierarchyLevel,
+// so this delegates to that label table instead of keeping a second one.
 export function workflowLevelLabel(level) {
   return labelFor(level);
 }
 
-/**
- * Only shown when the backend handed back a populated object — the same
- * caveat ACL/RolePermission's *RefLabel helpers document. WORKFLOW_MODULE.md
- * doesn't pin down whether `document` always arrives populated on every
- * endpoint, so a card can only name it when given the object.
- */
+// Only shown when the backend handed back a populated object — the docs don't
+// pin down whether `document` arrives populated on every endpoint.
 export function documentRefLabel(documentRef) {
   if (!documentRef || typeof documentRef !== 'object') return null;
 
@@ -86,12 +74,8 @@ export function mapWorkflowError(normalized) {
   return { fieldErrors: {}, formError: normalized.message };
 }
 
-/**
- * The backend rejects RETURN/REJECT with a 400 if reviewComment is empty
- * (workflow.service.js's reviewWorkflow) — checked client-side first so the
- * request never round-trips just to fail validation. APPROVE ignores the
- * comment entirely, so nothing to validate there.
- */
+// The backend 400s on RETURN/REJECT with an empty reviewComment; checked here
+// so the request never round-trips just to fail validation. APPROVE ignores it.
 export function validateReviewComment(action, reviewComment) {
   if (action !== 'RETURN' && action !== 'REJECT') return undefined;
 

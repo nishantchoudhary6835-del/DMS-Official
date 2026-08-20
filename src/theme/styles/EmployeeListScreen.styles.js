@@ -110,9 +110,8 @@ export const styles = StyleSheet.create({
   filterGroups: {
     paddingBottom: theme.spacing.xs,
   },
-  // Protected today by the wrapper View around these rows, which cannot grow.
-  // Declared anyway so the three list screens agree and a future refactor that
-  // drops the wrapper does not silently reintroduce the stretched-chip bug.
+  // Protected today by the non-growing wrapper View, but declared so the three
+  // list screens agree and a refactor cannot silently bring the bug back.
   filterScroll: {
     flexGrow: 0,
     flexShrink: 0,

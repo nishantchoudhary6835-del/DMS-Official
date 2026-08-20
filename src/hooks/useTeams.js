@@ -3,12 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppData } from '@context/AppDataContext';
 import { referenceId } from '@utils/format';
 
-/**
- * All teams, filtered client-side. Previously sent department/teamLead/
- * status to the server as query params — now the full list is shared via
- * AppDataContext, so filtering happens here instead, the same way
- * useDepartments already worked.
- */
+// All teams, filtered client-side. The full list is shared via AppDataContext
+// rather than sent back as query params per filter change.
 export function useTeams() {
   const { teams } = useAppData();
   const [filters, setFilters] = useState({});

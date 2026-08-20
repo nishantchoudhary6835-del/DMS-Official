@@ -9,14 +9,8 @@ import { TopBar } from './TopBar';
 
 import { styles } from '@theme/styles/AppShell.styles';
 
-/**
- * The console chrome: a permanent rail on anything laptop-sized, and a
- * dismissible drawer below 900px where a 260px fixture would leave too little
- * for the content beside it.
- *
- * The content column is left transparent on purpose, so the painted canvas
- * from the app root still shows through between the cards.
- */
+// The console chrome: a permanent rail on laptop widths, a dismissible drawer
+// below 900px. The content column stays transparent so the canvas shows through.
 export function AppShell({
   activeKey,
   onNavigate,

@@ -43,9 +43,8 @@ export function CreateAclScreen({ navigation }) {
 
   const setField = (key, value) => {
     setValues((prev) => {
-      // A team belongs to exactly one department, so a team chosen under the
-      // old one cannot survive the change — same rule CreateEmployeeScreen
-      // enforces for the same reason.
+      // A team belongs to exactly one department, so one chosen under the old
+      // department cannot survive the change.
       if (key === 'department' && prev.department !== value) {
         return { ...prev, department: value, team: null };
       }

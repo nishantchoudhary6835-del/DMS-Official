@@ -50,11 +50,8 @@ export async function forgotPassword(email) {
   return data;
 }
 
-/**
- * Unlike registration's send-otp/verify-otp split, this single call both
- * verifies the OTP and sets the new password — AUTH_PASSWORD.md's
- * verify-forgot-password-otp endpoint takes otp and newPassword together.
- */
+// Unlike registration's send/verify split, this single call both verifies the
+// OTP and sets the new password — the endpoint takes them together.
 export async function verifyForgotPasswordOtp(email, otp, newPassword) {
   const { data } = await axiosInstance.post('/auth/verify-forgot-password-otp', {
     email: normalizeEmail(email),

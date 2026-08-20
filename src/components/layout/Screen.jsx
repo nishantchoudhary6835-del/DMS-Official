@@ -17,11 +17,8 @@ export function Screen({
   dismissKeyboardOnTap = true,
   style,
   padded = true,
-  /**
-   * 'painted' (default) — transparent, so the app-root canvas shows through.
-   * 'plain'             — an opaque surface, for anything that must sit on
-   *                       a flat ground.
-   */
+  // 'painted' (default) — transparent, so the app-root canvas shows through.
+  // 'plain' — an opaque surface, for anything that must sit on a flat ground.
   background = 'painted',
 }) {
   const contentStyle = useMemo(

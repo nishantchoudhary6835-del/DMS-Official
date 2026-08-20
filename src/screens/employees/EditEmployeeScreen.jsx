@@ -81,12 +81,8 @@ export function EditEmployeeScreen({ navigation, route }) {
 
   const teams = useTeamOptions(values?.department);
 
-  /**
-   * The employee's own team may be inactive, or belong to a department other
-   * than the one now selected — either way it is absent from the fetched list.
-   * Including the populated reference lets the option recover its real name
-   * rather than falling back to a generic label.
-   */
+  // The employee's own team may be inactive or in another department, so it is
+  // absent from the fetched list. The populated reference recovers its name.
   const allTeams = useMemo(() => {
     const own = employee?.team;
     const extra = own && typeof own === 'object' ? [own] : [];
@@ -109,10 +105,8 @@ export function EditEmployeeScreen({ navigation, route }) {
 
   const setField = (key, value) => {
     setValues((prev) => {
-      // Promoting someone can leave their existing manager too junior to still
-      // be a candidate. Clearing it makes that visible and forces a choice,
-      // rather than leaving a pairing on the record that the form would no
-      // longer let you create.
+      // Promoting someone can leave their manager too junior to still be a
+      // candidate. Clearing it forces a choice rather than hiding the mismatch.
       if (key === 'hierarchyLevel' && prev.hierarchyLevel !== value) {
         return { ...prev, hierarchyLevel: value, reportingManager: null };
       }

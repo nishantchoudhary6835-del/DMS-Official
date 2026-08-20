@@ -1,21 +1,12 @@
 import { axiosInstance } from '@services/axiosInstance';
 import { referenceId } from '@utils/format';
 
-/**
- * ROLE_PERMISSION_MODULE.md §6 documents this route as camelCase
- * `/rolePermission`, matching /permission and /department's convention. The
- * deployed backend disagrees: probed directly, `/rolePermission` 404s while
- * `/role-permission` (kebab-case) answers 401 "No auth token" — the live,
- * auth-gated shape every other module route has. Using the confirmed path,
- * not the documented one.
- */
+// §6 documents this as camelCase `/rolePermission`, but that 404s live while
+// kebab-case `/role-permission` answers 401. Using the confirmed path.
 const BASE_PATH = '/role-permission';
 
-/**
- * Fields the backend owns, including `assignedBy` — set server-side from the
- * authenticated user per ROLE_PERMISSION_MODULE.md §3, never sent by the
- * client.
- */
+// Fields the backend owns, including `assignedBy` — set server-side from the
+// authenticated user per §3, never sent by the client.
 const SERVER_OWNED = ['assignedBy', 'createdAt', 'updatedAt', '__v', '_id'];
 
 export async function createRolePermission({ hierarchyLevel, permission }) {
@@ -26,10 +17,8 @@ export async function createRolePermission({ hierarchyLevel, permission }) {
   return data;
 }
 
-/**
- * No query parameters are documented, so — like /department and /permission
- * — filtering happens client-side against the full list.
- */
+// No query parameters are documented, so — like /department and /permission —
+// filtering happens client-side against the full list.
 export async function listRolePermissions() {
   const { data } = await axiosInstance.get(BASE_PATH);
   return data;

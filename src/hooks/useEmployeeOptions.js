@@ -3,19 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { managerCandidates } from '@validation/employee';
 import * as employeeApi from '@services/employee';
 
-/**
- * Active employees, shaped for a Select. Three callers, three needs.
- *
- * `hierarchyLevel` + `ranks` makes it a reporting-manager picker, filtered and
- * ordered by seniority — see managerCandidates for that rule.
- *
- * `onlyLevel` restricts to a single hierarchy level. The Team Lead picker uses
- * it: the backend rejects a team lead who is not an active TEAM_LEAD, so
- * offering anyone else guarantees a failed save.
- *
- * With neither, every active employee alphabetically — what the Department
- * Head picker wants, since the backend constrains nothing there.
- */
+// Active employees shaped for a Select: `hierarchyLevel`+`ranks` makes it a
+// manager picker, `onlyLevel` a Team Lead one, neither an alphabetical list.
 export function useEmployeeOptions(excludeId = null, options = null) {
   const [managers, setManagers] = useState([]);
 
@@ -46,9 +35,8 @@ export function useEmployeeOptions(excludeId = null, options = null) {
   }, []);
 
   return useMemo(() => {
-    // Applied before the seniority rules rather than inside them — an exact
-    // level match is a different question from "who outranks this person",
-    // and the two are never wanted together.
+    // Before the seniority rules, not inside them — an exact level match is a
+    // different question from "who outranks this person".
     const pool = onlyLevel
       ? managers.filter((employee) => employee.hierarchyLevel === onlyLevel)
       : managers;

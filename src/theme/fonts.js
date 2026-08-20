@@ -1,6 +1,5 @@
-// Imported by exact file rather than from each package's index: the index
-// re-exports every weight and italic via require(), which Metro cannot
-// tree-shake — pulling all 18 Public Sans faces into the bundle instead of 4.
+// Imported by exact file, not each package's index: the index require()s every
+// weight, which Metro cannot tree-shake — 18 Public Sans faces instead of 4.
 const PublicSans_400Regular = require('@expo-google-fonts/public-sans/400Regular/PublicSans_400Regular.ttf');
 const PublicSans_500Medium = require('@expo-google-fonts/public-sans/500Medium/PublicSans_500Medium.ttf');
 const PublicSans_600SemiBold = require('@expo-google-fonts/public-sans/600SemiBold/PublicSans_600SemiBold.ttf');
@@ -9,12 +8,8 @@ const InstrumentSerif_400Regular = require('@expo-google-fonts/instrument-serif/
 const IBMPlexMono_400Regular = require('@expo-google-fonts/ibm-plex-mono/400Regular/IBMPlexMono_400Regular.ttf');
 const IBMPlexMono_500Medium = require('@expo-google-fonts/ibm-plex-mono/500Medium/IBMPlexMono_500Medium.ttf');
 
-/**
- * React Native does not synthesise weights for custom fonts — setting
- * fontWeight next to a custom fontFamily is ignored on native and causes
- * fake-bolding on web. Every weight is therefore its own family name, and
- * typography.js sets fontFamily instead of fontWeight throughout.
- */
+// React Native does not synthesise weights for custom fonts, so every weight is
+// its own family and typography.js sets fontFamily rather than fontWeight.
 export const fonts = {
   // Public Sans — the interface face. Drawn for civic and enterprise UI,
   // so it holds up at 11px in a table and at 26px in a title.

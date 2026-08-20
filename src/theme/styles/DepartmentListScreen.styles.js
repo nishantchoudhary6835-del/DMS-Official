@@ -29,14 +29,8 @@ export const styles = StyleSheet.create({
     marginLeft: theme.spacing.sm,
   },
 
-  /**
-   * react-native-web gives ScrollView a base `flexGrow: 1`. While the list
-   * below has results it claims the spare height and this row stays squeezed
-   * to its content — but filter to an empty result and the list collapses,
-   * freeing height this row then grows into. Its content container is a flex
-   * row, so the default align-items:stretch turns every chip into a
-   * full-height bar. Pinning flexGrow removes the growth.
-   */
+  // react-native-web gives ScrollView `flexGrow: 1`; when the list below
+  // collapses this row grows and stretches every chip. Pinning it stops that.
   filterScroll: {
     flexGrow: 0,
     flexShrink: 0,

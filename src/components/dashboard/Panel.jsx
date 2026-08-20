@@ -5,11 +5,8 @@ import { theme } from '@theme';
 
 import { styles } from '@theme/styles/Panel.styles';
 
-/**
- * The card chrome every dashboard block shares: a titled white surface with an
- * optional trailing link. Bodies are passed in, so the six panels differ only
- * in content and never in their edges.
- */
+// The card chrome every dashboard block shares. Bodies are passed in, so the
+// panels differ only in content and never in their edges.
 export function Panel({ title, action, footerLabel, onFooterPress, children, style }) {
   return (
     <View style={[styles.panel, style]}>

@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
 
-/**
- * All departments, status-filtered client-side (the endpoint takes no query
- * parameters).
- */
+// All departments, status-filtered client-side (the endpoint takes no query
+// parameters).
 export function useDepartments() {
   const { departments } = useAppData();
   const [status, setStatus] = useState(null);

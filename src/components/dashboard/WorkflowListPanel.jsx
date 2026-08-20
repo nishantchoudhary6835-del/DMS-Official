@@ -6,13 +6,8 @@ import { Panel } from './Panel';
 
 import { styles } from '@theme/styles/DashboardPanels.styles';
 
-/**
- * A short list of workflow items (pending approvals, my submissions) with a
- * title, a meta line, and a status badge. Generic on purpose — the dashboard
- * uses this same shell for two different real data sources rather than two
- * near-identical components, since neither has enough of its own layout to
- * justify a separate file.
- */
+// A short list of workflow items with a title, meta line and status badge.
+// Generic on purpose — two data sources, neither with layout of its own.
 export function WorkflowListPanel({
   title,
   footerLabel,

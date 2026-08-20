@@ -9,12 +9,8 @@ import { useForgotPassword } from '@hooks/useForgotPassword';
 
 import { styles } from '@theme/styles/ForgotPasswordScreen.styles';
 
-/**
- * A single screen rather than a wizard — see useForgotPassword's header for
- * why the backend leaves no step boundary to put one on. With no steps there
- * is no in-screen back navigation either, so Back simply leaves, and the
- * hardware back button needs no interception.
- */
+// A single screen rather than a wizard — see useForgotPassword's header. With
+// no steps, Back simply leaves and the hardware button needs no interception.
 export function ForgotPasswordScreen({ navigation }) {
   const {
     sentEmail,

@@ -4,15 +4,8 @@ import { normalizeError } from '@utils/errors';
 import { FALLBACK_HIERARCHY_LEVELS, labelFor } from '@validation/employee';
 import * as hierarchyApi from '@services/hierarchy';
 
-/**
- * Hierarchy is configuration, not user data — it changes about never, and
- * three screens want it. Cache the resolved rows for the life of the bundle
- * instead of refetching per mount, and de-duplicate concurrent callers the
- * same way axiosInstance de-duplicates token refreshes.
- *
- * Only successes are cached. A failure leaves both slots empty so the next
- * caller retries rather than inheriting the error.
- */
+// Configuration, not user data — cached for the life of the bundle, with
+// concurrent callers de-duplicated. Only successes are cached.
 let cachedRows = null;
 let inFlight = null;
 
@@ -31,10 +24,8 @@ function toRows(response) {
         hierarchyLevel: row.hierarchyLevel,
         level: Number(row.level),
       }))
-      // The endpoint already sorts by level and ordering is the whole point of
-      // this list, so re-sorting costs nothing and survives a backend change.
-      // If `level` ever goes missing the comparison yields NaN and the server's
-      // own order is left intact, which is the right thing to fall back to.
+      // Re-sorted even though the endpoint sorts: ordering is the point of
+      // this list. A missing `level` yields NaN and leaves the server's order.
       .sort((a, b) => a.level - b.level)
   );
 }
@@ -57,12 +48,8 @@ function loadRows() {
   return inFlight;
 }
 
-/**
- * Active hierarchy levels for dropdowns, filter chips and validation.
- *
- * Always returns a usable `levels` array — see `isFallback` for whether it
- * came from the server or from the seeded constant.
- */
+// Active hierarchy levels for dropdowns, chips and validation. Always returns
+// a usable `levels` — `isFallback` says whether it came from the server.
 export function useHierarchy() {
   const [rows, setRows] = useState(cachedRows);
   const [isLoading, setIsLoading] = useState(!cachedRows);
@@ -107,9 +94,8 @@ export function useHierarchy() {
   }, [load]);
 
   const { levels, isFallback } = useMemo(() => {
-    // An empty active set is technically valid data, but it leaves the create
-    // form with nothing to pick and no way to explain itself. Treat it like an
-    // unreachable endpoint: show the seeded list and flag it.
+    // An empty active set leaves the create form with nothing to pick, so
+    // treat it like an unreachable endpoint: seeded list, flagged.
     if (!rows || !rows.length) {
       return { levels: FALLBACK_HIERARCHY_LEVELS, isFallback: true };
     }

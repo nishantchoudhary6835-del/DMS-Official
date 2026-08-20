@@ -12,12 +12,8 @@ import { styles } from '@theme/styles/WorkflowCard.styles';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
-/**
- * Same card shell as WorkflowCard (shares its style file), but for a raw
- * Document from GET /document rather than a Workflow — there's no
- * `document.document` wrapper, no reviewer, no workflow status here, so it
- * reads document.status directly instead.
- */
+// The same card shell as WorkflowCard (shares its styles) but for a raw
+// Document: no `document.document` wrapper, no reviewer, no workflow status.
 export function DocumentCard({ document, onPress }) {
   const title = document?.title || 'Untitled document';
   const status = documentStatusLabel(document?.status);

@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
 
-/**
- * All permissions, status/action-filtered client-side (the endpoint takes no
- * query parameters).
- */
+// All permissions, status/action-filtered client-side (the endpoint takes no
+// query parameters).
 export function usePermissions() {
   const { permissions } = useAppData();
   const [filters, setFilters] = useState({});

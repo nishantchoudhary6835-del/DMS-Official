@@ -34,9 +34,8 @@ export const styles = StyleSheet.create({
     paddingBottom: theme.spacing.sm,
   },
 
-  // react-native-web gives ScrollView a base `flexGrow: 1`. Filter to an empty
-  // result and the list below collapses, freeing height this row grows into —
-  // stretching every chip into a full-height bar. Pinning flexGrow stops it.
+  // react-native-web gives ScrollView `flexGrow: 1`; when the list below
+  // collapses this row grows and stretches every chip. Pinning it stops that.
   filterScroll: {
     flexGrow: 0,
     flexShrink: 0,
@@ -51,9 +50,8 @@ export const styles = StyleSheet.create({
   filterFields: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    // flex-start, not the default stretch: each field keeps its intrinsic
-    // height, so a validation message wrapping to a second line under one
-    // date field cannot drag the other two fields' boxes out of line.
+    // flex-start, not stretch: a validation message wrapping under one date
+    // field must not drag the other two out of line.
     alignItems: 'flex-start',
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,

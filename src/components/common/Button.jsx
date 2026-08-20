@@ -45,9 +45,8 @@ export function Button({
     ? theme.colors.textMuted
     : (LABEL_COLOR[variant] ?? theme.colors.textPrimary);
 
-  // The transform lives on an Animated.View wrapper rather than on the
-  // Pressable itself: Animated cannot walk a function-style prop, so an
-  // AnimatedValue placed inside one is passed through unresolved.
+  // The transform lives on an Animated.View wrapper, not the Pressable:
+  // Animated cannot walk a function-style prop and leaves the value unresolved.
   return (
     <Animated.View
       style={[

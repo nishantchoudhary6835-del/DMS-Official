@@ -4,21 +4,8 @@ import { normalizeError } from '@utils/errors';
 import { TEAM_STATUS } from '@validation/team';
 import * as teamApi from '@services/team';
 
-/**
- * Active teams within one department, shaped for a Select.
- *
- * Scoped by department because that is what a team is — offering IT's teams
- * to someone being placed in HR would produce a record the org chart cannot
- * explain. With no department chosen there is nothing to offer, and the hook
- * does not fetch at all rather than pulling every team and discarding most.
- *
- * Filtering happens server-side; unlike /department, this endpoint takes
- * query parameters.
- *
- * Not cached, for the same reason useDepartmentOptions is not: teams are
- * created and deactivated from inside this app, and a bundle-lifetime cache
- * would hide one you just made.
- */
+// Active teams within one department — offering IT's teams to an HR placement
+// would make a record the org chart cannot explain. Filtered server-side.
 export function useTeamOptions(departmentId = null) {
   const [teams, setTeams] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,8 +39,7 @@ export function useTeamOptions(departmentId = null) {
     } catch (caught) {
       if (requestRef.current !== requestId) return;
 
-      // A 403 is expected for anyone outside SUPER_ADMIN / TEAM_LEAD. On an
-      // employee form that is not worth shouting about — the empty dropdown
+      // A 403 is expected outside SUPER_ADMIN / TEAM_LEAD. The empty dropdown
       // already says the field has nothing to offer.
       const normalized = normalizeError(caught);
 

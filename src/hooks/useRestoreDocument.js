@@ -28,8 +28,7 @@ export function useRestoreDocument() {
         });
 
         // Past the permission engine, document.service.js refuses restore for
-        // anyone who is not SUPER_ADMIN, and says so. That sentence is the
-        // whole answer, so never paper over it with a generic one.
+        // anyone but SUPER_ADMIN, and says so. Never paper over that sentence.
         setError(
           denial ??
             (normalized.status === 403 && !normalized.hasServerMessage
