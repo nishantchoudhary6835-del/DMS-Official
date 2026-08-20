@@ -81,23 +81,34 @@ export function CreateDocumentScreen({ navigation }) {
     user?.employeeId && typeof user.employeeId === 'object'
       ? user.employeeId
       : null;
-  const ownDepartmentId = referenceId(ownEmployee?.department);
-  const ownTeamId = referenceId(ownEmployee?.team);
+  // The whole populated object, not just its id: the login response carries
+  // `name` on both, which is what lets the fallback options below show the
+  // real department and team to an account that cannot list either.
+  const ownDepartment = ownEmployee?.department ?? null;
+  const ownTeam = ownEmployee?.team ?? null;
+  const ownDepartmentId = referenceId(ownDepartment);
+  const ownTeamId = referenceId(ownTeam);
 
   const departmentOptions = useMemo(
     () =>
       ownReferenceOptions(
         departments.options,
-        ownDepartmentId,
+        ownDepartment,
         'department',
-        values.department
+        createdDocument?.department ?? values.department
       ),
-    [departments.options, ownDepartmentId, values.department]
+    [departments.options, ownDepartment, createdDocument, values.department]
   );
 
   const teamOptions = useMemo(
-    () => ownReferenceOptions(teams.options, ownTeamId, 'team', values.team),
-    [teams.options, ownTeamId, values.team]
+    () =>
+      ownReferenceOptions(
+        teams.options,
+        ownTeam,
+        'team',
+        createdDocument?.team ?? values.team
+      ),
+    [teams.options, ownTeam, createdDocument, values.team]
   );
 
   // Department is required and, for most employees, the directory is

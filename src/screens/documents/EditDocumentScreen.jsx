@@ -64,23 +64,36 @@ export function EditDocumentScreen({ navigation, route }) {
     user?.employeeId && typeof user.employeeId === 'object'
       ? user.employeeId
       : null;
-  const ownDepartmentId = referenceId(ownEmployee?.department);
-  const ownTeamId = referenceId(ownEmployee?.team);
+  // The whole populated object, not just its id: the login response carries
+  // `name` on both, which is what lets the fallback options below show the
+  // real department and team to an account that cannot list either. The
+  // document being edited carries them populated too, which covers a record
+  // assigned somewhere other than this account's own department.
+  const ownDepartment = ownEmployee?.department ?? null;
+  const ownTeam = ownEmployee?.team ?? null;
+  const ownDepartmentId = referenceId(ownDepartment);
+  const ownTeamId = referenceId(ownTeam);
 
   const departmentOptions = useMemo(
     () =>
       ownReferenceOptions(
         departments.options,
-        ownDepartmentId,
+        ownDepartment,
         'department',
-        values?.department
+        documentRecord?.department ?? values?.department
       ),
-    [departments.options, ownDepartmentId, values?.department]
+    [departments.options, ownDepartment, documentRecord, values?.department]
   );
 
   const teamOptions = useMemo(
-    () => ownReferenceOptions(teams.options, ownTeamId, 'team', values?.team),
-    [teams.options, ownTeamId, values?.team]
+    () =>
+      ownReferenceOptions(
+        teams.options,
+        ownTeam,
+        'team',
+        documentRecord?.team ?? values?.team
+      ),
+    [teams.options, ownTeam, documentRecord, values?.team]
   );
 
   if (isLoading) {
