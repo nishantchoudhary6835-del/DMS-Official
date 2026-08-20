@@ -42,6 +42,7 @@ export function AccountMenu({
   visible,
   name,
   email,
+  onProfile,
   onChangePassword,
   onSignOut,
   onDismiss,
@@ -102,6 +103,11 @@ export function AccountMenu({
 
             <View style={styles.divider} />
 
+            <MenuRow
+              icon="person-circle-outline"
+              label="Profile"
+              onPress={onProfile}
+            />
             <MenuRow
               icon="lock-closed-outline"
               label="Change password"

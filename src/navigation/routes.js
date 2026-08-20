@@ -42,5 +42,6 @@ export const ROUTES = {
     PUBLISHED_DOCUMENTS: 'PublishedDocuments',
     WORKFLOW_DETAIL: 'WorkflowDetail',
     CHANGE_PASSWORD: 'ChangePassword',
+    PROFILE: 'Profile',
   },
 };

@@ -495,6 +495,10 @@ export function HomeScreen({ navigation }) {
         visible={isAccountMenuOpen}
         name={name}
         email={user?.email}
+        onProfile={() => {
+          setIsAccountMenuOpen(false);
+          navigation.navigate(ROUTES.MAIN.PROFILE);
+        }}
         onChangePassword={() => {
           setIsAccountMenuOpen(false);
           navigation.navigate(ROUTES.MAIN.CHANGE_PASSWORD);

@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AclDetailScreen } from '@screens/acl/AclDetailScreen';
 import { ChangePasswordScreen } from '@screens/account/ChangePasswordScreen';
+import { ProfileScreen } from '@screens/account/ProfileScreen';
 import { AclListScreen } from '@screens/acl/AclListScreen';
 import { AuditLogsScreen } from '@screens/audit/AuditLogsScreen';
 import { CreateAclScreen } from '@screens/acl/CreateAclScreen';
@@ -168,6 +169,10 @@ export function MainNavigator() {
       <Stack.Screen
         name={ROUTES.MAIN.CHANGE_PASSWORD}
         component={ChangePasswordScreen}
+      />
+      <Stack.Screen
+        name={ROUTES.MAIN.PROFILE}
+        component={ProfileScreen}
       />
     </Stack.Navigator>
   );
