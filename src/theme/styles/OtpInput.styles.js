@@ -48,4 +48,13 @@ export const styles = StyleSheet.create({
     ...theme.typography.otpDigit,
     color: theme.colors.textPrimary,
   },
+  // What a digit becomes once its reveal window closes. A drawn circle rather
+  // than a bullet glyph, so its size is exact instead of at the mercy of the
+  // font's dot metrics.
+  mask: {
+    width: 12,
+    height: 12,
+    borderRadius: theme.radius.full,
+    backgroundColor: theme.colors.textPrimary,
+  },
 });
