@@ -47,16 +47,28 @@ export function AuditLogsScreen({ navigation }) {
 
   // With no module chosen the action list is every documented action; once one
   // is chosen it narrows, since an action belongs to exactly one module.
+  // The documented vocabulary (validation/audit.js) can drift from what the
+  // backend actually stores on a record — its own comment admits `action` is
+  // a plain String, not a real enum — so whatever the loaded logs show for
+  // this module is unioned in, guaranteeing the dropdown always offers a
+  // value the server will actually match.
   const actionOptions = useMemo(() => {
-    const actions = filters.module
+    const documented = filters.module
       ? (AUDIT_ACTIONS_BY_MODULE[filters.module] ?? [])
       : ALL_AUDIT_ACTIONS;
 
-    return actions.map((action) => ({
+    const actions = new Set(documented);
+    logs.forEach((log) => {
+      if (!log.action) return;
+      if (filters.module && log.module !== filters.module) return;
+      actions.add(log.action);
+    });
+
+    return [...actions].map((action) => ({
       value: action,
       label: auditActionLabel(action),
     }));
-  }, [filters.module]);
+  }, [filters.module, logs]);
 
   const fromError = validateDateInput(filters.from);
   const toError = validateDateInput(filters.to);

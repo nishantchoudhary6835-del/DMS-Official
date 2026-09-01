@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { referenceId } from '@utils/format';
 import { documentStatusLabel } from '@validation/document';
@@ -68,6 +68,30 @@ export function useDocumentFilters(documents) {
 
   const clearFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
+  // Each of type/department/owner narrows the other two: picking a department
+  // should hide owners and types that don't occur in it, and so on. A field
+  // is matched against every filter except itself, so its own list stays the
+  // full set of choices consistent with what's already selected elsewhere.
+  const matchesOtherFilters = useCallback(
+    (document, excludeKey) => {
+      if (excludeKey !== 'documentType' && filters.documentType && document.documentType !== filters.documentType) {
+        return false;
+      }
+      if (
+        excludeKey !== 'department' &&
+        filters.department &&
+        referenceId(document.department) !== filters.department
+      ) {
+        return false;
+      }
+      if (excludeKey !== 'owner' && filters.owner && referenceId(document.owner) !== filters.owner) {
+        return false;
+      }
+      return true;
+    },
+    [filters.documentType, filters.department, filters.owner]
+  );
+
   const options = useMemo(
     () => ({
       statuses: collectOptions(
@@ -77,25 +101,51 @@ export function useDocumentFilters(documents) {
       ).sort(byStatusOrder),
 
       documentTypes: collectOptions(
-        documents,
+        documents.filter((document) => matchesOtherFilters(document, 'documentType')),
         (document) => document.documentType,
         (document) => document.documentType
       ),
 
       departments: collectOptions(
-        documents,
+        documents.filter((document) => matchesOtherFilters(document, 'department')),
         (document) => referenceId(document.department),
         (document) => document.department?.name
       ),
 
       owners: collectOptions(
-        documents,
+        documents.filter((document) => matchesOtherFilters(document, 'owner')),
         (document) => referenceId(document.owner),
         (document) => employeeRefLabel(document.owner)
       ),
     }),
-    [documents]
+    [documents, matchesOtherFilters]
   );
+
+  // A selection can go stale when narrowing another field removes it from the
+  // list it came from (e.g. switching department after picking an owner that
+  // only exists in the old one) — drop it rather than silently filtering to
+  // an empty result set with a dropdown that no longer shows what's selected.
+  useEffect(() => {
+    setFilters((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      if (next.documentType && !options.documentTypes.some((option) => option.value === next.documentType)) {
+        next.documentType = null;
+        changed = true;
+      }
+      if (next.department && !options.departments.some((option) => option.value === next.department)) {
+        next.department = null;
+        changed = true;
+      }
+      if (next.owner && !options.owners.some((option) => option.value === next.owner)) {
+        next.owner = null;
+        changed = true;
+      }
+
+      return changed ? next : prev;
+    });
+  }, [options]);
 
   // Searches what is actually visible on the card plus the filename, which
   // is often how someone remembers a document they uploaded.

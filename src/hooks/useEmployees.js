@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
 import { referenceId } from '@utils/format';
+import { normalizeHierarchyLevel } from '@validation/employee';
 
 // All employees, filtered client-side. The full list is shared via
 // AppDataContext rather than sent back as query params per filter change.
@@ -18,7 +19,7 @@ export function useEmployees() {
       employees.data.filter((employee) => {
         if (
           filters.hierarchyLevel &&
-          employee.hierarchyLevel !== filters.hierarchyLevel
+          normalizeHierarchyLevel(employee.hierarchyLevel) !== filters.hierarchyLevel
         ) {
           return false;
         }

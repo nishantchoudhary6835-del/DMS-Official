@@ -22,12 +22,6 @@ export function useTeams() {
         ) {
           return false;
         }
-        if (
-          filters.teamLead &&
-          referenceId(team.teamLead) !== filters.teamLead
-        ) {
-          return false;
-        }
         if (filters.status && team.status !== filters.status) return false;
         return true;
       }),

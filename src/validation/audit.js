@@ -30,12 +30,12 @@ export const AUDIT_ACTIONS_BY_MODULE = {
     'DOCUMENT_ARCHIVED',
   ],
   WORKFLOW: [
-    'SUBMITTED',
-    'APPROVED',
-    'RETURNED',
-    'REJECTED',
-    'RESUBMITTED',
-    'ESCALATED',
+    'WORKFLOW_SUBMITTED',
+    'WORKFLOW_APPROVED',
+    'WORKFLOW_RETURNED',
+    'WORKFLOW_REJECTED',
+    'WORKFLOW_RESUBMITTED',
+    'WORKFLOW_ESCALATED',
   ],
   PERMISSION: [
     'PERMISSION_CHANGED',
@@ -62,12 +62,12 @@ const AUDIT_ACTION_LABELS = {
   DOCUMENT_EDITED: 'Edited',
   DOCUMENT_VERSION_CREATED: 'New version',
   DOCUMENT_ARCHIVED: 'Archived',
-  SUBMITTED: 'Submitted',
-  APPROVED: 'Approved',
-  RETURNED: 'Returned',
-  REJECTED: 'Rejected',
-  RESUBMITTED: 'Resubmitted',
-  ESCALATED: 'Escalated',
+  WORKFLOW_SUBMITTED: 'Submitted',
+  WORKFLOW_APPROVED: 'Approved',
+  WORKFLOW_RETURNED: 'Returned',
+  WORKFLOW_REJECTED: 'Rejected',
+  WORKFLOW_RESUBMITTED: 'Resubmitted',
+  WORKFLOW_ESCALATED: 'Escalated',
   PERMISSION_CHANGED: 'Permission changed',
   ROLE_PERMISSION_CHANGED: 'Role assignment changed',
   ACL_CHANGED: 'Access rule changed',
@@ -100,14 +100,14 @@ export function auditActionLabel(action) {
 // whichever module it came from. Only tones Badge.styles.js defines.
 export function auditActionTone(action) {
   switch (action) {
-    case 'REJECTED':
+    case 'WORKFLOW_REJECTED':
       return 'danger';
 
-    case 'APPROVED':
+    case 'WORKFLOW_APPROVED':
       return 'success';
 
-    case 'RETURNED':
-    case 'ESCALATED':
+    case 'WORKFLOW_RETURNED':
+    case 'WORKFLOW_ESCALATED':
     case 'DOCUMENT_ARCHIVED':
       return 'accent';
 

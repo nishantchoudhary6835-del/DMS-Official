@@ -26,6 +26,18 @@ const HIERARCHY_LABELS = {
   INTERN: 'Intern',
 };
 
+// GET /hierarchy's active levels no longer include DEPARTMENT_HEAD — it was
+// renamed to DEPARTMENT at some point, but existing employee records still
+// carry the old value. Treat them as the same tier everywhere one is compared
+// against the other, rather than leaving those employees unmatchable.
+const HIERARCHY_LEVEL_ALIASES = {
+  DEPARTMENT_HEAD: 'DEPARTMENT',
+};
+
+export function normalizeHierarchyLevel(level) {
+  return HIERARCHY_LEVEL_ALIASES[level] ?? level;
+}
+
 export const EMPLOYEE_STATUS = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',

@@ -12,6 +12,8 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { theme } from '@theme';
 
+import { referenceId } from '@utils/format';
+
 import { Button } from '@components/common/Button';
 import { Chip } from '@components/common/Chip';
 import { ErrorBanner } from '@components/common/ErrorBanner';
@@ -44,7 +46,18 @@ export function EmployeeListScreen({ navigation }) {
   } = useEmployees();
 
   const { options: hierarchyOptions } = useHierarchy();
-  const { options: departmentOptions } = useDepartmentOptions();
+  const { options: departmentOptions, departments } = useDepartmentOptions();
+
+  // A department's `head` is assigned independently of the employee's own
+  // hierarchy tier (see CreateDepartmentScreen) — rank alone can't answer
+  // "who currently heads a department", so this is derived separately.
+  const departmentHeadIds = useMemo(
+    () =>
+      new Set(
+        departments.map((department) => referenceId(department.head)).filter(Boolean)
+      ),
+    [departments]
+  );
 
   // Teams only make sense inside a department, so this row appears once one is
   // filtered on — the same dependency the employee form has.
@@ -60,6 +73,7 @@ export function EmployeeListScreen({ navigation }) {
 
   const [lookupEmail, setLookupEmail] = useState('');
   const [awaitingOnly, setAwaitingOnly] = useState(false);
+  const [headsOnly, setHeadsOnly] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const hasFocusedOnce = useRef(false);
@@ -74,11 +88,12 @@ export function EmployeeListScreen({ navigation }) {
     }, [refresh])
   );
 
-  const visible = useMemo(
-    () =>
-      awaitingOnly ? employees.filter((item) => !item.isRegistered) : employees,
-    [employees, awaitingOnly]
-  );
+  const visible = useMemo(() => {
+    let list = employees;
+    if (awaitingOnly) list = list.filter((item) => !item.isRegistered);
+    if (headsOnly) list = list.filter((item) => departmentHeadIds.has(item._id));
+    return list;
+  }, [employees, awaitingOnly, headsOnly, departmentHeadIds]);
 
   const suggestions = useMemo(() => {
     const query = lookupEmail.trim().toLowerCase();
@@ -100,6 +115,7 @@ export function EmployeeListScreen({ navigation }) {
       labels.push(filters.status === EMPLOYEE_STATUS.ACTIVE ? 'Active' : 'Inactive');
     }
     if (awaitingOnly) labels.push('Awaiting registration');
+    if (headsOnly) labels.push('Heads a department');
     if (filters.hierarchyLevel) {
       labels.push(labelFor(filters.hierarchyLevel));
     }
@@ -116,12 +132,14 @@ export function EmployeeListScreen({ navigation }) {
     }
 
     return labels;
-  }, [filters, awaitingOnly, departmentOptions, teamOptions]);
+  }, [filters, awaitingOnly, headsOnly, departmentOptions, teamOptions]);
 
-  const totalFilterCount = activeFilterCount + (awaitingOnly ? 1 : 0);
+  const totalFilterCount =
+    activeFilterCount + (awaitingOnly ? 1 : 0) + (headsOnly ? 1 : 0);
 
   const handleClearFilters = () => {
     setAwaitingOnly(false);
+    setHeadsOnly(false);
     clearFilters();
   };
 
@@ -256,6 +274,11 @@ export function EmployeeListScreen({ navigation }) {
           label="Awaiting registration"
           selected={awaitingOnly}
           onPress={() => setAwaitingOnly((prev) => !prev)}
+        />
+        <Chip
+          label="Heads a department"
+          selected={headsOnly}
+          onPress={() => setHeadsOnly((prev) => !prev)}
         />
       </ScrollView>
 
