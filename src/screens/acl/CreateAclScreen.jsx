@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { AclFormFields } from '@components/acl/AclFormFields';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { useToast } from '@context/ToastContext';
 import { useCreateAcl } from '@hooks/useCreateAcl';
@@ -75,45 +76,47 @@ export function CreateAclScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New access rule</Text>
-      <Text style={styles.subtitle}>
-        Decides Allow or Deny for one hierarchy level and permission, at
-        whatever scope you set below.
-      </Text>
+        <Text style={styles.title}>New access rule</Text>
+        <Text style={styles.subtitle}>
+          Decides Allow or Deny for one hierarchy level and permission, at
+          whatever scope you set below.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <AclFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          hierarchyOptions={hierarchy.options}
-          permissionOptions={permissions.options}
-          departmentOptions={departments.options}
-          teamOptions={teams.options}
-          employeeOptions={employees.options}
-          disabled={isSubmitting}
-        />
+          <AclFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            hierarchyOptions={hierarchy.options}
+            permissionOptions={permissions.options}
+            departmentOptions={departments.options}
+            teamOptions={teams.options}
+            employeeOptions={employees.options}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title="Create rule"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Create rule"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

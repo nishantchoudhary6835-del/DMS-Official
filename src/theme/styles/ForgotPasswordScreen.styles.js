@@ -10,9 +10,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.lg,
   },
-  brand: {
-    marginBottom: theme.spacing.xl,
-  },
   title: theme.patterns.screenTitle,
   subtitle: theme.patterns.screenSubtitle,
   action: {

@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { EmployeeFormFields } from '@components/employee/EmployeeFormFields';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { useToast } from '@context/ToastContext';
 import { useCreateEmployee } from '@hooks/useCreateEmployee';
@@ -88,52 +89,54 @@ export function CreateEmployeeScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New employee</Text>
-      <Text style={styles.subtitle}>
-        Creating a record lets this person set up their own account using their
-        work email.
-      </Text>
+        <Text style={styles.title}>New employee</Text>
+        <Text style={styles.subtitle}>
+          Creating a record lets this person set up their own account using
+          their work email.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <EmployeeFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          hierarchyOptions={hierarchy.options}
-          hierarchyHelper={
-            hierarchy.isFallback && !hierarchy.isLoading
-              ? "Showing the standard list — the server's list is unavailable."
-              : undefined
-          }
-          departmentOptions={departments.options}
-          allDepartments={departments.departments}
-          teamOptions={teams.options}
-          allTeams={teams.teams}
-          managerOptions={managers.options}
-          managerHiddenCount={managers.hiddenCount}
-          disabled={isSubmitting}
-        />
+          <EmployeeFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            hierarchyOptions={hierarchy.options}
+            hierarchyHelper={
+              hierarchy.isFallback && !hierarchy.isLoading
+                ? "Showing the standard list — the server's list is unavailable."
+                : undefined
+            }
+            departmentOptions={departments.options}
+            allDepartments={departments.departments}
+            teamOptions={teams.options}
+            allTeams={teams.teams}
+            managerOptions={managers.options}
+            managerHiddenCount={managers.hiddenCount}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title="Create employee"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Create employee"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

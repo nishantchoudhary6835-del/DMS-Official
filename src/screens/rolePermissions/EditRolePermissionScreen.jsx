@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { RolePermissionFormFields } from '@components/rolePermission/RolePermissionFormFields';
 import { useToast } from '@context/ToastContext';
@@ -108,6 +109,36 @@ export function EditRolePermissionScreen({ navigation, route }) {
   if (loadError || !values) {
     return (
       <Screen>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Back"
+              icon="chevron-back"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              fullWidth={false}
+            />
+          </View>
+
+          <View style={styles.errorBlock}>
+            <ErrorBanner message={loadError ?? 'Role assignment not found.'} />
+            {!isForbidden && !isNotFound ? (
+              <Button
+                title="Try again"
+                onPress={refresh}
+                variant="secondary"
+                fullWidth={false}
+              />
+            ) : null}
+          </View>
+        </FormCard>
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen>
+      <FormCard>
         <View style={styles.header}>
           <Button
             title="Back"
@@ -115,62 +146,36 @@ export function EditRolePermissionScreen({ navigation, route }) {
             onPress={() => navigation.goBack()}
             variant="text"
             fullWidth={false}
+            disabled={isSubmitting}
           />
         </View>
 
-        <View style={styles.errorBlock}>
-          <ErrorBanner message={loadError ?? 'Role assignment not found.'} />
-          {!isForbidden && !isNotFound ? (
-            <Button
-              title="Try again"
-              onPress={refresh}
-              variant="secondary"
-              fullWidth={false}
-            />
-          ) : null}
+        <Text style={styles.title}>Edit role assignment</Text>
+        <Text style={styles.subtitle}>
+          Only the fields you change are sent.
+        </Text>
+
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
+
+          <RolePermissionFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            hierarchyOptions={hierarchy.options}
+            permissionOptions={permissions.options}
+            disabled={isSubmitting}
+          />
+
+          <Button
+            title={hasChanges ? 'Save changes' : 'No changes yet'}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={!hasChanges}
+            style={styles.action}
+          />
         </View>
-      </Screen>
-    );
-  }
-
-  return (
-    <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
-
-      <Text style={styles.title}>Edit role assignment</Text>
-      <Text style={styles.subtitle}>
-        Only the fields you change are sent.
-      </Text>
-
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
-
-        <RolePermissionFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          hierarchyOptions={hierarchy.options}
-          permissionOptions={permissions.options}
-          disabled={isSubmitting}
-        />
-
-        <Button
-          title={hasChanges ? 'Save changes' : 'No changes yet'}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          disabled={!hasChanges}
-          style={styles.action}
-        />
-      </View>
+      </FormCard>
     </Screen>
   );
 }

@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { DocumentFormFields } from '@components/document/DocumentFormFields';
 import { useAuth } from '@context/AuthContext';
@@ -206,43 +207,45 @@ export function CreateDocumentScreen({ navigation }) {
   if (screenMode === 'edit') {
     return (
       <Screen>
-        <View style={styles.header}>
-          <Button
-            title="Cancel"
-            icon="chevron-back"
-            onPress={cancelEditing}
-            variant="text"
-            fullWidth={false}
-            disabled={isUpdating}
-          />
-        </View>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Cancel"
+              icon="chevron-back"
+              onPress={cancelEditing}
+              variant="text"
+              fullWidth={false}
+              disabled={isUpdating}
+            />
+          </View>
 
-        <Text style={styles.title}>Edit document</Text>
-        <Text style={styles.subtitle}>
-          Update the document's details, or replace its file. Saving creates
-          a new version.
-        </Text>
+          <Text style={styles.title}>Edit document</Text>
+          <Text style={styles.subtitle}>
+            Update the document's details, or replace its file. Saving
+            creates a new version.
+          </Text>
 
-        <View style={styles.card}>
-          <ErrorBanner message={updateError} />
+          <View style={styles.card}>
+            <ErrorBanner message={updateError} />
 
-          <DocumentFormFields
-            mode="edit"
-            values={values}
-            setField={setField}
-            errorFor={errorFor}
-            departmentOptions={departmentOptions}
-            teamOptions={teamOptions}
-            disabled={isUpdating}
-          />
+            <DocumentFormFields
+              mode="edit"
+              values={values}
+              setField={setField}
+              errorFor={errorFor}
+              departmentOptions={departmentOptions}
+              teamOptions={teamOptions}
+              disabled={isUpdating}
+            />
 
-          <Button
-            title={isUpdating ? 'Saving…' : 'Save changes'}
-            onPress={handleUpdate}
-            loading={isUpdating}
-            style={styles.action}
-          />
-        </View>
+            <Button
+              title={isUpdating ? 'Saving…' : 'Save changes'}
+              onPress={handleUpdate}
+              loading={isUpdating}
+              style={styles.action}
+            />
+          </View>
+        </FormCard>
       </Screen>
     );
   }
@@ -250,89 +253,93 @@ export function CreateDocumentScreen({ navigation }) {
   if (screenMode === 'created') {
     return (
       <Screen>
-        <View style={styles.header}>
-          <Button
-            title="Done"
-            onPress={() => navigation.goBack()}
-            variant="text"
-            fullWidth={false}
-            disabled={isSubmittingForReview}
-          />
-        </View>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Done"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              fullWidth={false}
+              disabled={isSubmittingForReview}
+            />
+          </View>
 
-        <Text style={styles.title}>Document created</Text>
-        <Text style={styles.subtitle}>
-          "{createdDocument.title}" was saved as a Draft
-          {createdDocument.currentVersion ? ` (${createdDocument.currentVersion})` : ''}.
-          Submit it now to send it to your Team Lead for review, edit it
-          first, or come back to it later.
-        </Text>
+          <Text style={styles.title}>Document created</Text>
+          <Text style={styles.subtitle}>
+            "{createdDocument.title}" was saved as a Draft
+            {createdDocument.currentVersion ? ` (${createdDocument.currentVersion})` : ''}.
+            Submit it now to send it to your Team Lead for review, edit it
+            first, or come back to it later.
+          </Text>
 
-        <View style={styles.card}>
-          <ErrorBanner message={submitForReviewError} />
+          <View style={styles.card}>
+            <ErrorBanner message={submitForReviewError} />
 
-          <Button
-            title="Submit for review"
-            onPress={handleSubmitForReview}
-            loading={isSubmittingForReview}
-            style={styles.action}
-          />
-          <Button
-            title="Edit document"
-            onPress={startEditing}
-            variant="secondary"
-            disabled={isSubmittingForReview}
-            style={styles.action}
-          />
-          <Button
-            title="Not now"
-            onPress={() => navigation.goBack()}
-            variant="text"
-            disabled={isSubmittingForReview}
-          />
-        </View>
+            <Button
+              title="Submit for review"
+              onPress={handleSubmitForReview}
+              loading={isSubmittingForReview}
+              style={styles.action}
+            />
+            <Button
+              title="Edit document"
+              onPress={startEditing}
+              variant="secondary"
+              disabled={isSubmittingForReview}
+              style={styles.action}
+            />
+            <Button
+              title="Not now"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              disabled={isSubmittingForReview}
+            />
+          </View>
+        </FormCard>
       </Screen>
     );
   }
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New document</Text>
-      <Text style={styles.subtitle}>
-        Uploads a file and creates it as a Draft, owned by you.
-      </Text>
+        <Text style={styles.title}>New document</Text>
+        <Text style={styles.subtitle}>
+          Uploads a file and creates it as a Draft, owned by you.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <DocumentFormFields
-          mode="create"
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          departmentOptions={departmentOptions}
-          teamOptions={teamOptions}
-          disabled={isSubmitting}
-        />
+          <DocumentFormFields
+            mode="create"
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            departmentOptions={departmentOptions}
+            teamOptions={teamOptions}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title={isSubmitting ? 'Uploading…' : 'Create document'}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title={isSubmitting ? 'Uploading…' : 'Create document'}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

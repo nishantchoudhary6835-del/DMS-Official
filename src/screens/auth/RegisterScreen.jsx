@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { BrandMark } from '@components/common/BrandMark';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
+import { AuthShell } from '@components/layout/AuthShell';
 import { Screen } from '@components/layout/Screen';
 import { EmailStep } from '@components/auth/EmailStep';
 import { OtpStep } from '@components/auth/OtpStep';
@@ -60,56 +61,56 @@ export function RegisterScreen({ navigation }) {
   const stepIndex = STEP_ORDER.indexOf(step);
 
   return (
-    <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={handleBack}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-        <Text style={styles.progress}>
-          Step {stepIndex + 1} of {STEP_ORDER.length}
-        </Text>
-      </View>
+    <Screen padded={false}>
+      <AuthShell brand={<BrandMark size="small" />}>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={handleBack}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+          <Text style={styles.progress}>
+            Step {stepIndex + 1} of {STEP_ORDER.length}
+          </Text>
+        </View>
 
-      <BrandMark size="small" style={styles.brand} />
+        <ErrorBanner message={error} />
+        <ErrorBanner message={notice} variant="success" />
 
-      <ErrorBanner message={error} />
-      <ErrorBanner message={notice} variant="success" />
+        {step === REGISTRATION_STEPS.EMAIL && (
+          <EmailStep
+            onSubmit={submitEmail}
+            isSubmitting={isSubmitting}
+            fieldErrors={fieldErrors}
+            onClearMessages={clearMessages}
+          />
+        )}
 
-      {step === REGISTRATION_STEPS.EMAIL && (
-        <EmailStep
-          onSubmit={submitEmail}
-          isSubmitting={isSubmitting}
-          fieldErrors={fieldErrors}
-          onClearMessages={clearMessages}
-        />
-      )}
+        {step === REGISTRATION_STEPS.OTP && (
+          <OtpStep
+            email={email}
+            onSubmit={submitOtp}
+            onResend={resendOtp}
+            isSubmitting={isSubmitting}
+            timer={timer}
+            hasError={Boolean(error)}
+            onClearMessages={clearMessages}
+          />
+        )}
 
-      {step === REGISTRATION_STEPS.OTP && (
-        <OtpStep
-          email={email}
-          onSubmit={submitOtp}
-          onResend={resendOtp}
-          isSubmitting={isSubmitting}
-          timer={timer}
-          hasError={Boolean(error)}
-          onClearMessages={clearMessages}
-        />
-      )}
-
-      {step === REGISTRATION_STEPS.PASSWORD && (
-        <SetPasswordStep
-          email={email}
-          onSubmit={submitPassword}
-          isSubmitting={isSubmitting}
-          fieldErrors={fieldErrors}
-          onClearMessages={clearMessages}
-        />
-      )}
+        {step === REGISTRATION_STEPS.PASSWORD && (
+          <SetPasswordStep
+            email={email}
+            onSubmit={submitPassword}
+            isSubmitting={isSubmitting}
+            fieldErrors={fieldErrors}
+            onClearMessages={clearMessages}
+          />
+        )}
+      </AuthShell>
     </Screen>
   );
 }

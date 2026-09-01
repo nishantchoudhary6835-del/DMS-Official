@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
+import { FormCard } from '@components/layout/FormCard';
 import { TeamFormFields } from '@components/team/TeamFormFields';
 import { useToast } from '@context/ToastContext';
 import { useCreateTeam } from '@hooks/useCreateTeam';
@@ -57,42 +58,44 @@ export function CreateTeamScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New team</Text>
-      <Text style={styles.subtitle}>
-        A team is a working group inside one department. Employees are then
-        assigned to it from their own record.
-      </Text>
+        <Text style={styles.title}>New team</Text>
+        <Text style={styles.subtitle}>
+          A team is a working group inside one department. Employees are then
+          assigned to it from their own record.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <TeamFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          departmentOptions={departments.options}
-          leadOptions={leads.options}
-          disabled={isSubmitting}
-        />
+          <TeamFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            departmentOptions={departments.options}
+            leadOptions={leads.options}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title="Create team"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Create team"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

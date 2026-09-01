@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { RolePermissionFormFields } from '@components/rolePermission/RolePermissionFormFields';
 import { useToast } from '@context/ToastContext';
@@ -53,42 +54,44 @@ export function CreateRolePermissionScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New role assignment</Text>
-      <Text style={styles.subtitle}>
-        Makes a hierarchy level eligible for one permission. It does not, by
-        itself, decide what any specific request is allowed to do.
-      </Text>
+        <Text style={styles.title}>New role assignment</Text>
+        <Text style={styles.subtitle}>
+          Makes a hierarchy level eligible for one permission. It does not,
+          by itself, decide what any specific request is allowed to do.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <RolePermissionFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          hierarchyOptions={hierarchy.options}
-          permissionOptions={permissions.options}
-          disabled={isSubmitting}
-        />
+          <RolePermissionFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            hierarchyOptions={hierarchy.options}
+            permissionOptions={permissions.options}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title="Create assignment"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Create assignment"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

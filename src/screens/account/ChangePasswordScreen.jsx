@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { TextField } from '@components/common/TextField';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { PasswordRules } from '@components/auth/PasswordRules';
 import { useToast } from '@context/ToastContext';
@@ -58,79 +59,84 @@ export function ChangePasswordScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard maxWidth={480}>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>Change password</Text>
-      <Text style={styles.subtitle}>
-        This signs you out of every other device you're logged in on. You'll
-        stay signed in here.
-      </Text>
+        <Text style={styles.title}>Change password</Text>
+        <Text style={styles.subtitle}>
+          This signs you out of every other device you're logged in on.
+          You'll stay signed in here.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <TextField
-          label="Current password"
-          value={oldPassword}
-          onChangeText={setField(setOldPassword, 'oldPassword')}
-          error={oldPasswordError}
-          placeholder="Enter your current password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          textContentType="password"
-          autoComplete="current-password"
-          editable={!isSubmitting}
-        />
+          <TextField
+            label="Current password"
+            value={oldPassword}
+            onChangeText={setField(setOldPassword, 'oldPassword')}
+            error={oldPasswordError}
+            placeholder="Enter your current password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="password"
+            autoComplete="current-password"
+            editable={!isSubmitting}
+          />
 
-        <TextField
-          label="New password"
-          value={newPassword}
-          onChangeText={setField(setNewPassword, 'newPassword')}
-          error={newPasswordError}
-          placeholder="Enter a new password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          textContentType="newPassword"
-          autoComplete="new-password"
-          editable={!isSubmitting}
-        />
+          <TextField
+            label="New password"
+            value={newPassword}
+            onChangeText={setField(setNewPassword, 'newPassword')}
+            error={newPasswordError}
+            placeholder="Enter a new password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="newPassword"
+            autoComplete="new-password"
+            editable={!isSubmitting}
+          />
 
-        <PasswordRules password={newPassword} visible={newPassword.length > 0} />
+          <PasswordRules
+            password={newPassword}
+            visible={newPassword.length > 0}
+          />
 
-        <TextField
-          label="Confirm new password"
-          value={confirmPassword}
-          onChangeText={setField(setConfirmPassword, 'confirmPassword')}
-          error={confirmError}
-          placeholder="Re-enter your new password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          textContentType="newPassword"
-          autoComplete="new-password"
-          editable={!isSubmitting}
-          returnKeyType="go"
-          onSubmitEditing={handleSubmit}
-        />
+          <TextField
+            label="Confirm new password"
+            value={confirmPassword}
+            onChangeText={setField(setConfirmPassword, 'confirmPassword')}
+            error={confirmError}
+            placeholder="Re-enter your new password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="newPassword"
+            autoComplete="new-password"
+            editable={!isSubmitting}
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
+          />
 
-        <Button
-          title="Change password"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Change password"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

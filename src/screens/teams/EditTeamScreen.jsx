@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
+import { FormCard } from '@components/layout/FormCard';
 import { TeamFormFields } from '@components/team/TeamFormFields';
 import { useToast } from '@context/ToastContext';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
@@ -109,6 +110,36 @@ export function EditTeamScreen({ navigation, route }) {
   if (loadError || !values) {
     return (
       <Screen>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Back"
+              icon="chevron-back"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              fullWidth={false}
+            />
+          </View>
+
+          <View style={styles.errorBlock}>
+            <ErrorBanner message={loadError ?? 'Team not found.'} />
+            {!isForbidden && !isNotFound ? (
+              <Button
+                title="Try again"
+                onPress={refresh}
+                variant="secondary"
+                fullWidth={false}
+              />
+            ) : null}
+          </View>
+        </FormCard>
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen>
+      <FormCard>
         <View style={styles.header}>
           <Button
             title="Back"
@@ -116,63 +147,37 @@ export function EditTeamScreen({ navigation, route }) {
             onPress={() => navigation.goBack()}
             variant="text"
             fullWidth={false}
+            disabled={isSubmitting}
           />
         </View>
 
-        <View style={styles.errorBlock}>
-          <ErrorBanner message={loadError ?? 'Team not found.'} />
-          {!isForbidden && !isNotFound ? (
-            <Button
-              title="Try again"
-              onPress={refresh}
-              variant="secondary"
-              fullWidth={false}
-            />
-          ) : null}
+        <Text style={styles.title}>Edit team</Text>
+        <Text style={styles.subtitle}>
+          Only the fields you change are sent. Moving a team to another
+          department does not move the employees already in it.
+        </Text>
+
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
+
+          <TeamFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            departmentOptions={departments.options}
+            leadOptions={leads.options}
+            disabled={isSubmitting}
+          />
+
+          <Button
+            title={hasChanges ? 'Save changes' : 'No changes yet'}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={!hasChanges}
+            style={styles.action}
+          />
         </View>
-      </Screen>
-    );
-  }
-
-  return (
-    <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
-
-      <Text style={styles.title}>Edit team</Text>
-      <Text style={styles.subtitle}>
-        Only the fields you change are sent. Moving a team to another
-        department does not move the employees already in it.
-      </Text>
-
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
-
-        <TeamFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          departmentOptions={departments.options}
-          leadOptions={leads.options}
-          disabled={isSubmitting}
-        />
-
-        <Button
-          title={hasChanges ? 'Save changes' : 'No changes yet'}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          disabled={!hasChanges}
-          style={styles.action}
-        />
-      </View>
+      </FormCard>
     </Screen>
   );
 }

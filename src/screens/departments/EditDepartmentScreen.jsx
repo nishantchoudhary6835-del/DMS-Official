@@ -6,6 +6,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { DepartmentFormFields } from '@components/department/DepartmentFormFields';
+import { FormCard } from '@components/layout/FormCard';
 import { useToast } from '@context/ToastContext';
 import { useDepartment } from '@hooks/useDepartment';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -107,6 +108,36 @@ export function EditDepartmentScreen({ navigation, route }) {
   if (loadError || !values) {
     return (
       <Screen>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Back"
+              icon="chevron-back"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              fullWidth={false}
+            />
+          </View>
+
+          <View style={styles.errorBlock}>
+            <ErrorBanner message={loadError ?? 'Department not found.'} />
+            {!isForbidden && !isNotFound ? (
+              <Button
+                title="Try again"
+                onPress={refresh}
+                variant="secondary"
+                fullWidth={false}
+              />
+            ) : null}
+          </View>
+        </FormCard>
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen>
+      <FormCard>
         <View style={styles.header}>
           <Button
             title="Back"
@@ -114,62 +145,36 @@ export function EditDepartmentScreen({ navigation, route }) {
             onPress={() => navigation.goBack()}
             variant="text"
             fullWidth={false}
+            disabled={isSubmitting}
           />
         </View>
 
-        <View style={styles.errorBlock}>
-          <ErrorBanner message={loadError ?? 'Department not found.'} />
-          {!isForbidden && !isNotFound ? (
-            <Button
-              title="Try again"
-              onPress={refresh}
-              variant="secondary"
-              fullWidth={false}
-            />
-          ) : null}
+        <Text style={styles.title}>Edit department</Text>
+        <Text style={styles.subtitle}>
+          Only the fields you change are sent. Clearing the head removes the
+          reference without altering that employee’s own record.
+        </Text>
+
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
+
+          <DepartmentFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            headOptions={heads.options}
+            disabled={isSubmitting}
+          />
+
+          <Button
+            title={hasChanges ? 'Save changes' : 'No changes yet'}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={!hasChanges}
+            style={styles.action}
+          />
         </View>
-      </Screen>
-    );
-  }
-
-  return (
-    <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
-
-      <Text style={styles.title}>Edit department</Text>
-      <Text style={styles.subtitle}>
-        Only the fields you change are sent. Clearing the head removes the
-        reference without altering that employee’s own record.
-      </Text>
-
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
-
-        <DepartmentFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          headOptions={heads.options}
-          disabled={isSubmitting}
-        />
-
-        <Button
-          title={hasChanges ? 'Save changes' : 'No changes yet'}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          disabled={!hasChanges}
-          style={styles.action}
-        />
-      </View>
+      </FormCard>
     </Screen>
   );
 }

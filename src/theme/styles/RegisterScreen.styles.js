@@ -11,7 +11,4 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: theme.spacing.lg,
   },
-  brand: {
-    marginBottom: theme.spacing.xl,
-  },
 });

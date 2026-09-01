@@ -5,6 +5,7 @@ import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Screen } from '@components/layout/Screen';
 import { DepartmentFormFields } from '@components/department/DepartmentFormFields';
+import { FormCard } from '@components/layout/FormCard';
 import { useToast } from '@context/ToastContext';
 import { useCreateDepartment } from '@hooks/useCreateDepartment';
 import { useEmployeeOptions } from '@hooks/useEmployeeOptions';
@@ -54,41 +55,43 @@ export function CreateDepartmentScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New department</Text>
-      <Text style={styles.subtitle}>
-        Departments group employees and teams. The code is how this department
-        is identified everywhere else in the system.
-      </Text>
+        <Text style={styles.title}>New department</Text>
+        <Text style={styles.subtitle}>
+          Departments group employees and teams. The code is how this
+          department is identified everywhere else in the system.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <DepartmentFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          headOptions={heads.options}
-          disabled={isSubmitting}
-        />
+          <DepartmentFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            headOptions={heads.options}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title="Create department"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Create department"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

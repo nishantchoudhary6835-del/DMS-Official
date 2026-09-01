@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { DocumentFormFields } from '@components/document/DocumentFormFields';
 import { useAuth } from '@context/AuthContext';
@@ -96,26 +97,28 @@ export function EditDocumentScreen({ navigation, route }) {
   if (loadError || !documentRecord) {
     return (
       <Screen>
-        <View style={styles.header}>
-          <Button
-            title="Back"
-            icon="chevron-back"
-            onPress={() => navigation.goBack()}
-            variant="text"
-            fullWidth={false}
-          />
-        </View>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Back"
+              icon="chevron-back"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              fullWidth={false}
+            />
+          </View>
 
-        <ErrorBanner message={loadError ?? 'Document not found.'} />
-        {!isForbidden && !isNotFound ? (
-          <Button
-            title="Try again"
-            onPress={refresh}
-            variant="secondary"
-            fullWidth={false}
-            style={styles.action}
-          />
-        ) : null}
+          <ErrorBanner message={loadError ?? 'Document not found.'} />
+          {!isForbidden && !isNotFound ? (
+            <Button
+              title="Try again"
+              onPress={refresh}
+              variant="secondary"
+              fullWidth={false}
+              style={styles.action}
+            />
+          ) : null}
+        </FormCard>
       </Screen>
     );
   }
@@ -162,43 +165,46 @@ export function EditDocumentScreen({ navigation, route }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Cancel"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Cancel"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>Edit document</Text>
-      <Text style={styles.subtitle}>
-        Update the document's details, or replace its file. Saving creates a
-        new version — resubmit it from the previous screen once you're done.
-      </Text>
+        <Text style={styles.title}>Edit document</Text>
+        <Text style={styles.subtitle}>
+          Update the document's details, or replace its file. Saving creates
+          a new version — resubmit it from the previous screen once you're
+          done.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <DocumentFormFields
-          mode="edit"
-          values={formValues}
-          setField={setField}
-          errorFor={errorFor}
-          departmentOptions={departmentOptions}
-          teamOptions={teamOptions}
-          disabled={isSubmitting}
-        />
+          <DocumentFormFields
+            mode="edit"
+            values={formValues}
+            setField={setField}
+            errorFor={errorFor}
+            departmentOptions={departmentOptions}
+            teamOptions={teamOptions}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title={isSubmitting ? 'Saving…' : 'Save changes'}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title={isSubmitting ? 'Saving…' : 'Save changes'}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

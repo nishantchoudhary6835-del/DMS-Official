@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { PermissionFormFields } from '@components/permission/PermissionFormFields';
 import { useToast } from '@context/ToastContext';
@@ -56,42 +57,44 @@ export function CreatePermissionScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
+      <FormCard>
+        <View style={styles.header}>
+          <Button
+            title="Back"
+            icon="chevron-back"
+            onPress={() => navigation.goBack()}
+            variant="text"
+            fullWidth={false}
+            disabled={isSubmitting}
+          />
+        </View>
 
-      <Text style={styles.title}>New permission</Text>
-      <Text style={styles.subtitle}>
-        A permission pairs one resource with one action. It becomes real
-        access only once assigned to a hierarchy through RolePermission.
-      </Text>
+        <Text style={styles.title}>New permission</Text>
+        <Text style={styles.subtitle}>
+          A permission pairs one resource with one action. It becomes real
+          access only once assigned to a hierarchy through RolePermission.
+        </Text>
 
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
 
-        <PermissionFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          resourceOptions={vocabulary.resourceOptions}
-          actionOptions={vocabulary.actionOptions}
-          disabled={isSubmitting}
-        />
+          <PermissionFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            resourceOptions={vocabulary.resourceOptions}
+            actionOptions={vocabulary.actionOptions}
+            disabled={isSubmitting}
+          />
 
-        <Button
-          title="Create permission"
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          style={styles.action}
-        />
-      </View>
+          <Button
+            title="Create permission"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            style={styles.action}
+          />
+        </View>
+      </FormCard>
     </Screen>
   );
 }

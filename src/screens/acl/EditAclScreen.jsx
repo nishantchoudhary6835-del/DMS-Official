@@ -5,6 +5,7 @@ import { AclFormFields } from '@components/acl/AclFormFields';
 import { Button } from '@components/common/Button';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
+import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { useToast } from '@context/ToastContext';
 import { useAcl } from '@hooks/useAcl';
@@ -125,6 +126,36 @@ export function EditAclScreen({ navigation, route }) {
   if (loadError || !values) {
     return (
       <Screen>
+        <FormCard>
+          <View style={styles.header}>
+            <Button
+              title="Back"
+              icon="chevron-back"
+              onPress={() => navigation.goBack()}
+              variant="text"
+              fullWidth={false}
+            />
+          </View>
+
+          <View style={styles.errorBlock}>
+            <ErrorBanner message={loadError ?? 'Access rule not found.'} />
+            {!isForbidden && !isNotFound ? (
+              <Button
+                title="Try again"
+                onPress={refresh}
+                variant="secondary"
+                fullWidth={false}
+              />
+            ) : null}
+          </View>
+        </FormCard>
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen>
+      <FormCard>
         <View style={styles.header}>
           <Button
             title="Back"
@@ -132,65 +163,39 @@ export function EditAclScreen({ navigation, route }) {
             onPress={() => navigation.goBack()}
             variant="text"
             fullWidth={false}
+            disabled={isSubmitting}
           />
         </View>
 
-        <View style={styles.errorBlock}>
-          <ErrorBanner message={loadError ?? 'Access rule not found.'} />
-          {!isForbidden && !isNotFound ? (
-            <Button
-              title="Try again"
-              onPress={refresh}
-              variant="secondary"
-              fullWidth={false}
-            />
-          ) : null}
+        <Text style={styles.title}>Edit access rule</Text>
+        <Text style={styles.subtitle}>
+          Only the fields you change are sent.
+        </Text>
+
+        <View style={styles.card}>
+          <ErrorBanner message={error} />
+
+          <AclFormFields
+            values={values}
+            setField={setField}
+            errorFor={errorFor}
+            hierarchyOptions={hierarchy.options}
+            permissionOptions={permissions.options}
+            departmentOptions={departments.options}
+            teamOptions={teams.options}
+            employeeOptions={employees.options}
+            disabled={isSubmitting}
+          />
+
+          <Button
+            title={hasChanges ? 'Save changes' : 'No changes yet'}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={!hasChanges}
+            style={styles.action}
+          />
         </View>
-      </Screen>
-    );
-  }
-
-  return (
-    <Screen>
-      <View style={styles.header}>
-        <Button
-          title="Back"
-          icon="chevron-back"
-          onPress={() => navigation.goBack()}
-          variant="text"
-          fullWidth={false}
-          disabled={isSubmitting}
-        />
-      </View>
-
-      <Text style={styles.title}>Edit access rule</Text>
-      <Text style={styles.subtitle}>
-        Only the fields you change are sent.
-      </Text>
-
-      <View style={styles.card}>
-        <ErrorBanner message={error} />
-
-        <AclFormFields
-          values={values}
-          setField={setField}
-          errorFor={errorFor}
-          hierarchyOptions={hierarchy.options}
-          permissionOptions={permissions.options}
-          departmentOptions={departments.options}
-          teamOptions={teams.options}
-          employeeOptions={employees.options}
-          disabled={isSubmitting}
-        />
-
-        <Button
-          title={hasChanges ? 'Save changes' : 'No changes yet'}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          disabled={!hasChanges}
-          style={styles.action}
-        />
-      </View>
+      </FormCard>
     </Screen>
   );
 }
