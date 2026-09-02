@@ -19,7 +19,8 @@ export function useEmployees() {
       employees.data.filter((employee) => {
         if (
           filters.hierarchyLevel &&
-          normalizeHierarchyLevel(employee.hierarchyLevel) !== filters.hierarchyLevel
+          normalizeHierarchyLevel(employee.hierarchyLevel) !==
+            normalizeHierarchyLevel(filters.hierarchyLevel)
         ) {
           return false;
         }
