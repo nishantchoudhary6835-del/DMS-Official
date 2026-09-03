@@ -13,7 +13,7 @@ import { useDeletePermission } from '@hooks/useDeletePermission';
 import { usePermission } from '@hooks/usePermission';
 import { usePermissionStatus } from '@hooks/usePermissionStatus';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import {
   actionExplainer,
   actionLabel,
@@ -179,13 +179,13 @@ export function PermissionDetailScreen({ navigation, route }) {
           <Row label="Status" value={isActive ? 'Active' : 'Inactive'} />
           <Row
             label="Created"
-            value={formatDate(permission.createdAt)}
+            value={formatDateTime(permission.createdAt)}
             fallback="Unknown"
             divider
           />
           <Row
             label="Last updated"
-            value={formatDate(permission.updatedAt)}
+            value={formatDateTime(permission.updatedAt)}
             fallback="Unknown"
             divider
           />

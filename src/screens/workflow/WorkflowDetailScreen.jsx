@@ -12,7 +12,7 @@ import { useResubmitWorkflow } from '@hooks/useResubmitWorkflow';
 import { useReviewWorkflow } from '@hooks/useReviewWorkflow';
 import { useViewDocument } from '@hooks/useViewDocument';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import {
   WORKFLOW_STATUS,
   documentRefLabel,
@@ -234,12 +234,12 @@ export function WorkflowDetailScreen({ navigation, route }) {
       <View style={styles.section}>
         <Row
           label="Submitted"
-          value={formatDate(workflow.submittedAt)}
+          value={formatDateTime(workflow.submittedAt)}
           fallback="Not submitted"
         />
         <Row
           label="Reviewed"
-          value={formatDate(workflow.reviewedAt)}
+          value={formatDateTime(workflow.reviewedAt)}
           fallback="Not yet reviewed"
           divider
         />
@@ -254,7 +254,7 @@ export function WorkflowDetailScreen({ navigation, route }) {
         />
         <Row
           label="Last reminder"
-          value={formatDate(workflow.lastReminderAt)}
+          value={formatDateTime(workflow.lastReminderAt)}
           fallback="Not sent"
           divider
         />
@@ -266,7 +266,7 @@ export function WorkflowDetailScreen({ navigation, route }) {
         />
         <Row
           label="Escalated at"
-          value={formatDate(workflow.escalatedAt)}
+          value={formatDateTime(workflow.escalatedAt)}
           fallback="Not escalated"
           divider
         />

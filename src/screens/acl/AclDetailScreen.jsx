@@ -13,7 +13,7 @@ import { useAcl } from '@hooks/useAcl';
 import { useAclStatus } from '@hooks/useAclStatus';
 import { useDeleteAcl } from '@hooks/useDeleteAcl';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import {
   aclScopeLabel,
   ACL_EFFECT,
@@ -200,13 +200,13 @@ export function AclDetailScreen({ navigation, route }) {
           <Row label="Status" value={isActive ? 'Active' : 'Inactive'} />
           <Row
             label="Created"
-            value={formatDate(acl.createdAt)}
+            value={formatDateTime(acl.createdAt)}
             fallback="Unknown"
             divider
           />
           <Row
             label="Last updated"
-            value={formatDate(acl.updatedAt)}
+            value={formatDateTime(acl.updatedAt)}
             fallback="Unknown"
             divider
           />

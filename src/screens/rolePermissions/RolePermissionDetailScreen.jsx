@@ -13,7 +13,7 @@ import { useDeleteRolePermission } from '@hooks/useDeleteRolePermission';
 import { useRolePermission } from '@hooks/useRolePermission';
 import { useRolePermissionStatus } from '@hooks/useRolePermissionStatus';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import { labelFor } from '@validation/employee';
 import { permissionEffectPhrase } from '@validation/permission';
 import { permissionRefLabel, ROLE_PERMISSION_STATUS } from '@validation/rolePermission';
@@ -170,13 +170,13 @@ export function RolePermissionDetailScreen({ navigation, route }) {
           <Row label="Status" value={isActive ? 'Active' : 'Inactive'} />
           <Row
             label="Created"
-            value={formatDate(rolePermission.createdAt)}
+            value={formatDateTime(rolePermission.createdAt)}
             fallback="Unknown"
             divider
           />
           <Row
             label="Last updated"
-            value={formatDate(rolePermission.updatedAt)}
+            value={formatDateTime(rolePermission.updatedAt)}
             fallback="Unknown"
             divider
           />

@@ -13,7 +13,7 @@ import { useDeleteDepartment } from '@hooks/useDeleteDepartment';
 import { useDepartment } from '@hooks/useDepartment';
 import { useDepartmentStatus } from '@hooks/useDepartmentStatus';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import { DEPARTMENT_STATUS } from '@validation/department';
 import { labelFor } from '@validation/employee';
 
@@ -186,13 +186,13 @@ export function DepartmentDetailScreen({ navigation, route }) {
           <Row label="Status" value={isActive ? 'Active' : 'Inactive'} />
           <Row
             label="Created"
-            value={formatDate(department.createdAt)}
+            value={formatDateTime(department.createdAt)}
             fallback="Unknown"
             divider
           />
           <Row
             label="Last updated"
-            value={formatDate(department.updatedAt)}
+            value={formatDateTime(department.updatedAt)}
             fallback="Unknown"
             divider
           />

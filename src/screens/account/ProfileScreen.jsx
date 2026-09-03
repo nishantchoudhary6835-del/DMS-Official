@@ -5,7 +5,7 @@ import { Button } from '@components/common/Button';
 import { FormCard } from '@components/layout/FormCard';
 import { Screen } from '@components/layout/Screen';
 import { useAuth } from '@context/AuthContext';
-import { formatDate, formatDateTime, initialsOf } from '@utils/format';
+import { formatDateTime, initialsOf } from '@utils/format';
 import { EMPLOYEE_STATUS, labelFor } from '@validation/employee';
 import { employeeRefLabel } from '@validation/workflow';
 
@@ -168,7 +168,7 @@ export function ProfileScreen({ navigation }) {
           />
           <Row
             label="Member since"
-            value={formatDate(user?.createdAt)}
+            value={formatDateTime(user?.createdAt)}
             divider
           />
         </View>

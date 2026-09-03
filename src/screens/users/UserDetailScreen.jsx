@@ -17,7 +17,7 @@ import { useResetPassword } from '@hooks/useResetPassword';
 import { useUser } from '@hooks/useUser';
 import { useUserStatus } from '@hooks/useUserStatus';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import { validateConfirmPassword, validatePassword } from '@validation/auth';
 import { labelFor } from '@validation/employee';
 import {
@@ -205,7 +205,7 @@ export function UserDetailScreen({ navigation, route }) {
           />
           <Row
             label="Last signed in"
-            value={user.lastLogin ? formatDate(user.lastLogin) : null}
+            value={user.lastLogin ? formatDateTime(user.lastLogin) : null}
             fallback="Never"
             divider
           />
@@ -216,14 +216,14 @@ export function UserDetailScreen({ navigation, route }) {
           />
           <Row
             label="Locked until"
-            value={user.lockUntil ? formatDate(user.lockUntil) : null}
+            value={user.lockUntil ? formatDateTime(user.lockUntil) : null}
             fallback="Not locked"
             divider
           />
           <Row
             label="Password changed"
             value={
-              user.passwordChangedAt ? formatDate(user.passwordChangedAt) : null
+              user.passwordChangedAt ? formatDateTime(user.passwordChangedAt) : null
             }
             fallback="Never"
             divider

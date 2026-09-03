@@ -13,7 +13,7 @@ import { useDeleteDocument } from '@hooks/useDeleteDocument';
 import { useRestoreDocument } from '@hooks/useRestoreDocument';
 import { useSubmitDocument } from '@hooks/useSubmitDocument';
 import { useViewDocument } from '@hooks/useViewDocument';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import {
   documentStatusLabel,
   documentStatusTone,
@@ -207,8 +207,8 @@ export function DocumentDetailScreen({ navigation, route }) {
 
       <Text style={styles.sectionLabel}>Dates</Text>
       <View style={styles.section}>
-        <Row label="Created" value={formatDate(document.createdAt)} />
-        <Row label="Last updated" value={formatDate(document.updatedAt)} divider />
+        <Row label="Created" value={formatDateTime(document.createdAt)} />
+        <Row label="Last updated" value={formatDateTime(document.updatedAt)} divider />
       </View>
 
       <View style={styles.actionBlock}>

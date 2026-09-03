@@ -4,7 +4,7 @@ import { Animated, Platform, Pressable, Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
 import { theme } from '@theme';
-import { formatDate, initialsOf } from '@utils/format';
+import { formatDateTime, initialsOf } from '@utils/format';
 import { labelFor } from '@validation/employee';
 import {
   ACCOUNT_STATUS_LABELS,
@@ -129,7 +129,7 @@ export function UserCard({ user, onPress }) {
             ) : null}
             <Text style={styles.footerLine} numberOfLines={1}>
               {user.lastLogin
-                ? `Last signed in ${formatDate(user.lastLogin)}`
+                ? `Last signed in ${formatDateTime(user.lastLogin)}`
                 : 'Never signed in'}
             </Text>
           </View>
@@ -137,7 +137,7 @@ export function UserCard({ user, onPress }) {
           {failedAttempts > 0 ? (
             <Text style={styles.footerWarn}>
               {failedAttempts} failed sign-in{failedAttempts === 1 ? '' : 's'}
-              {isLocked ? ` · locked until ${formatDate(user.lockUntil)}` : ''}
+              {isLocked ? ` · locked until ${formatDateTime(user.lockUntil)}` : ''}
             </Text>
           ) : null}
         </View>

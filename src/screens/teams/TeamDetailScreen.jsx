@@ -13,7 +13,7 @@ import { useDeleteTeam } from '@hooks/useDeleteTeam';
 import { useTeam } from '@hooks/useTeam';
 import { useTeamStatus } from '@hooks/useTeamStatus';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import { labelFor } from '@validation/employee';
 import { TEAM_STATUS } from '@validation/team';
 
@@ -193,13 +193,13 @@ export function TeamDetailScreen({ navigation, route }) {
           <Row label="Status" value={isActive ? 'Active' : 'Inactive'} />
           <Row
             label="Created"
-            value={formatDate(team.createdAt)}
+            value={formatDateTime(team.createdAt)}
             fallback="Unknown"
             divider
           />
           <Row
             label="Last updated"
-            value={formatDate(team.updatedAt)}
+            value={formatDateTime(team.updatedAt)}
             fallback="Unknown"
             divider
           />

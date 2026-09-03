@@ -4,7 +4,7 @@ import { Animated, Platform, Pressable, Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
 import { theme } from '@theme';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import {
   documentRefLabel,
   employeeRefLabel,
@@ -77,11 +77,11 @@ export function WorkflowCard({ workflow, onPress }) {
             {level && secondary ? (
               <Text style={styles.dateMeta} numberOfLines={1}>
                 {level}
-                {workflow.submittedAt ? ` · Submitted ${formatDate(workflow.submittedAt)}` : ''}
+                {workflow.submittedAt ? ` · Submitted ${formatDateTime(workflow.submittedAt)}` : ''}
               </Text>
             ) : workflow.submittedAt ? (
               <Text style={styles.dateMeta} numberOfLines={1}>
-                Submitted {formatDate(workflow.submittedAt)}
+                Submitted {formatDateTime(workflow.submittedAt)}
               </Text>
             ) : null}
           </View>

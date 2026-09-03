@@ -4,7 +4,7 @@ import { Animated, Platform, Pressable, Text, View } from 'react-native';
 
 import { Badge } from '@components/common/Badge';
 import { theme } from '@theme';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import { documentStatusLabel, documentStatusTone } from '@validation/document';
 import { employeeRefLabel } from '@validation/workflow';
 
@@ -63,7 +63,7 @@ export function DocumentCard({ document, onPress }) {
 
             {document?.updatedAt ? (
               <Text style={styles.dateMeta} numberOfLines={1}>
-                Updated {formatDate(document.updatedAt)}
+                Updated {formatDateTime(document.updatedAt)}
                 {document.currentVersion ? ` · ${document.currentVersion}` : ''}
               </Text>
             ) : null}

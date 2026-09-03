@@ -14,7 +14,7 @@ import { useEmployee } from '@hooks/useEmployee';
 import { useEmployeeAccount } from '@hooks/useEmployeeAccount';
 import { useEmployeeStatus } from '@hooks/useEmployeeStatus';
 import { ROUTES } from '@navigation/routes';
-import { formatDate } from '@utils/format';
+import { formatDateTime } from '@utils/format';
 import { EMPLOYEE_STATUS, labelFor } from '@validation/employee';
 
 import { styles } from '@theme/styles/EmployeeDetailScreen.styles';
@@ -233,7 +233,7 @@ export function EmployeeDetailScreen({ navigation, route }) {
               <Row
                 label="Last signed in"
                 value={
-                  account.lastLogin ? formatDate(account.lastLogin) : null
+                  account.lastLogin ? formatDateTime(account.lastLogin) : null
                 }
                 fallback="Never"
                 divider
@@ -248,7 +248,7 @@ export function EmployeeDetailScreen({ navigation, route }) {
               {account.lockUntil ? (
                 <Row
                   label="Locked until"
-                  value={formatDate(account.lockUntil)}
+                  value={formatDateTime(account.lockUntil)}
                   divider
                 />
               ) : null}
@@ -282,12 +282,12 @@ export function EmployeeDetailScreen({ navigation, route }) {
         <View style={styles.section}>
           <Row
             label="Created"
-            value={formatDate(employee.createdAt)}
+            value={formatDateTime(employee.createdAt)}
             fallback="Unknown"
           />
           <Row
             label="Last updated"
-            value={formatDate(employee.updatedAt)}
+            value={formatDateTime(employee.updatedAt)}
             fallback="Unknown"
             divider
           />
