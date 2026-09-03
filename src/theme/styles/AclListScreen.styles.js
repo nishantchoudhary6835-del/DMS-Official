@@ -35,6 +35,24 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
 
+  filterToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xs,
+    paddingBottom: theme.spacing.sm,
+  },
+  filterToggleLabel: {
+    ...theme.typography.overline,
+    color: theme.colors.textSecondary,
+  },
+  filterChevron: {
+    marginLeft: theme.spacing.xs,
+  },
+  filterGroups: {
+    paddingBottom: theme.spacing.xs,
+  },
+
   filterScroll: {
     flexGrow: 0,
     flexShrink: 0,
@@ -43,6 +61,18 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
+  },
+
+  moreFilters: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
+  },
+  moreFiltersItem: {
+    width: '47%',
+    minWidth: 180,
   },
 
   errorBlock: {

@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
+import { referenceId } from '@utils/format';
+import { aclScopeTier } from '@validation/acl';
 
-// All ACL rules, status/effect/hierarchyLevel-filtered client-side (the
-// endpoint takes no query parameters).
+// All ACL rules, filtered client-side across every dimension GET /acl
+// documents (ACL_MODULE.md §8.1) — the app fetches the full cached list once
+// via AppDataContext rather than sending these as query params, same as the
+// rest of the app's admin lists.
 export function useAcls() {
   const { acls } = useAppData();
   const [filters, setFilters] = useState({});
@@ -20,6 +24,15 @@ export function useAcls() {
         if (filters.hierarchyLevel && acl.hierarchyLevel !== filters.hierarchyLevel) {
           return false;
         }
+        if (filters.scope && aclScopeTier(acl) !== filters.scope) return false;
+        if (filters.permission && referenceId(acl.permission) !== filters.permission) {
+          return false;
+        }
+        if (filters.department && referenceId(acl.department) !== filters.department) {
+          return false;
+        }
+        if (filters.team && referenceId(acl.team) !== filters.team) return false;
+        if (filters.employee && referenceId(acl.employee) !== filters.employee) return false;
         return true;
       }),
     [acls.data, filters]
@@ -32,6 +45,13 @@ export function useAcls() {
     }));
   }, []);
 
+  // Select-driven filters (Permission/Department/Team/Employee) set directly
+  // rather than toggle — a dropdown always names an intentional value or
+  // clears to none, unlike a chip re-tapped to undo itself.
+  const setFilter = useCallback((key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value || undefined }));
+  }, []);
+
   const clearFilters = useCallback(() => setFilters({}), []);
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
@@ -42,6 +62,7 @@ export function useAcls() {
     filters,
     activeFilterCount,
     toggleFilter,
+    setFilter,
     clearFilters,
     isLoading: acls.isLoading,
     isRefreshing: acls.isRefreshing,

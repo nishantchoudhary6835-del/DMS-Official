@@ -4,7 +4,7 @@ import { useAppData } from '@context/AppDataContext';
 import { useAuth } from '@context/AuthContext';
 import { referenceId } from '@utils/format';
 
-const MEMBER_SCOPED_LEVELS = new Set(['MANAGER', 'TEAM', 'EMPLOYEE', 'INTERN']);
+const MEMBER_SCOPED_LEVELS = new Set(['MANAGER', 'EMPLOYEE', 'INTERN']);
 
 // Teams visible to this user, filtered client-side. The full list is shared
 // via AppDataContext rather than sent back as query params per filter

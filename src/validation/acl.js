@@ -65,14 +65,32 @@ export function employeeRefLabel(employee) {
   );
 }
 
+export const ACL_SCOPE = {
+  GLOBAL: 'GLOBAL',
+  DEPARTMENT: 'DEPARTMENT',
+  TEAM: 'TEAM',
+  EMPLOYEE: 'EMPLOYEE',
+};
+
+export const ACL_SCOPE_LABELS = {
+  [ACL_SCOPE.EMPLOYEE]: 'Employee-specific',
+  [ACL_SCOPE.TEAM]: 'Team-specific',
+  [ACL_SCOPE.DEPARTMENT]: 'Department-specific',
+  [ACL_SCOPE.GLOBAL]: 'Global',
+};
+
 // The tier a rule matches on, per §4's priority order: Employee > Team >
 // Department > Global. Naming all three still matches only the narrowest.
-export function aclScopeLabel(acl) {
-  if (acl?.employee) return 'Employee-specific';
-  if (acl?.team) return 'Team-specific';
-  if (acl?.department) return 'Department-specific';
+export function aclScopeTier(acl) {
+  if (acl?.employee) return ACL_SCOPE.EMPLOYEE;
+  if (acl?.team) return ACL_SCOPE.TEAM;
+  if (acl?.department) return ACL_SCOPE.DEPARTMENT;
 
-  return 'Global';
+  return ACL_SCOPE.GLOBAL;
+}
+
+export function aclScopeLabel(acl) {
+  return ACL_SCOPE_LABELS[aclScopeTier(acl)];
 }
 
 // Plain-English reading of who a rule narrows to, for the card with no room

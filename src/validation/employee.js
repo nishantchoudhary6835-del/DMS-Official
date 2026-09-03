@@ -4,34 +4,32 @@ export const FALLBACK_HIERARCHY_LEVELS = [
   'SUPER_ADMIN',
   'GOVERNANCE',
   'EXECUTIVE',
-  'DEPARTMENT',
+  'DEPARTMENT_HEAD',
   'MANAGER',
   'TEAM_LEAD',
-  'TEAM',
   'EMPLOYEE',
   'INTERN',
 ];
 
 // Display names, overrides only — GET /hierarchy returns the raw enum. Missing
-// entries fall through to titleCase(); DEPARTMENT is why this is a table.
+// entries fall through to titleCase(); DEPARTMENT_HEAD is why this is a table.
 const HIERARCHY_LABELS = {
   SUPER_ADMIN: 'Super Admin',
   GOVERNANCE: 'Governance',
   EXECUTIVE: 'Executive',
-  DEPARTMENT: 'Department Head',
+  DEPARTMENT_HEAD: 'Department Head',
   MANAGER: 'Manager',
   TEAM_LEAD: 'Team Lead',
-  TEAM: 'Team',
   EMPLOYEE: 'Employee',
   INTERN: 'Intern',
 };
 
-// GET /hierarchy's active levels no longer include DEPARTMENT_HEAD — it was
-// renamed to DEPARTMENT at some point, but existing employee records still
-// carry the old value. Treat them as the same tier everywhere one is compared
-// against the other, rather than leaving those employees unmatchable.
+// Defensive only: DEPARTMENT_HEAD is the real, current value — confirmed
+// against both the live GET /hierarchy response and ACL_MODULE.md §3. If a
+// stray record ever carries the bare `DEPARTMENT` value instead, treat it as
+// the same tier rather than leaving that employee unmatchable.
 const HIERARCHY_LEVEL_ALIASES = {
-  DEPARTMENT_HEAD: 'DEPARTMENT',
+  DEPARTMENT: 'DEPARTMENT_HEAD',
 };
 
 export function normalizeHierarchyLevel(level) {

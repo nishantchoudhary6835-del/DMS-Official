@@ -4,7 +4,7 @@ import { useAppData } from '@context/AppDataContext';
 import { useAuth } from '@context/AuthContext';
 import { referenceId } from '@utils/format';
 
-const MEMBER_SCOPED_LEVELS = new Set(['MANAGER', 'TEAM', 'EMPLOYEE', 'INTERN']);
+const MEMBER_SCOPED_LEVELS = new Set(['MANAGER', 'EMPLOYEE', 'INTERN']);
 
 // Departments visible to this user, status-filtered client-side (the endpoint
 // takes no query parameters). Scoped below admin-or-above/Governance: a
@@ -32,7 +32,7 @@ export function useDepartments() {
   const scoped = useMemo(() => {
     if (isAdminOrAbove === true || hierarchyLevel === 'GOVERNANCE') return departments.data;
 
-    if (hierarchyLevel === 'DEPARTMENT') {
+    if (hierarchyLevel === 'DEPARTMENT_HEAD') {
       return departments.data.filter(
         (department) => referenceId(department.head) === ownEmployeeId
       );
