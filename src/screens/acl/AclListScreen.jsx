@@ -1,16 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useRef, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { theme } from '@theme';
 
 import { AclCard } from '@components/acl/AclCard';
+import { AclFilterModal } from '@components/acl/AclFilterModal';
 import { Button } from '@components/common/Button';
-import { Chip } from '@components/common/Chip';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
-import { Select } from '@components/common/Select';
 import { Screen } from '@components/layout/Screen';
 import { useAcls } from '@hooks/useAcls';
 import { useDepartments } from '@hooks/useDepartments';
@@ -19,7 +18,6 @@ import { useHierarchy } from '@hooks/useHierarchy';
 import { usePermissionOptions } from '@hooks/usePermissionOptions';
 import { useTeams } from '@hooks/useTeams';
 import { ROUTES } from '@navigation/routes';
-import { ACL_EFFECT, ACL_SCOPE, ACL_SCOPE_LABELS, ACL_STATUS } from '@validation/acl';
 
 import { styles } from '@theme/styles/AclListScreen.styles';
 
@@ -51,7 +49,7 @@ export function AclListScreen({ navigation }) {
   }));
   const teamOptions = teams.map((team) => ({ value: team._id, label: team.name }));
 
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const hasFocusedOnce = useRef(false);
 
@@ -124,138 +122,30 @@ export function AclListScreen({ navigation }) {
       </Text>
 
       <Pressable
-        onPress={() => setIsFiltersOpen((prev) => !prev)}
+        onPress={() => setIsFilterModalOpen(true)}
         accessibilityRole="button"
-        accessibilityState={{ expanded: isFiltersOpen }}
         style={styles.filterToggle}
       >
+        <Ionicons name="options-outline" size={16} color={theme.colors.textSecondary} />
         <Text style={styles.filterToggleLabel}>
           Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
         </Text>
-        <Ionicons
-          name={isFiltersOpen ? 'chevron-up' : 'chevron-down'}
-          size={14}
-          color={theme.colors.textSecondary}
-          style={styles.filterChevron}
-        />
       </Pressable>
 
-      {isFiltersOpen ? (
-        <View style={styles.filterGroups}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterScroll}
-            contentContainerStyle={styles.filterRow}
-          >
-            {Object.values(ACL_STATUS).map((value) => (
-              <Chip
-                key={value}
-                label={value === ACL_STATUS.ACTIVE ? 'Active' : 'Inactive'}
-                selected={filters.status === value}
-                onPress={() => toggleFilter('status', value)}
-              />
-            ))}
-          </ScrollView>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterScroll}
-            contentContainerStyle={styles.filterRow}
-          >
-            {Object.values(ACL_EFFECT).map((value) => (
-              <Chip
-                key={value}
-                label={value === ACL_EFFECT.ALLOW ? 'Allow' : 'Deny'}
-                selected={filters.effect === value}
-                onPress={() => toggleFilter('effect', value)}
-              />
-            ))}
-          </ScrollView>
-
-          {hierarchyOptions.length ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterScroll}
-              contentContainerStyle={styles.filterRow}
-            >
-              {hierarchyOptions.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={option.label}
-                  selected={filters.hierarchyLevel === option.value}
-                  onPress={() => toggleFilter('hierarchyLevel', option.value)}
-                />
-              ))}
-            </ScrollView>
-          ) : null}
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterScroll}
-            contentContainerStyle={styles.filterRow}
-          >
-            {Object.values(ACL_SCOPE).map((value) => (
-              <Chip
-                key={value}
-                label={ACL_SCOPE_LABELS[value]}
-                selected={filters.scope === value}
-                onPress={() => toggleFilter('scope', value)}
-              />
-            ))}
-          </ScrollView>
-
-          <View style={styles.moreFilters}>
-            <View style={styles.moreFiltersItem}>
-              <Select
-                label="Permission"
-                value={filters.permission ?? null}
-                options={permissionOptions}
-                onChange={(value) => setFilter('permission', value)}
-                placeholder="All permissions"
-                disabled={!permissionOptions.length}
-                allowClear
-              />
-            </View>
-            <View style={styles.moreFiltersItem}>
-              <Select
-                label="Department"
-                value={filters.department ?? null}
-                options={departmentOptions}
-                onChange={(value) => setFilter('department', value)}
-                placeholder="All departments"
-                disabled={!departmentOptions.length}
-                allowClear
-              />
-            </View>
-            <View style={styles.moreFiltersItem}>
-              <Select
-                label="Team"
-                value={filters.team ?? null}
-                options={teamOptions}
-                onChange={(value) => setFilter('team', value)}
-                placeholder="All teams"
-                disabled={!teamOptions.length}
-                allowClear
-              />
-            </View>
-            <View style={styles.moreFiltersItem}>
-              <Select
-                label="Employee"
-                value={filters.employee ?? null}
-                options={employeeOptions}
-                onChange={(value) => setFilter('employee', value)}
-                placeholder="All employees"
-                disabled={!employeeOptions.length}
-                allowClear
-              />
-            </View>
-          </View>
-        </View>
-      ) : null}
+      <AclFilterModal
+        visible={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filters={filters}
+        toggleFilter={toggleFilter}
+        setFilter={setFilter}
+        clearFilters={clearFilters}
+        activeFilterCount={activeFilterCount}
+        hierarchyOptions={hierarchyOptions}
+        permissionOptions={permissionOptions}
+        departmentOptions={departmentOptions}
+        teamOptions={teamOptions}
+        employeeOptions={employeeOptions}
+      />
 
       {error ? (
         <View style={styles.errorBlock}>
@@ -280,6 +170,7 @@ export function AclListScreen({ navigation }) {
           renderItem={({ item }) => (
             <AclCard acl={item} onPress={item._id ? () => openAcl(item._id) : undefined} />
           )}
+          style={styles.list}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmpty}
           refreshControl={
