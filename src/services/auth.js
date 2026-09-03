@@ -41,6 +41,13 @@ export async function logout() {
   return data;
 }
 
+// Same endpoint the 401 interceptor retries through, called directly here so
+// AuthContext can confirm a restored session is still live before trusting it.
+export async function refreshSession() {
+  const { data } = await axiosInstance.post('/auth/refresh', {});
+  return data;
+}
+
 export async function forgotPassword(email) {
   const { data } = await axiosInstance.post(
     '/auth/forgot-password',

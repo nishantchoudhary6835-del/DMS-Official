@@ -91,8 +91,26 @@ export function AuthProvider({ children }) {
 
       if (cancelled) return;
 
-      if (stored) setUser(stored);
-      setIsRestoring(false);
+      if (!stored) {
+        setIsRestoring(false);
+        return;
+      }
+
+      // `stored` is only a display cache — the real session lives in the
+      // httpOnly cookie. Confirm it is still valid (and still this account's)
+      // before ever painting it, instead of showing it optimistically and
+      // only correcting it after some later request happens to 401. That gap
+      // is what let a stale or previously-signed-in account flash on load.
+      try {
+        await authApi.refreshSession();
+        if (cancelled) return;
+        setUser(stored);
+      } catch {
+        if (cancelled) return;
+        await clearStoredUser();
+      } finally {
+        if (!cancelled) setIsRestoring(false);
+      }
     })();
 
     return () => {
