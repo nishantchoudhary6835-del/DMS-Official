@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppData } from '@context/AppDataContext';
 
-// All ACL rules, status/effect-filtered client-side (the endpoint takes no
-// query parameters).
+// All ACL rules, status/effect/hierarchyLevel-filtered client-side (the
+// endpoint takes no query parameters).
 export function useAcls() {
   const { acls } = useAppData();
   const [filters, setFilters] = useState({});
@@ -17,6 +17,9 @@ export function useAcls() {
       acls.data.filter((acl) => {
         if (filters.status && acl.status !== filters.status) return false;
         if (filters.effect && acl.effect !== filters.effect) return false;
+        if (filters.hierarchyLevel && acl.hierarchyLevel !== filters.hierarchyLevel) {
+          return false;
+        }
         return true;
       }),
     [acls.data, filters]

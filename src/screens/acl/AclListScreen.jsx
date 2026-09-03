@@ -9,6 +9,7 @@ import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Screen } from '@components/layout/Screen';
 import { useAcls } from '@hooks/useAcls';
+import { useHierarchy } from '@hooks/useHierarchy';
 import { ROUTES } from '@navigation/routes';
 import { ACL_EFFECT, ACL_STATUS } from '@validation/acl';
 
@@ -28,6 +29,8 @@ export function AclListScreen({ navigation }) {
     isForbidden,
     refresh,
   } = useAcls();
+
+  const { options: hierarchyOptions } = useHierarchy();
 
   const hasFocusedOnce = useRef(false);
 
@@ -130,6 +133,24 @@ export function AclListScreen({ navigation }) {
           />
         ))}
       </ScrollView>
+
+      {hierarchyOptions.length ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterScroll}
+          contentContainerStyle={styles.filterRow}
+        >
+          {hierarchyOptions.map((option) => (
+            <Chip
+              key={option.value}
+              label={option.label}
+              selected={filters.hierarchyLevel === option.value}
+              onPress={() => toggleFilter('hierarchyLevel', option.value)}
+            />
+          ))}
+        </ScrollView>
+      ) : null}
 
       {error ? (
         <View style={styles.errorBlock}>
