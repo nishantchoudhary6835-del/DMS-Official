@@ -1,12 +1,14 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { ScreenBackground } from '@components/layout/ScreenBackground';
 import { RootNavigator } from '@navigation/RootNavigator';
 import { AppProviders } from '@providers/AppProviders';
 import { colors, fontAssets } from '@theme';
+import { installPersistentScrollbars } from '@utils/webScrollbars';
 
 import { styles } from '@theme/styles/App.styles';
 
@@ -19,6 +21,10 @@ const navigationTheme = {
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts(fontAssets);
+
+  useEffect(() => {
+    installPersistentScrollbars();
+  }, []);
 
   // Hold the first paint until the typefaces are in memory, or the app flashes
   // in the system font and reflows. A font failure carries on rather than traps.
