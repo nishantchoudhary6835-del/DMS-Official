@@ -75,33 +75,38 @@ export const NAV_SECTIONS = [
   {
     key: 'administration',
     title: 'Administration',
-    // Whole section: Super Admin or Executive only, read from the signed-in
-    // employee's hierarchyLevel — see ADMIN_OR_ABOVE_LEVELS in AuthContext.jsx.
-    requiresAccess: 'ADMIN_OR_ABOVE',
+    // No section-level gate: each item below carries its own requiresAccess
+    // (or none, for everyone) — see ADMIN_OR_ABOVE_LEVELS in AuthContext.jsx.
     items: [
       {
         key: 'users',
         label: 'Users',
         icon: 'people-outline',
         route: ROUTES.MAIN.ACCOUNTS,
+        requiresAccess: 'ADMIN_OR_ABOVE',
       },
       {
         key: 'employees',
         label: 'Employees',
         icon: 'id-card-outline',
         route: ROUTES.MAIN.EMPLOYEES,
+        requiresAccess: 'ADMIN_OR_ABOVE',
       },
       {
         key: 'departments',
         label: 'Departments',
         icon: 'business-outline',
         route: ROUTES.MAIN.DEPARTMENTS,
+        // Ungated: everyone sees this, scoped by useDepartments() to what
+        // their role actually covers (own headed department, own
+        // department as a member, or everything for admin-or-above/Governance).
       },
       {
         key: 'teams',
         label: 'Teams',
         icon: 'git-network-outline',
         route: ROUTES.MAIN.TEAMS,
+        // Ungated — see the departments item's comment; useTeams() scopes it.
       },
       {
         key: 'permissions',

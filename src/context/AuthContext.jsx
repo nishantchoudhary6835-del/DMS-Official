@@ -12,7 +12,7 @@ import {
   getStoredUser,
   setStoredUser,
 } from '@utils/storage';
-import { FALLBACK_HIERARCHY_LEVELS } from '@validation/employee';
+import { FALLBACK_HIERARCHY_LEVELS, normalizeHierarchyLevel } from '@validation/employee';
 import { IS_DEV } from '@config/env';
 import * as authApi from '@services/auth';
 import * as departmentApi from '@services/department';
@@ -44,12 +44,15 @@ function isAtOrAbove(level, floor) {
 
 // Null when `employeeId` is not a populated object — a session restored from
 // storage predating that backend change would otherwise lose its role.
+// Normalized (e.g. legacy `DEPARTMENT_HEAD` records -> `DEPARTMENT`) so every
+// comparison against a current-enum value below (isAtOrAbove, ===, Set.has)
+// matches regardless of which value a given employee record still carries.
 function hierarchyLevelOf(user) {
   const employee = user?.employeeId;
 
   if (!employee || typeof employee !== 'object') return null;
 
-  return employee.hierarchyLevel ?? null;
+  return normalizeHierarchyLevel(employee.hierarchyLevel) ?? null;
 }
 
 // `{ isSuperAdmin, isAdminOrAbove }`, or null when the record carries no
@@ -63,6 +66,7 @@ function deriveAccess(user) {
     isSuperAdmin: level === 'SUPER_ADMIN',
     isAdminOrAbove: ADMIN_OR_ABOVE_LEVELS.has(level),
     isTeamLeadOrAbove: isAtOrAbove(level, 'TEAM_LEAD'),
+    hierarchyLevel: level,
   };
 }
 
@@ -71,7 +75,7 @@ function deriveAccess(user) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isRestoring, setIsRestoring] = useState(true);
-  const [access, setAccess] = useState({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null });
+  const [access, setAccess] = useState({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null, hierarchyLevel: null });
 
   const applyUser = useCallback(async (userData) => {
     setUser(userData);
@@ -122,7 +126,7 @@ export function AuthProvider({ children }) {
   // sign-out rather than leaving a stale role behind.
   useEffect(() => {
     if (!user) {
-      setAccess({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null });
+      setAccess({ isSuperAdmin: null, isAdminOrAbove: null, isTeamLeadOrAbove: null, hierarchyLevel: null });
       return;
     }
 
@@ -157,6 +161,9 @@ export function AuthProvider({ children }) {
         // The probe cannot tell a Team Lead from an Intern, so it under-reports
         // rather than guessing. Self-heals on the next sign-in.
         isTeamLeadOrAbove: isAdminOrAbove,
+        // Nor can it tell which specific level below admin this is — leave
+        // per-level scoping (Departments/Teams) empty rather than guessing.
+        hierarchyLevel: null,
       });
     })();
 
@@ -198,6 +205,7 @@ export function AuthProvider({ children }) {
       isSuperAdmin: access.isSuperAdmin,
       isAdminOrAbove: access.isAdminOrAbove,
       isTeamLeadOrAbove: access.isTeamLeadOrAbove,
+      hierarchyLevel: access.hierarchyLevel,
       isCheckingAccess: Boolean(user) && access.isSuperAdmin === null,
       signIn,
       signOut,
