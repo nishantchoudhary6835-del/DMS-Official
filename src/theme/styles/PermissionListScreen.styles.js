@@ -52,6 +52,12 @@ export const styles = StyleSheet.create({
   filterGroups: {
     paddingBottom: theme.spacing.xs,
   },
+  filterGroupLabel: {
+    ...theme.typography.label,
+    color: theme.colors.textMuted,
+    paddingHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.xs,
+  },
 
   // react-native-web gives ScrollView `flexGrow: 1`; when the list below
   // collapses this row grows and stretches every chip. Pinning it stops that.

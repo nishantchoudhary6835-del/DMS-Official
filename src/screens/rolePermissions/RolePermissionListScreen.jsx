@@ -131,9 +131,10 @@ export function RolePermissionListScreen({ navigation }) {
 
       {isFiltersOpen ? (
         <View style={styles.filterGroups}>
+          <Text style={styles.filterGroupLabel}>Status</Text>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator
             style={styles.filterScroll}
             contentContainerStyle={styles.filterRow}
           >
@@ -148,21 +149,24 @@ export function RolePermissionListScreen({ navigation }) {
           </ScrollView>
 
           {hierarchyOptions.length ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterScroll}
-              contentContainerStyle={styles.filterRow}
-            >
-              {hierarchyOptions.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={option.label}
-                  selected={filters.hierarchyLevel === option.value}
-                  onPress={() => toggleFilter('hierarchyLevel', option.value)}
-                />
-              ))}
-            </ScrollView>
+            <>
+              <Text style={styles.filterGroupLabel}>Hierarchy level</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator
+                style={styles.filterScroll}
+                contentContainerStyle={styles.filterRow}
+              >
+                {hierarchyOptions.map((option) => (
+                  <Chip
+                    key={option.value}
+                    label={option.label}
+                    selected={filters.hierarchyLevel === option.value}
+                    onPress={() => toggleFilter('hierarchyLevel', option.value)}
+                  />
+                ))}
+              </ScrollView>
+            </>
           ) : null}
         </View>
       ) : null}

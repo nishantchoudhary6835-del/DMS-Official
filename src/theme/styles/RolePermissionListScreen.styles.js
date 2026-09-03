@@ -52,6 +52,12 @@ export const styles = StyleSheet.create({
   filterGroups: {
     paddingBottom: theme.spacing.xs,
   },
+  filterGroupLabel: {
+    ...theme.typography.label,
+    color: theme.colors.textMuted,
+    paddingHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.xs,
+  },
 
   filterScroll: {
     flexGrow: 0,

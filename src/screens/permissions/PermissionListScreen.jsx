@@ -130,9 +130,10 @@ export function PermissionListScreen({ navigation }) {
 
       {isFiltersOpen ? (
         <View style={styles.filterGroups}>
+          <Text style={styles.filterGroupLabel}>Status</Text>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator
             style={styles.filterScroll}
             contentContainerStyle={styles.filterRow}
           >
@@ -146,9 +147,10 @@ export function PermissionListScreen({ navigation }) {
             ))}
           </ScrollView>
 
+          <Text style={styles.filterGroupLabel}>Action</Text>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator
             style={styles.filterScroll}
             contentContainerStyle={styles.filterRow}
           >
