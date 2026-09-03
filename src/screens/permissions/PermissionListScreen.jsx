@@ -1,6 +1,9 @@
-import { useCallback, useRef } from 'react';
-import { FlatList, RefreshControl, ScrollView, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useCallback, useRef, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { theme } from '@theme';
 
 import { Button } from '@components/common/Button';
 import { Chip } from '@components/common/Chip';
@@ -32,6 +35,8 @@ export function PermissionListScreen({ navigation }) {
     isForbidden,
     refresh,
   } = usePermissions();
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const hasFocusedOnce = useRef(false);
 
@@ -106,37 +111,58 @@ export function PermissionListScreen({ navigation }) {
         role next in Role Assignments.
       </Text>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterScroll}
-        contentContainerStyle={styles.filterRow}
+      <Pressable
+        onPress={() => setIsFiltersOpen((prev) => !prev)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: isFiltersOpen }}
+        style={styles.filterToggle}
       >
-        {Object.values(PERMISSION_STATUS).map((value) => (
-          <Chip
-            key={value}
-            label={value === PERMISSION_STATUS.ACTIVE ? 'Active' : 'Inactive'}
-            selected={filters.status === value}
-            onPress={() => toggleFilter('status', value)}
-          />
-        ))}
-      </ScrollView>
+        <Text style={styles.filterToggleLabel}>
+          Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+        </Text>
+        <Ionicons
+          name={isFiltersOpen ? 'chevron-up' : 'chevron-down'}
+          size={14}
+          color={theme.colors.textSecondary}
+          style={styles.filterChevron}
+        />
+      </Pressable>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterScroll}
-        contentContainerStyle={styles.filterRow}
-      >
-        {PERMISSION_ACTIONS.map((value) => (
-          <Chip
-            key={value}
-            label={actionLabel(value)}
-            selected={filters.action === value}
-            onPress={() => toggleFilter('action', value)}
-          />
-        ))}
-      </ScrollView>
+      {isFiltersOpen ? (
+        <View style={styles.filterGroups}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={styles.filterRow}
+          >
+            {Object.values(PERMISSION_STATUS).map((value) => (
+              <Chip
+                key={value}
+                label={value === PERMISSION_STATUS.ACTIVE ? 'Active' : 'Inactive'}
+                selected={filters.status === value}
+                onPress={() => toggleFilter('status', value)}
+              />
+            ))}
+          </ScrollView>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={styles.filterRow}
+          >
+            {PERMISSION_ACTIONS.map((value) => (
+              <Chip
+                key={value}
+                label={actionLabel(value)}
+                selected={filters.action === value}
+                onPress={() => toggleFilter('action', value)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
 
       {error ? (
         <View style={styles.errorBlock}>

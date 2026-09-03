@@ -35,6 +35,24 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
 
+  filterToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xs,
+    paddingBottom: theme.spacing.sm,
+  },
+  filterToggleLabel: {
+    ...theme.typography.overline,
+    color: theme.colors.textSecondary,
+  },
+  filterChevron: {
+    marginLeft: theme.spacing.xs,
+  },
+  filterGroups: {
+    paddingBottom: theme.spacing.xs,
+  },
+
   filterScroll: {
     flexGrow: 0,
     flexShrink: 0,

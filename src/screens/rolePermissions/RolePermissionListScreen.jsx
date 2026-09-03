@@ -1,6 +1,9 @@
-import { useCallback, useRef } from 'react';
-import { FlatList, RefreshControl, ScrollView, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useCallback, useRef, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { theme } from '@theme';
 
 import { Button } from '@components/common/Button';
 import { Chip } from '@components/common/Chip';
@@ -31,6 +34,8 @@ export function RolePermissionListScreen({ navigation }) {
   } = useRolePermissions();
 
   const { options: hierarchyOptions } = useHierarchy();
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const hasFocusedOnce = useRef(false);
 
@@ -107,38 +112,59 @@ export function RolePermissionListScreen({ navigation }) {
         the Access Rule decides for real.
       </Text>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterScroll}
-        contentContainerStyle={styles.filterRow}
+      <Pressable
+        onPress={() => setIsFiltersOpen((prev) => !prev)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: isFiltersOpen }}
+        style={styles.filterToggle}
       >
-        {Object.values(ROLE_PERMISSION_STATUS).map((value) => (
-          <Chip
-            key={value}
-            label={value === ROLE_PERMISSION_STATUS.ACTIVE ? 'Active' : 'Inactive'}
-            selected={filters.status === value}
-            onPress={() => toggleFilter('status', value)}
-          />
-        ))}
-      </ScrollView>
+        <Text style={styles.filterToggleLabel}>
+          Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+        </Text>
+        <Ionicons
+          name={isFiltersOpen ? 'chevron-up' : 'chevron-down'}
+          size={14}
+          color={theme.colors.textSecondary}
+          style={styles.filterChevron}
+        />
+      </Pressable>
 
-      {hierarchyOptions.length ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScroll}
-          contentContainerStyle={styles.filterRow}
-        >
-          {hierarchyOptions.map((option) => (
-            <Chip
-              key={option.value}
-              label={option.label}
-              selected={filters.hierarchyLevel === option.value}
-              onPress={() => toggleFilter('hierarchyLevel', option.value)}
-            />
-          ))}
-        </ScrollView>
+      {isFiltersOpen ? (
+        <View style={styles.filterGroups}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={styles.filterRow}
+          >
+            {Object.values(ROLE_PERMISSION_STATUS).map((value) => (
+              <Chip
+                key={value}
+                label={value === ROLE_PERMISSION_STATUS.ACTIVE ? 'Active' : 'Inactive'}
+                selected={filters.status === value}
+                onPress={() => toggleFilter('status', value)}
+              />
+            ))}
+          </ScrollView>
+
+          {hierarchyOptions.length ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filterScroll}
+              contentContainerStyle={styles.filterRow}
+            >
+              {hierarchyOptions.map((option) => (
+                <Chip
+                  key={option.value}
+                  label={option.label}
+                  selected={filters.hierarchyLevel === option.value}
+                  onPress={() => toggleFilter('hierarchyLevel', option.value)}
+                />
+              ))}
+            </ScrollView>
+          ) : null}
+        </View>
       ) : null}
 
       {error ? (
