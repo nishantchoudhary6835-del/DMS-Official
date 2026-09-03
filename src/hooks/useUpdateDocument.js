@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
+import { useAppData } from '@context/AppDataContext';
 import { normalizeError } from '@utils/errors';
 import { mapDocumentError } from '@validation/document';
 import * as documentApi from '@services/document';
 
 export function useUpdateDocument() {
+  const { documents } = useAppData();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -23,7 +26,11 @@ export function useUpdateDocument() {
 
       try {
         const response = await documentApi.updateDocument(documentId, values);
-        return response?.data ?? null;
+        const updated = response?.data ?? null;
+
+        if (updated) documents.invalidate();
+
+        return updated;
       } catch (caught) {
         const normalized = normalizeError(caught);
 
@@ -47,7 +54,7 @@ export function useUpdateDocument() {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, clearMessages]
+    [isSubmitting, clearMessages, documents]
   );
 
   return { submit, isSubmitting, error, fieldErrors, clearMessages };

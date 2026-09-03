@@ -95,12 +95,13 @@ function useListResource(fetcher, forbiddenMessage) {
 
   const refresh = useCallback(() => load({ refresh: true }), [load]);
 
-  // Marks the cache stale so the next `ensure()` really refetches — a mutation
-  // made from a screen the list is not mounted under would otherwise be missed.
+  // Refetches now, not just on the next `ensure()` — a mutation made from a
+  // screen the list is not mounted under (e.g. it sits beneath in a tab that
+  // never remounts) would otherwise sit stale until something else reloads it.
   const invalidate = useCallback(() => {
     hasLoadedRef.current = false;
-    setState((prev) => ({ ...prev, hasLoaded: false }));
-  }, []);
+    load({ refresh: true });
+  }, [load]);
 
   return useMemo(
     () => ({ ...state, ensure, refresh, invalidate }),

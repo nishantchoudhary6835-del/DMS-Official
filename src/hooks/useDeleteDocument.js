@@ -1,9 +1,12 @@
 import { useCallback, useState } from 'react';
 
+import { useAppData } from '@context/AppDataContext';
 import { normalizeError, permissionDenialMessage } from '@utils/errors';
 import * as documentApi from '@services/document';
 
 export function useDeleteDocument() {
+  const { documents } = useAppData();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -18,6 +21,7 @@ export function useDeleteDocument() {
 
       try {
         await documentApi.deleteDocument(documentId);
+        documents.invalidate();
         return true;
       } catch (caught) {
         const normalized = normalizeError(caught);
@@ -44,7 +48,7 @@ export function useDeleteDocument() {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, clearMessages]
+    [isSubmitting, clearMessages, documents]
   );
 
   return { submit, isSubmitting, error, clearMessages };

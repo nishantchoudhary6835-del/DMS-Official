@@ -10,7 +10,6 @@ import { useAuth } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import { useCreateDocument } from '@hooks/useCreateDocument';
 import { useDepartmentOptions } from '@hooks/useDepartmentOptions';
-import { useDocuments } from '@hooks/useDocuments';
 import { useSubmitDocument } from '@hooks/useSubmitDocument';
 import { useTeamOptions } from '@hooks/useTeamOptions';
 import { useUpdateDocument } from '@hooks/useUpdateDocument';
@@ -50,10 +49,6 @@ export function CreateDocumentScreen({ navigation }) {
     isSubmitting: isSubmittingForReview,
     error: submitForReviewError,
   } = useSubmitDocument();
-
-  // Reached from the sidebar and dashboard, so the document lists are not mounted
-  // beneath and get no focus-refresh — Drafts would show a pre-creation cache.
-  const { invalidate: invalidateDocuments } = useDocuments();
 
   const [screenMode, setScreenMode] = useState('create');
   const [createdDocument, setCreatedDocument] = useState(null);
@@ -146,7 +141,6 @@ export function CreateDocumentScreen({ navigation }) {
     const created = await submit(values);
 
     if (created) {
-      invalidateDocuments();
       toast.success('Document uploaded.');
       setCreatedDocument(created);
       setScreenMode('created');
@@ -157,8 +151,6 @@ export function CreateDocumentScreen({ navigation }) {
     const result = await submitForReview(createdDocument._id);
 
     if (result) {
-      // DRAFT -> SUBMITTED moves it out of Drafts and into In Review.
-      invalidateDocuments();
       toast.success('Document submitted for review.');
       navigation.goBack();
     }
@@ -193,7 +185,6 @@ export function CreateDocumentScreen({ navigation }) {
     const updated = await submitUpdate(createdDocument._id, values);
 
     if (updated) {
-      invalidateDocuments();
       toast.success(
         updated.currentVersion
           ? `Document updated to ${updated.currentVersion}.`

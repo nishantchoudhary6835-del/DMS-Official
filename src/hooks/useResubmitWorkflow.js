@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
+import { useAppData } from '@context/AppDataContext';
 import { normalizeError } from '@utils/errors';
 import { mapWorkflowError } from '@validation/workflow';
 import * as workflowApi from '@services/workflow';
 
 export function useResubmitWorkflow() {
+  const { documents, mySubmissions } = useAppData();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,7 +22,14 @@ export function useResubmitWorkflow() {
 
       try {
         const response = await workflowApi.resubmitDocument(documentId);
-        return response?.data ?? null;
+        const updated = response?.data ?? null;
+
+        if (updated) {
+          documents.invalidate();
+          mySubmissions.invalidate();
+        }
+
+        return updated;
       } catch (caught) {
         const normalized = normalizeError(caught);
 
@@ -35,7 +45,7 @@ export function useResubmitWorkflow() {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, clearMessages]
+    [isSubmitting, clearMessages, documents, mySubmissions]
   );
 
   return { submit, isSubmitting, error, clearMessages };

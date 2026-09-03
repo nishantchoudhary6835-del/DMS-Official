@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
+import { useAppData } from '@context/AppDataContext';
 import { normalizeError } from '@utils/errors';
 import { mapDocumentError } from '@validation/document';
 import * as documentApi from '@services/document';
 
 export function useCreateDocument() {
+  const { documents } = useAppData();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -23,7 +26,13 @@ export function useCreateDocument() {
 
       try {
         const response = await documentApi.createDocument(values);
-        return response?.data ?? null;
+        const created = response?.data ?? null;
+
+        // So every list showing "my documents" (Drafts, the dashboard, …)
+        // reflects it immediately, not just the next time one happens to remount.
+        if (created) documents.invalidate();
+
+        return created;
       } catch (caught) {
         const normalized = normalizeError(caught);
 
@@ -42,7 +51,7 @@ export function useCreateDocument() {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, clearMessages]
+    [isSubmitting, clearMessages, documents]
   );
 
   return { submit, isSubmitting, error, fieldErrors, clearMessages };

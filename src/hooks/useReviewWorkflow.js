@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
+import { useAppData } from '@context/AppDataContext';
 import { normalizeError } from '@utils/errors';
 import { mapWorkflowError } from '@validation/workflow';
 import * as workflowApi from '@services/workflow';
 
 export function useReviewWorkflow() {
+  const { documents, pendingWorkflows } = useAppData();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,7 +22,16 @@ export function useReviewWorkflow() {
 
       try {
         const response = await workflowApi.reviewWorkflow(workflowId, action, reviewComment);
-        return response?.data ?? null;
+        const updated = response?.data ?? null;
+
+        // Approving/returning/rejecting takes it off this reviewer's own
+        // pending list and changes the document's status everywhere it's shown.
+        if (updated) {
+          documents.invalidate();
+          pendingWorkflows.invalidate();
+        }
+
+        return updated;
       } catch (caught) {
         const normalized = normalizeError(caught);
 
@@ -35,7 +47,7 @@ export function useReviewWorkflow() {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, clearMessages]
+    [isSubmitting, clearMessages, documents, pendingWorkflows]
   );
 
   return { submit, isSubmitting, error, clearMessages };

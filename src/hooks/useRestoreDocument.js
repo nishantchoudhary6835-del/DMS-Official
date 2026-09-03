@@ -1,9 +1,12 @@
 import { useCallback, useState } from 'react';
 
+import { useAppData } from '@context/AppDataContext';
 import { normalizeError, permissionDenialMessage } from '@utils/errors';
 import * as documentApi from '@services/document';
 
 export function useRestoreDocument() {
+  const { documents } = useAppData();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -18,6 +21,7 @@ export function useRestoreDocument() {
 
       try {
         const response = await documentApi.restoreDocument(documentId);
+        documents.invalidate();
         return response?.data ?? true;
       } catch (caught) {
         const normalized = normalizeError(caught);
@@ -40,7 +44,7 @@ export function useRestoreDocument() {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, clearMessages]
+    [isSubmitting, clearMessages, documents]
   );
 
   return { submit, isSubmitting, error, clearMessages };
