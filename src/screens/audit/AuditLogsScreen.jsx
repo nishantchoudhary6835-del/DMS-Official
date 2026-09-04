@@ -5,11 +5,11 @@ import { AuditLogCard } from '@components/audit/AuditLogCard';
 import { AuditLogDetailsDialog } from '@components/audit/AuditLogDetailsDialog';
 import { Button } from '@components/common/Button';
 import { Chip } from '@components/common/Chip';
+import { DatePicker } from '@components/common/DatePicker';
 import { ErrorBanner } from '@components/common/ErrorBanner';
 import { Loader } from '@components/common/Loader';
 import { Select } from '@components/common/Select';
 import { Screen } from '@components/layout/Screen';
-import { TextField } from '@components/common/TextField';
 import { useAuditLogs } from '@hooks/useAuditLogs';
 import {
   ALL_AUDIT_ACTIONS,
@@ -153,25 +153,25 @@ export function AuditLogsScreen({ navigation }) {
           />
         </View>
 
-        {/* Not `compact`: that drops the label *and* the message row, leaving
-            these two as bare boxes that jump when a date error appears. */}
         <View style={styles.filterField}>
-          <TextField
+          <DatePicker
             label="From"
             value={filters.from}
-            onChangeText={(value) => setFilter('from', value)}
-            placeholder="YYYY-MM-DD"
+            onChange={(value) => setFilter('from', value)}
+            placeholder="Select date"
             error={fromError}
+            maxDate={filters.to || undefined}
           />
         </View>
 
         <View style={styles.filterField}>
-          <TextField
+          <DatePicker
             label="To"
             value={filters.to}
-            onChangeText={(value) => setFilter('to', value)}
-            placeholder="YYYY-MM-DD"
+            onChange={(value) => setFilter('to', value)}
+            placeholder="Select date"
             error={toError || rangeError}
+            minDate={filters.from || undefined}
           />
         </View>
       </View>
